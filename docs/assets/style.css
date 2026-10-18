@@ -924,12 +924,13 @@ html[data-lang="ja"] :is(li, .answer, .module-items, .timeline) :is(h3, h4) { te
   html[data-lang="ja"] :is(h1, h2, h3, h4) { letter-spacing: .05em; }
   html[data-lang="ja"] :is(.lead, .hero-sub, .concept-quote, .class-closing) { letter-spacing: .03em; }
   .voice, .course-body, .biz-body, .lesson, .event, .pillar, .module-items, .app { letter-spacing: .01em; }
-  /* 両端揃えは狭い画面だと英単語の前後で字間が大きく開くため、左揃えにする（中央揃えの文はそのまま） */
+  /* 本文はパソコンと同じく両端揃え。字間を詰め、かなを詰め組み（palt）にして、狭い画面でも字間が開きすぎないようにする */
 html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items p):not(:is(
   .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
   .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
   .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
   p.center, .center > p, .contrib-role)) {
-    text-align: left; text-justify: auto;
+    letter-spacing: .01em;
+    font-feature-settings: "palt";
   }
 }
