@@ -270,7 +270,7 @@ html[data-lang="en"] .page-hero h1 { font-size: clamp(36px, 5vw, 56px); }
 .spec { display: grid; grid-template-columns: 110px 1fr; border-top: 1px solid var(--line); margin-top: 28px; font-size: 14px; }
 .spec dt, .spec dd { margin: 0; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .spec dt { color: var(--gold); letter-spacing: .1em; font-size: 12.5px; }
-@media (max-width: 820px) { .course-detail { grid-template-columns: 1fr; } .course-detail .ph { position: static; aspect-ratio: 16 / 10; } }
+@media (max-width: 820px) { .course-detail { grid-template-columns: 1fr; } .course-detail .ph { position: relative; top: auto; aspect-ratio: 16 / 10; } }
 
 .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 48px; counter-reset: step; }
 .step { padding: 0 24px 0 0; position: relative; counter-increment: step; }
@@ -396,7 +396,7 @@ html[data-lang="en"] .principle p { font-family: var(--serif-en); font-size: 21p
 .message h3:first-of-type { margin-top: 0; }
 .signature { text-align: right; font-family: var(--serif-ja); font-size: 22px; color: var(--navy); margin-top: 36px; }
 .signature small { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); letter-spacing: .12em; }
-@media (max-width: 820px) { .message { grid-template-columns: 1fr; } .message > .ph { position: static; aspect-ratio: 16 / 10; } }
+@media (max-width: 820px) { .message { grid-template-columns: 1fr; } .message > .ph { position: relative; top: auto; aspect-ratio: 16 / 10; } }
 .slogan { text-align: center; }
 .slogan-en { font-family: var(--serif-en); font-style: italic; font-size: clamp(40px, 6vw, 72px); color: var(--ivory); line-height: 1.1; margin-bottom: 12px; }
 .slogan-ja { font-family: var(--serif-ja); color: var(--gold-light); font-size: 18px; letter-spacing: .14em; margin-bottom: 28px; }
@@ -862,7 +862,7 @@ figure.voice { display: flex; flex-direction: column; }
 .event-ph.has-photo { background-size: contain !important; background-color: var(--paper) !important; }
 @media (max-width: 860px) {
   .event-layout { grid-template-columns: minmax(0, 1fr); gap: 32px; }
-  .event-ph { position: static; width: min(100%, 420px); margin: 0 auto; }
+  .event-ph { position: relative; top: auto; width: min(100%, 420px); margin: 0 auto; }
 }
 
 /* ---------- 写真が入った枠は番号を出さない ---------- */
@@ -985,3 +985,44 @@ html[data-lang="ja"] .news-select-label { font-family: var(--sans); font-style: 
 .hero-copy .eyebrow .ra-name { letter-spacing: .14em; }
 .eyebrow .ra-name { font-size: .88em; letter-spacing: .08em; }
 .hero-copy p.eyebrow .ra-name { font-size: 1em; }
+
+/* ---------- Scholars'：Introduction の上の横長の写真枠（2クラスの関係がわかる図や写真） ---------- */
+.intro-ph { aspect-ratio: 16 / 9; margin: 0 0 clamp(40px, 6vw, 72px); }
+.compare tr.goal-row td { color: var(--navy); font-weight: 500; }
+
+/* ---------- カーソルを合わせたときの反応（押せる所がひと目でわかるように）。マウスで操作する端末だけ ---------- */
+.text-link { transition: color .25s, border-color .25s; }
+.text-link::after { display: inline-block; transition: transform .25s; }
+.logo, .footer-nav a, .biz-links a, .breadcrumb a, .post-nav a, .tel, .cta-tel, .mail, .lang-toggle button,
+.menu-btn, .faq summary, .article a:not(.btn):not(.text-link), .news-title { transition: color .25s, opacity .25s, border-color .25s, background-color .25s; }
+.course-card, .biz-card, .event { transition: border-color .3s, box-shadow .3s, transform .3s; }
+@media (hover: hover) {
+  .text-link:hover { color: var(--gold); border-bottom-color: var(--navy); }
+  .text-link:hover::after { transform: translateX(5px); }
+  .bg-navy .text-link:hover { color: var(--gold-light); border-bottom-color: var(--ivory); }
+  .logo:hover { opacity: .8; }
+  .breadcrumb a:hover { color: var(--navy); text-decoration: underline; text-underline-offset: 3px; }
+  .article a:not(.btn):not(.text-link):hover, .policy a:hover, .answer a:hover { color: var(--gold); }
+  .tel:hover, .cta-tel:hover, .mail:hover { color: var(--gold); }
+  .bg-navy .cta-tel:hover { color: var(--gold-light); }
+  .lang-toggle button[aria-pressed="false"]:hover { color: var(--ivory); background: rgba(247, 244, 238, .14); }
+  .menu-btn:hover { opacity: .75; }
+  .faq summary:hover { color: var(--gold); }
+  .footer-nav a:hover { color: var(--gold-light); }
+  /* リンクを含むカードは、カード全体が少し浮いて金の縁取りになる */
+  .course-card:hover, .biz-card:hover, .event:hover { border-color: var(--gold); box-shadow: 0 12px 28px rgba(22, 35, 63, .09); transform: translateY(-2px); }
+  .event.past:hover { transform: none; }
+}
+/* キーボード操作でも、いまどこにいるかがわかるように */
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.site-footer a, .form a, a[href^="tel:"], a[href^="mailto:"], .field select, .agree, .post-card > a { transition: color .25s, border-color .25s, opacity .25s; }
+@media (hover: hover) {
+  .site-footer a:hover { color: var(--gold-light); }
+  a[href^="tel:"]:hover, a[href^="mailto:"]:hover, .form a:hover { color: var(--gold); }
+  .bg-navy a[href^="tel:"]:hover, .site-footer a[href^="tel:"]:hover, .site-footer a[href^="mailto:"]:hover { color: var(--gold-light); }
+  .field select:hover { border-color: var(--gold); }
+  .agree:hover { color: var(--navy); }
+  .agree:hover input { border-color: var(--navy); }
+  .post-card > a:hover h3 { color: var(--gold); }
+}
+
