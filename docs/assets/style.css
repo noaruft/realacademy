@@ -617,7 +617,7 @@ html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items 
   .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
   .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
   .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
-  p.center, .center > p)) {
+  p.center, .center > p, .contrib-role)) {
   word-break: normal;
   text-align: justify;
   text-justify: inter-character;
@@ -929,7 +929,7 @@ html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items 
   .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
   .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
   .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
-  p.center, .center > p)) {
+  p.center, .center > p, .contrib-role)) {
     text-align: left; text-justify: auto;
   }
 }
