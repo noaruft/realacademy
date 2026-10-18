@@ -902,3 +902,16 @@ html[data-lang="en"] .class-closing { font-family: var(--serif-en); font-style: 
   .nav-en { font-size: 10px; }
 }
 @media (max-width: 1319px) { .nav-en { font-size: 10.5px; margin-bottom: 7px; } }
+
+/* ---------- スマホのメニュー：画面に収まらないときはメニューの中をスクロールでき、下に余白を取る ---------- */
+@media (max-width: 1319px) {
+  .nav {
+    bottom: auto; height: calc(100vh - 76px); height: calc(100dvh - 76px);
+    overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+  .nav a.nav-link { padding: 13px 0; }
+  .nav-actions { padding-bottom: 8px; }
+  /* メニューを開いている間は、後ろのページが動かないようにする */
+  body.menu-open { overflow: hidden; }
+}
