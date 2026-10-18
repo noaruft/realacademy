@@ -314,3 +314,6 @@ label.mini { display: inline-block; }
 .logo-main { font-family: "Cinzel", var(--serif-en); letter-spacing: .1em; font-size: 20px; }
 .logo-sub { font-family: "Playfair Display", var(--serif-en); font-style: italic; font-size: 12px; letter-spacing: .08em; }
 @media (max-width: 480px) { .logo-main { font-size: 16px; } .logo-sub { font-size: 10.5px; letter-spacing: .06em; } }
+/* 校名はホームページと同じ Libre Baskerville */
+.logo-main { font-family: "Libre Baskerville", var(--serif-en); font-weight: 400; letter-spacing: .06em; font-size: 18px; }
+@media (max-width: 480px) { .logo-main { font-size: 15px; letter-spacing: .04em; } }

@@ -250,6 +250,17 @@
     window.addEventListener("load", function () { go(current, true); });
   });
 
+  // ---------- お知らせ一覧の切り替え（ひとつの選択欄で ALL／NEWS／EVENTS） ----------
+  var newsSelect = document.querySelector("[data-news-select]");
+  if (newsSelect) {
+    newsSelect.addEventListener("change", function () {
+      var kind = newsSelect.value;
+      document.querySelectorAll(".news-list li[data-kind]").forEach(function (li) {
+        li.hidden = kind !== "all" && li.dataset.kind !== kind;
+      });
+    });
+  }
+
   // ---------- コピーライト年 ----------
   document.querySelectorAll(".year").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 })();

@@ -617,7 +617,7 @@ html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items 
   .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
   .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
   .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
-  p.center, .center > p, .contrib-role)) {
+  p.center, .center > p, .contrib-role, .news-list li)) {
   word-break: normal;
   text-align: justify;
   text-justify: inter-character;
@@ -929,7 +929,7 @@ html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items 
   .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
   .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
   .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
-  p.center, .center > p, .contrib-role)) {
+  p.center, .center > p, .contrib-role, .news-list li)) {
     letter-spacing: .01em;
     font-feature-settings: "palt";
   }
@@ -952,3 +952,36 @@ html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items 
 .event-note { font-size: 14px; color: #8c2f39; margin: 0 0 14px; width: 100%; }
 .event > .event-status, .article-meta .event-status { font-size: 12.5px; padding: 4px 14px; letter-spacing: .14em; }
 .event > .event-status::before, .article-meta .event-status::before { width: 7px; height: 7px; }
+
+/* ---------- お知らせ一覧の切り替え（ひとつの選択欄で ALL／NEWS／EVENTS） ---------- */
+.news-filter { display: flex; justify-content: flex-end; margin-top: 24px; }
+.news-filter + .news-list { margin-top: 18px; }
+.news-select { display: inline-flex; align-items: center; gap: 12px; }
+.news-select-label { font-family: var(--serif-en); font-style: italic; font-size: 15px; color: var(--gold); letter-spacing: .08em; }
+html[data-lang="ja"] .news-select-label { font-family: var(--sans); font-style: normal; font-size: 13px; color: var(--ink-soft); }
+.news-select select {
+  -webkit-appearance: none; appearance: none; cursor: pointer;
+  font-family: var(--serif-en); font-size: 14px; letter-spacing: .14em; color: var(--navy);
+  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23b08d4f' stroke-width='1.2'/%3E%3C/svg%3E") no-repeat right 14px center / 11px 8px;
+  border: 1px solid var(--line); border-radius: 0; padding: 10px 42px 10px 16px; min-width: 168px;
+  transition: border-color .2s;
+}
+.news-select select:hover, .news-select select:focus { border-color: var(--gold); outline: none; }
+.news-select select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.news-list li[hidden] { display: none; }
+.news-select select { font-feature-settings: "lnum"; font-variant-numeric: lining-nums; }
+
+/* ---------- 校名「REAL ACADEMY」はすべて Libre Baskerville（今のホームページと同じ書体） ---------- */
+.ra-name { font-family: "Libre Baskerville", var(--serif-en); font-weight: 400; font-style: normal; letter-spacing: .03em; }
+/* 文章の中では、まわりの日本語と大きさがそろうよう少し小さく */
+:is(p, li, dd, td, blockquote, .answer, figcaption, small) .ra-name { font-size: .9em; letter-spacing: .02em; }
+.logo-main, .logo-main .ra-name { font-family: "Libre Baskerville", var(--serif-en); font-weight: 400; letter-spacing: .06em; }
+.site-header .logo-main { font-size: 18px; }
+@media (min-width: 1320px) { .site-header .logo-main { font-size: 19px; letter-spacing: .06em; } }
+@media (min-width: 1440px) { .site-header .logo-main { font-size: 20.5px; } }
+@media (max-width: 480px) { .site-header .logo-main { font-size: 15.5px; letter-spacing: .04em; } }
+.site-footer .logo-main { font-size: 20px; }
+/* トップの大きな校名・小見出しの中の校名 */
+.hero-copy .eyebrow .ra-name { letter-spacing: .14em; }
+.eyebrow .ra-name { font-size: .88em; letter-spacing: .08em; }
+.hero-copy p.eyebrow .ra-name { font-size: 1em; }
