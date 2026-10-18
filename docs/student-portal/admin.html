@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>出席管理 | REAL ACADEMY</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/portal.css">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<script src="js/boot.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="demo-bar" id="demoBar" hidden>
+  お試しモードで表示しています。別のタブで <a href="index.html" target="_blank">生徒用ページ</a> を開いて振替すると、この画面がすぐ更新されます。
+  <button class="btn-text" id="resetDemo" type="button">お試しデータを初期化</button>
+</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" id="homeLink" href="../index.html" aria-label="REAL ACADEMY トップページ">
+      <img class="logo-mark" src="img/logo-sm.png" alt="" width="136" height="144">
+      <span class="logo-text"><span class="logo-main">REAL ACADEMY</span><span class="logo-sub">Aim high, Fly higher…</span></span>
+    </a>
+    <div class="header-user" id="headerUser" hidden>
+      <span class="who" id="whoName"></span>
+      <button class="btn btn-line btn-sm" id="logoutBtn" type="button">ログアウト</button>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <h1>ATTENDANCE</h1>
+  <p>出席管理（先生用）</p>
+</div>
+
+<main>
+  <p class="muted" id="loading" style="text-align:center">読み込み中…</p>
+
+  <div id="app" hidden>
+    <div class="tabs" role="tablist">
+      <button role="tab" data-tab="week" aria-selected="true">出席表</button>
+      <button role="tab" data-tab="grades" aria-selected="false">成績入力</button>
+      <button role="tab" data-tab="calendar" aria-selected="false">年間予定</button>
+      <button role="tab" data-tab="tests" aria-selected="false">テスト結果</button>
+      <button role="tab" data-tab="sessions" aria-selected="false">授業日・休校</button>
+      <button role="tab" data-tab="students" aria-selected="false">生徒名簿</button>
+      <button role="tab" data-tab="materials" aria-selected="false">教材</button>
+      <button role="tab" data-tab="settings" aria-selected="false">設定</button>
+    </div>
+
+    <!-- 出席表 -->
+    <section data-panel="week">
+      <div class="toolbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-line btn-sm" id="prevWeek" type="button">‹ 前の週</button>
+          <span class="range" id="weekRange"></span>
+          <button class="btn btn-line btn-sm" id="nextWeek" type="button">次の週 ›</button>
+          <button class="btn-text" id="thisWeek" type="button">今週</button>
+        </div>
+        <div style="text-align:right">
+          <span class="live" id="live">リアルタイム更新中</span><br>
+          <span class="muted" id="updatedAt"></span>
+        </div>
+      </div>
+      <div class="days" id="days"></div>
+    </section>
+
+    <!-- 成績入力 -->
+    <section data-panel="grades" hidden>
+      <div class="toolbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-line btn-sm" id="prevDay" type="button">‹ 前の日</button>
+          <input class="input" type="date" id="gradeDate" style="width:auto;min-height:36px">
+          <button class="btn btn-line btn-sm" id="nextDay" type="button">次の日 ›</button>
+          <button class="btn-text" id="gradeToday" type="button">今日</button>
+        </div>
+      </div>
+      <p class="note" id="gradeNote"></p>
+      <div class="days" id="gradeDays"></div>
+    </section>
+
+    <!-- 年間予定 -->
+    <section data-panel="calendar" hidden>
+      <p class="note">年度ごとに「Term A Week 1 の週」を決め、休みの週にチェックを入れてください。各タームの Week 10 の次の週は自動で Test Week になり、休みの週を入れると、それ以降の予定が後ろにずれます。休みの週の授業は自動で休校になり、生徒の画面にも「お休み」と表示されます。</p>
+      <form class="form-row" id="yearForm">
+        <label class="field"><span>年度</span><select class="input" id="calYear" style="width:auto"></select></label>
+        <label class="field"><span>年度（数字）</span><input class="input" type="number" name="id" min="2000" max="2100" required style="width:110px"></label>
+        <label class="field"><span>Term A Week 1 の週（その週のどの日でも可）</span><input class="input" type="date" name="start_date" required></label>
+        <label class="field"><span>メモ</span><input class="input" name="note" placeholder="例：仮の予定" style="width:160px"></label>
+        <button class="btn" type="submit">年度を保存</button>
+      </form>
+      <p class="muted" id="calSummary"></p>
+      <div class="table-wrap"><table class="list cal-table" id="calTable"></table></div>
+    </section>
+
+    <!-- テスト結果 -->
+    <section data-panel="tests" hidden>
+      <div class="toolbar">
+        <div class="form-row" style="margin:0">
+          <label class="field"><span>年度</span><select class="input" id="testYear" style="width:auto"></select></label>
+          <label class="field"><span>ターム</span><select class="input" id="testTerm" style="width:auto">
+            <option value="A">Term A</option><option value="B">Term B</option><option value="C">Term C</option><option value="D">Term D</option></select></label>
+        </div>
+        <div class="publish-box" id="publishBox"></div>
+      </div>
+      <p class="note">Test Week の結果を、生徒ごとにPDFでアップロードします。「公開する」を押すまで、生徒には見えません（公開後は、生徒のMyページの「テスト結果」に本人の分だけが表示されます）。
+        PDFのファイル名をログインID（例：s26001.pdf）にしておくと、「まとめてアップロード」で一度に登録できます。</p>
+      <div class="form-row">
+        <label class="btn btn-line btn-sm" style="cursor:pointer">まとめてアップロード<input type="file" id="bulkTest" accept="application/pdf" multiple hidden></label>
+        <span class="muted" id="testCount"></span>
+      </div>
+      <div class="days" id="testGroups"></div>
+    </section>
+
+    <!-- 授業日・休校 -->
+    <section data-panel="sessions" hidden>
+      <p class="note">時間割（設定タブ）から授業日を作ります。すでにある日はそのままです。休校にした日は、生徒の画面に「休校」と表示され、振替先にも選べなくなります。</p>
+      <form class="form-row" id="genForm">
+        <label class="field"><span>開始日</span><input class="input" type="date" name="from" required></label>
+        <label class="field"><span>終了日</span><input class="input" type="date" name="to" required></label>
+        <button class="btn" type="submit">授業日を作る</button>
+      </form>
+      <div class="table-wrap"><table class="list" id="sessTable"></table></div>
+    </section>
+
+    <!-- 生徒名簿 -->
+    <section data-panel="students" hidden>
+      <p class="note">名簿の正本は Google スプレッドシートです。生徒の追加・クラスや曜日の変更・退会・パスワードの再発行は、スプレッドシートを書き換えてください（自動反映をオンにしていれば5分以内、メニュー「生徒用ページ → 今すぐシステムに反映」ならすぐに反映されます）。この画面は確認用です。</p>
+      <div class="days" id="stuGroups"></div>
+    </section>
+
+    <!-- 教材 -->
+    <section data-panel="materials" hidden>
+      <p class="note">教材PDFは、名簿のスプレッドシートのメニュー「生徒用ページ → 教材PDFを反映」で、Google ドライブの教材フォルダから取り込みます。
+        フォルダは「教材フォルダ / A1 / Term A / Week 03 / PDF」の形にし、PDFのファイル名に「次回の宿題」「次回の小テスト範囲」「小テストの模範解答」「宿題の模範解答」のいずれかを含めてください。
+        その週の教材は、生徒がその週の授業を受け終わると、生徒のMyページに表示されます。</p>
+      <div id="matTables"></div>
+    </section>
+
+    <!-- 設定 -->
+    <section data-panel="settings" hidden>
+      <form id="setForm" class="card" style="max-width:640px">
+        <label class="field"><span>1クラスの定員（人）</span><input class="input" type="number" name="capacity" min="1" max="50" required></label>
+        <label class="field"><span>受付締切（授業開始の何分前まで）</span><input class="input" type="number" name="deadline_minutes" min="0" step="10" required></label>
+        <label class="field"><span>生徒に見せる期間（週）</span><input class="input" type="number" name="weeks_ahead" min="1" max="12" required></label>
+        <label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="same_week_only"> 振替は同じ週（月〜日）の中だけにする</label>
+        <label class="field"><span>小テストの満点（点）</span><input class="input" type="number" name="quiz_max" min="1" max="1000" required></label>
+        <button class="btn" type="submit">設定を保存</button>
+      </form>
+      <h3 style="margin:32px 0 12px;font-weight:500;color:var(--navy)">時間割</h3>
+      <p class="muted">時間を変えると、これから作る授業日に反映されます（作成済みの授業日は変わりません）。</p>
+      <div class="table-wrap"><table class="list" id="schedTable"></table></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">© REAL ACADEMY</footer>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>

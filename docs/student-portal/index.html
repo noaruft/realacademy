@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>生徒用ページ | REAL ACADEMY</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/portal.css">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<script src="js/boot.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="demo-bar" id="demoBar" hidden>お試しモードで表示しています（データはこのブラウザの中だけに保存されます）</div>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="logo" id="homeLink" href="../index.html" aria-label="REAL ACADEMY トップページ">
+      <img class="logo-mark" src="img/logo-sm.png" alt="" width="136" height="144">
+      <span class="logo-text"><span class="logo-main">REAL ACADEMY</span><span class="logo-sub">Aim high, Fly higher…</span></span>
+    </a>
+    <div class="header-user" id="headerUser" hidden>
+      <span class="who" id="whoName"></span>
+      <button class="btn btn-line btn-sm" id="logoutBtn" type="button">ログアウト</button>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <h1>MY PAGE</h1>
+  <p>生徒用ページ</p>
+</div>
+<nav class="crumb" aria-label="パンくず">
+  <div class="inner"><a id="crumbHome" href="../index.html">ホーム</a><span aria-hidden="true">›</span><span>生徒用ページ</span></div>
+</nav>
+
+<main>
+  <p class="muted" id="loading" style="text-align:center">読み込み中…</p>
+
+  <!-- ログイン -->
+  <section id="loginView" class="narrow" hidden>
+    <h2 class="sec-title"><span class="en">LOGIN</span><span class="ja">ログイン</span></h2>
+    <form class="card" id="loginForm" novalidate>
+      <p class="error" id="loginError" hidden></p>
+      <label class="field"><span>ログインID</span>
+        <input class="input" name="loginId" autocomplete="username" autocapitalize="off" required></label>
+      <label class="field"><span>パスワード</span>
+        <input class="input" name="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn btn-block" type="submit">ログイン</button>
+      <p class="muted" style="margin:16px 0 0">ログインIDとパスワードは教室からお渡ししています。わからない場合は教室までお問い合わせください。</p>
+      <p class="muted" id="demoHint" hidden style="margin:8px 0 0">お試し用：生徒 <b>s001</b>〜<b>s028</b>／先生 <b>teacher</b>（パスワードはすべて <b>demo1234</b>）</p>
+    </form>
+  </section>
+
+  <!-- 名簿にないアカウント -->
+  <section id="noneView" class="narrow" hidden>
+    <p class="card">このアカウントは生徒名簿に登録されていません。教室までお問い合わせください。</p>
+  </section>
+
+  <!-- マイページ -->
+  <section id="myView" class="my-wrap" hidden>
+    <!-- いまの状況 -->
+    <div class="dash">
+      <div class="dash-who">
+        <span class="name" id="pName"></span>
+        <span class="meta" id="pMeta"></span>
+      </div>
+      <div class="dash-now" id="dashNow"></div>
+    </div>
+
+    <nav class="tabs my-tabs" role="tablist" aria-label="マイページ">
+      <button role="tab" data-mytab="schedule" aria-selected="true">予定・振替</button>
+      <button role="tab" data-mytab="records" aria-selected="false">授業の記録</button>
+      <button role="tab" data-mytab="tests" aria-selected="false">テスト結果</button>
+    </nav>
+
+    <!-- 予定・振替 -->
+    <div data-mypanel="schedule">
+      <p class="note" id="rules"></p>
+      <div id="weeks"></div>
+    </div>
+
+    <!-- 授業の記録と教材 -->
+    <div data-mypanel="records" hidden>
+      <p class="note" id="scaleNote"></p>
+      <div id="nextBox"></div>
+      <div id="results"></div>
+    </div>
+
+    <!-- テスト結果 -->
+    <div data-mypanel="tests" hidden>
+      <p class="note">各タームの最後の週（Test Week）に行うまとめテストの結果です。結果は後日、PDFで公開されます。</p>
+      <div id="tests"></div>
+    </div>
+
+    <p style="text-align:center;margin-top:40px"><button class="btn-text" id="pwBtn" type="button">パスワードを変更する</button></p>
+  </section>
+</main>
+
+<!-- 振替先を選ぶ -->
+<dialog id="pickDlg">
+  <div class="dlg-body">
+    <h2>振替先を選んでください</h2>
+    <p class="muted" id="pickSub" style="margin:0"></p>
+    <div id="pickList"></div>
+    <div class="dlg-foot"><button class="btn btn-line" type="button" data-close>閉じる</button></div>
+  </div>
+</dialog>
+
+<!-- 確認 -->
+<dialog id="confirmDlg">
+  <form class="dlg-body" method="dialog">
+    <h2 id="confirmTitle"></h2>
+    <p id="confirmText" style="margin:8px 0 0"></p>
+    <div class="dlg-foot">
+      <button class="btn btn-line" value="cancel">やめる</button>
+      <button class="btn" value="ok" id="confirmOk">確定する</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- パスワード変更 -->
+<dialog id="pwDlg">
+  <form class="dlg-body" id="pwForm" novalidate>
+    <h2>パスワードを変更する</h2>
+    <p class="error" id="pwError" hidden></p>
+    <label class="field" style="margin-top:12px"><span>新しいパスワード（8文字以上）</span>
+      <input class="input" name="pw1" type="password" autocomplete="new-password" minlength="8" required></label>
+    <label class="field"><span>確認のためもう一度</span>
+      <input class="input" name="pw2" type="password" autocomplete="new-password" minlength="8" required></label>
+    <div class="dlg-foot">
+      <button class="btn btn-line" type="button" data-close>やめる</button>
+      <button class="btn" type="submit">変更する</button>
+    </div>
+  </form>
+</dialog>
+
+<footer class="site-footer">© REAL ACADEMY</footer>
+<script type="module" src="js/student.js"></script>
+</body>
+</html>
