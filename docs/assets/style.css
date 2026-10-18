@@ -934,3 +934,21 @@ html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items 
     font-feature-settings: "palt";
   }
 }
+
+/* ---------- イベントの状態（受付中／満席／受付終了／開催終了）を一目でわかるように ---------- */
+.event-status { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 500; letter-spacing: .12em; padding: 3px 12px; line-height: 1.6; white-space: nowrap; }
+.event-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.event-status.open { background: linear-gradient(135deg, #22345b, #16233f); border-color: var(--navy); color: var(--ivory); }
+.event-status.open::before { background: #8fd3a4; box-shadow: 0 0 0 3px rgba(143, 211, 164, .25); }
+.event-status.full { background: #8c2f39; border-color: #8c2f39; color: #fff; }
+.event-status.full::before { background: #fff; }
+.event-status.closed { background: transparent; border-color: var(--gold); color: #8a6d3b; }
+.event-status.ended { background: #ebe7df; border-color: #d9d3c7; color: #7a776f; }
+.event-status.ended::before { background: #b5b0a5; }
+/* お知らせ一覧：題名の前に小さく */
+.news-title .event-status { font-size: 10.5px; padding: 1px 9px; margin-right: 10px; vertical-align: 2px; letter-spacing: .1em; }
+.news-title .event-status::before { width: 5px; height: 5px; }
+/* 満席のときの案内 */
+.event-note { font-size: 14px; color: #8c2f39; margin: 0 0 14px; width: 100%; }
+.event > .event-status, .article-meta .event-status { font-size: 12.5px; padding: 4px 14px; letter-spacing: .14em; }
+.event > .event-status::before, .article-meta .event-status::before { width: 7px; height: 7px; }
