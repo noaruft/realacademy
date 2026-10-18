@@ -616,7 +616,8 @@ small, .form-note, .breadcrumb { letter-spacing: .06em; }
 html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items p):not(:is(
   .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
   .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
-  .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing)) {
+  .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
+  p.center, .center > p)) {
   word-break: normal;
   text-align: justify;
   text-justify: inter-character;
@@ -914,4 +915,21 @@ html[data-lang="en"] .class-closing { font-family: var(--serif-en); font-style: 
   .nav-actions { padding-bottom: 8px; }
   /* メニューを開いている間は、後ろのページが動かないようにする */
   body.menu-open { overflow: hidden; }
+}
+
+/* ---------- 日本語の文字間隔（2026年10月）：見出しは両端揃えを受け継がない。スマホは字間を詰め、左揃えで自然に読めるように ---------- */
+html[data-lang="ja"] :is(li, .answer, .module-items, .timeline) :is(h3, h4) { text-align: left; }
+@media (max-width: 760px) {
+  body { letter-spacing: .02em; }
+  html[data-lang="ja"] :is(h1, h2, h3, h4) { letter-spacing: .05em; }
+  html[data-lang="ja"] :is(.lead, .hero-sub, .concept-quote, .class-closing) { letter-spacing: .03em; }
+  .voice, .course-body, .biz-body, .lesson, .event, .pillar, .module-items, .app { letter-spacing: .01em; }
+  /* 両端揃えは狭い画面だと英単語の前後で字間が大きく開くため、左揃えにする（中央揃えの文はそのまま） */
+html[data-lang="ja"] :is(p, li, blockquote, .answer, .timeline p, .module-items p):not(:is(
+  .lead, .course-tagline, .hero-sub, .eyebrow, .biz-en, .biz-ja, .contrib-name, .contrib-title,
+  .signature, .lesson-label, .app-name, .course-name, .slogan-en, .slogan-ja, .reason-num,
+  .breadcrumb, .form-note, .results-sub, .concept-quote, .note p, .pillar p, .class-closing,
+  p.center, .center > p)) {
+    text-align: left; text-justify: auto;
+  }
 }
