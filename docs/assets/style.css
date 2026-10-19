@@ -1075,3 +1075,14 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .compare thead .upcoming-col small { color: inherit; }
 .course-tags .course-age, .course-tags .open-tag { align-self: stretch; display: inline-flex; align-items: center; }
 .course-tags .course-age { margin: 0; }
+/* 光沢文字（background-clip: text）の g・y の下や斜体の右端が切れないよう、塗りの範囲を少し広げる */
+.slogan-en { padding: 0 .1em .16em; margin-bottom: 4px; }
+.hero-slogan span, .hero h1 em { padding: 0 .08em .06em 0; }
+
+/* ===== 本文の書体（2026年10月）：普通の文章だけ Noto Serif JP（英字は EB Garamond）。
+   見出し・メニュー・目次・ラベル・ボタン・フッターはこれまでの書体のまま ===== */
+:root { --text: "EB Garamond", "Noto Serif JP", "Hiragino Mincho ProN", serif; }
+main :where(p, li, dd, td, blockquote, figcaption, .answer) { font-family: var(--text); }
+main :is(.breadcrumb, .course-age, .open-tag, .news-tag, .event-status, .form-note, label, input, select, textarea, button, .tel-hy) { font-family: var(--sans); }
+/* ボタン・リンク（本文中）も本文と同じ書体に */
+main :is(.btn, .text-link) { font-family: var(--text); }
