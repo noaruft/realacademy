@@ -1101,4 +1101,5 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 @media (hover: hover) {
   .footer-sns:hover svg { transform: translateY(-3px) scale(1.12) rotate(-8deg); filter: drop-shadow(0 0 6px rgba(231, 211, 165, .55)); }
 }
-}
+/* お問い合わせ：スマホ・タブレット幅（縦1列）では、フォームを上、お電話・メールの案内を下にする。パソコン幅の左右の並びはそのまま */
+@media (max-width: 860px) { .form-wrap > .form { order: -1; } }
