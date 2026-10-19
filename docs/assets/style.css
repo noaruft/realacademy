@@ -1086,3 +1086,19 @@ main :where(p, li, dd, td, blockquote, figcaption, .answer) { font-family: var(-
 main :is(.breadcrumb, .course-age, .open-tag, .news-tag, .event-status, .form-note, label, input, select, textarea, button, .tel-hy) { font-family: var(--sans); }
 /* ボタン・リンク（本文中）も本文と同じ書体に */
 main :is(.btn, .text-link) { font-family: var(--text); }
+
+/* 浮き出るカード（コース・事業・イベント）は、カードのどこを押しても「詳しく見る」先へ移動する。
+   事業カードの中のコース一覧リンクは、それぞれのページへ（上に重ねて押せるようにする） */
+.course-card, .biz-card, .event { position: relative; }
+.course-card .course-body > .text-link::before,
+.biz-card .biz-body > .text-link::before,
+.event > .text-link::before { content: ""; position: absolute; inset: 0; z-index: 1; }
+.biz-links { position: relative; z-index: 2; }
+/* フッター Contact 欄の Instagram アイコン（枠なし・金のグラデーション。押すと新しいタブで開く）
+   カーソルを合わせると、少し浮いて傾き、金色にほのかに光る */
+.footer-sns { display: inline-block; margin-top: 16px; line-height: 0; }
+.footer-sns svg { width: 30px; height: 30px; transition: transform .35s, filter .35s; }
+@media (hover: hover) {
+  .footer-sns:hover svg { transform: translateY(-3px) scale(1.12) rotate(-8deg); filter: drop-shadow(0 0 6px rgba(231, 211, 165, .55)); }
+}
+}
