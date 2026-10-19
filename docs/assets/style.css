@@ -1026,3 +1026,41 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .post-card > a:hover h3 { color: var(--gold); }
 }
 
+
+/* ===== Scholars' 3クラス（2026年10月） ===== */
+/* クラス詳細ページ：ヒーローのクラス名の由来 */
+.name-origin { font-family: var(--serif-ja); font-size: 14px; color: var(--ink-soft); border-left: 1px solid var(--gold); padding-left: 16px; margin: 0 0 22px; max-width: 720px; }
+/* 概要ページ：クラス名に込めた想い */
+.name-story { margin: 8px 0 36px; padding: 24px 28px; background: var(--paper); border: 1px solid var(--line); }
+.name-story h3 { font-size: 17px; color: var(--navy); margin-bottom: 8px; }
+.name-story p { font-size: 14px; margin: 0; }
+/* クラス紹介：金枠を横に並べる */
+.course-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.course-tags .course-age { margin-bottom: 0; }
+/* 前後のクラスへのリンクを2つ並べる */
+.class-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 40px; }
+/* 開講前のクラス（Rhetorica）：白黒で表示 */
+.upcoming { filter: grayscale(1); }
+.upcoming .ph { opacity: .75; }
+.upcoming-band { background: var(--navy); color: var(--ivory); padding: 16px 0; font-size: 14px; }
+.upcoming-band .container { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; }
+.upcoming-band strong { color: var(--gold); font-weight: 500; letter-spacing: .12em; }
+.upcoming-tag { color: var(--ivory); background: var(--navy); border-color: var(--navy); }
+.compare .upcoming-col { filter: grayscale(1); color: #8a8a8a; background: #f2f2f0; }
+.compare thead .upcoming-col { color: #7a7a7a; }
+.compare thead small { display: block; font-family: var(--sans, inherit); font-size: 11px; letter-spacing: .1em; margin-top: 4px; }
+.compare-3 tbody th { width: 16%; }
+/* アクセス：地図リンクと道順は、スクロールしても画面内についてくる（パソコン幅のみ） */
+@media (min-width: 861px) { .access-grid > div:last-child { position: sticky; top: 120px; } }
+/* Rhetorica：Presentation Cycle（説明 → 5つの手順 → 補足 を縦に並べる） */
+.module-items.cycle { display: block; max-width: 640px; }
+.cycle-steps { margin: 24px 0; border-top: 1px solid var(--line); }
+.cycle-steps li { padding: 16px 0 16px 48px; border-bottom: 1px solid var(--line); font-size: 13.5px; color: var(--ink-soft); }
+.cycle-steps li::before { top: 16px; }
+/* 丸数字を円の真ん中に（Cormorant の数字は標準だと下がって見えるので、高さの揃った数字を使う） */
+.route li::before { font-variant-numeric: lining-nums; font-feature-settings: "lnum"; }
+.cycle-steps strong { display: block; font-family: var(--serif-ja); font-weight: 500; color: var(--navy); font-size: 15px; letter-spacing: .06em; margin-bottom: 2px; }
+.cycle-steps br { display: none; }
+/* 項目が3つの授業内容：左から右へ1行に並べる（幅が狭いときは縦1列） */
+.module-items.three { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { .module-items.three { grid-template-columns: 1fr; } }
