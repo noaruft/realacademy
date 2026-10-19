@@ -1064,3 +1064,14 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 /* 項目が3つの授業内容：左から右へ1行に並べる（幅が狭いときは縦1列） */
 .module-items.three { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 1000px) { .module-items.three { grid-template-columns: 1fr; } }
+/* Scholars' 比較表：3クラスの列幅をそろえ、改行位置のばらつきをなくす */
+.compare-3 { table-layout: fixed; }
+.compare-3 thead th:first-child { width: 16%; }
+@media (max-width: 1000px) { .compare-3 th, .compare-3 td { padding: 14px 12px; } .compare-3 td { font-size: 13px; letter-spacing: .02em; } }
+/* 開講予定のタグ（紺地に金文字で目立たせる） */
+.open-tag { display: inline-block; font-size: 12.5px; letter-spacing: .12em; color: var(--gold); background: var(--navy); border: 1px solid var(--navy); padding: 3px 14px; font-weight: 500; }
+.page-hero .course-tags { margin-top: 4px; }
+.compare thead small { color: var(--gold); }
+.compare thead .upcoming-col small { color: inherit; }
+.course-tags .course-age, .course-tags .open-tag { align-self: stretch; display: inline-flex; align-items: center; }
+.course-tags .course-age { margin: 0; }
