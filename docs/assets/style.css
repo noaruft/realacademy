@@ -1123,7 +1123,7 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* トップの最上部（パソコン幅）：画面の左右いっぱいに広げ、写真は右端まで大きく見せる */
 @media (min-width: 821px) {
   .hero .hero-grid { max-width: none; grid-template-columns: minmax(360px, .8fr) 1.7fr; gap: clamp(32px, 5vw, 88px);
-    padding-left: clamp(32px, 6vw, 120px); padding-right: 0; }
+    padding-left: clamp(32px, 6vw, 120px); padding-right: clamp(20px, 3vw, 56px); }
   .hero-visual .ph-main { aspect-ratio: 16 / 9; }
   /* 校章の丸：中心が写真の左下の角にぴったり重なるように置く */
   .hero-visual .ph-sub { width: 14%; left: 0; bottom: 0; transform: translate(-50%, 50%); border-width: 5px; box-sizing: border-box; }
