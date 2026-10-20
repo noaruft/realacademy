@@ -261,6 +261,57 @@
     });
   }
 
+  // ---------- 写真枠のスライド（data-slides のある枠は、写真を時間とともにフェードで切り替える） ----------
+  document.querySelectorAll(".ph[data-slides]").forEach(function (ph) {
+    var urls = ph.getAttribute("data-slides").split("|");
+    var first = (ph.style.backgroundImage.match(/url\(["']?([^"')]+)/) || [])[1];
+    if (first) urls.unshift(first);
+    // 2枚目以降は、表示する直前に読み込む（最初の表示を軽くする）
+    var layers = urls.map(function (u, i) {
+      var d = document.createElement("div");
+      d.className = "ph-slide" + (i === 0 ? " on" : "");
+      if (i === 0) d.style.backgroundImage = "url('" + u + "')";
+      ph.appendChild(d);
+      return d;
+    });
+    var ready = urls.map(function (_, i) { return i === 0; });
+    function load(n, done) {
+      if (ready[n]) { done && done(); return; }
+      var img = new Image();
+      img.onload = img.onerror = function () { layers[n].style.backgroundImage = "url('" + urls[n] + "')"; ready[n] = true; done && done(); };
+      img.src = urls[n];
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var i = 0;
+    load(1);
+    setInterval(function () {
+      var next = (i + 1) % layers.length;
+      load(next, function () {
+        layers[i].classList.remove("on");
+        layers[next].classList.add("on");
+        i = next;
+        ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true }));  // 同じ欄の「色の入れ替え」もそろえて切り替える
+        load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
+      });
+    }, 7000);  // 1枚あたりの表示時間（ミリ秒）
+  });
+
+  // ---------- 写真がまだない枠の仮の色（data-color-cycle）：同じ欄の写真の切り替えに合わせて色を入れ替える ----------
+  document.querySelectorAll(".ph[data-color-cycle]:not(.has-photo)").forEach(function (ph) {
+    var layers = ["", "warm", "deep"].map(function (c, i) {
+      var d = document.createElement("div");
+      d.className = "ph-color " + c + (i === 0 ? " on" : "");
+      ph.appendChild(d);
+      return d;
+    });
+    var i = 0, area = ph.closest("section") || document;
+    area.addEventListener("phslide", function () {
+      layers[i].classList.remove("on");
+      i = (i + 1) % layers.length;
+      layers[i].classList.add("on");
+    });
+  });
+
   // ---------- コピーライト年 ----------
   document.querySelectorAll(".year").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 })();

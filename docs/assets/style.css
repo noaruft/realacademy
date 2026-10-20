@@ -718,7 +718,7 @@ html[data-lang="ja"] .voice blockquote { overflow-wrap: anywhere; }
 .footer-logo { gap: 16px; }
 .footer-logo .logo-mark { height: 84px; }
 /* トップの丸い枠（写真2番）はロゴを全体が見えるように置く */
-.hero-visual .ph-sub.has-photo { background-size: 70% auto !important; background-position: center 46% !important; background-color: var(--paper) !important; }
+.hero-visual .ph-sub.has-photo { background-size: 70% auto !important; background-position: center !important; background-color: var(--paper) !important; }
 /* フッター：ロゴ・英語教室・REAL ACADEMY・連絡先の4列 */
 @media (min-width: 901px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; } }
 @media (min-width: 761px) and (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
@@ -1103,3 +1103,82 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 }
 /* お問い合わせ：スマホ・タブレット幅（縦1列）では、フォームを上、お電話・メールの案内を下にする。パソコン幅の左右の並びはそのまま */
 @media (max-width: 860px) { .form-wrap > .form { order: -1; } }
+/* 各ページ下部の「お気軽にご相談ください。」の見出しを少し小さく */
+.cta-band h2 { font-size: clamp(21px, 10px + 2vw, 30px); }
+/* 写真枠のスライド（同じ枠の複数の写真をフェードで切り替える。assets/main.js） */
+.ph[data-slides] { position: relative; overflow: hidden; }
+.ph-slide { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 1.6s ease; }
+.ph-slide.on { opacity: 1; }
+.show-photo-no .ph[data-slides]::before { z-index: 1; }
+/* トップの1番の写真：パソコン幅では横長（写真と同じ 16:9）。校章の丸は写真に合わせて小さめに。
+   スマホ・タブレット幅（縦1列）では縦長の枠になり、写真の中央を拡大して見せる */
+.hero-visual .ph-main { aspect-ratio: 16 / 9; background-position: center !important; }
+.hero-visual .ph-sub { width: 28%; left: -8%; bottom: -14%; }
+@media (max-width: 820px) {
+  .hero-visual .ph-main { aspect-ratio: 4 / 5; }
+  .hero-visual .ph-sub { width: 42%; left: -14%; bottom: -8%; }
+}
+/* 14番（ボーディング）：スマホの横長の枠では縦写真の頭が切れないよう、少し上寄りを見せる */
+.ph[data-photo="14"], .ph[data-photo="14"] .ph-slide { background-position: center 25% !important; }
+/* トップの最上部（パソコン幅）：画面の左右いっぱいに広げ、写真は右端まで大きく見せる */
+@media (min-width: 821px) {
+  .hero .hero-grid { max-width: none; grid-template-columns: minmax(360px, .8fr) 1.7fr; gap: clamp(32px, 5vw, 88px);
+    padding-left: clamp(32px, 6vw, 120px); padding-right: 0; }
+  .hero-visual .ph-main { aspect-ratio: 16 / 9; }
+  /* 校章の丸：中心が写真の左下の角にぴったり重なるように置く */
+  .hero-visual .ph-sub { width: 14%; left: 0; bottom: 0; transform: translate(-50%, 50%); border-width: 5px; box-sizing: border-box; }
+}
+/* イギリス留学「目指すのは、…」：横に余裕がある幅では「「行ける学校」ではなく、」を1行に（途中で折り返さない）。
+   収まるよう、その幅では文字を少しだけ小さくする。スマホ幅ではこれまでどおり自然に折り返す */
+@media (min-width: 861px) {
+  .approach-title .nobr { white-space: nowrap; }
+  .approach-title .nobr wbr { display: none; }
+  .approach-title { font-size: min(clamp(24px, 12px + 2.4vw, 36px), 2.6vw); }
+}
+
+/* 広い画面（パソコンの大きな画面）では、本文の横幅を少し広げる。
+   トップの最上部（左右いっぱい）より広くはしないので、両側の余白は残る */
+@media (min-width: 1360px) { :root { --max: 1260px; } .narrow { max-width: 920px; } }
+@media (min-width: 1680px) { :root { --max: 1400px; } .narrow { max-width: 980px; } }
+/* 写真と文章が横に並ぶ欄は、全ページで表示をそろえる：
+   写真の上端を見出しの位置にそろえ、スクロールすると写真も画面についてくる（文章を読み終えるまで）。縦長・横長・イベントのポスターとも同じ */
+.split { align-items: start; }
+.split .ph, .course-detail .ph, .message > .ph { position: sticky; top: 100px; }
+.event-ph { position: sticky; top: 110px; }
+@media (max-width: 820px) { .split .ph, .course-detail .ph, .message > .ph, .event-ph { position: relative; top: auto; } }
+
+/* ヘッダー「英語教室」の下に出るコース一覧（パソコン幅のみ） */
+.nav-sub { display: none; }
+@media (max-width: 1319px) { .nav-item { display: contents; } }
+@media (min-width: 1320px) {
+  .nav-item { position: relative; display: flex; }
+  .nav-sub {
+    display: block; position: absolute; top: 100%; left: 50%; min-width: 290px; padding: 18px 0 10px;
+    transform: translate(-50%, 8px); opacity: 0; visibility: hidden; transition: opacity .25s, transform .25s, visibility .25s;
+  }
+  .nav-sub::before { content: ""; position: absolute; inset: 10px 0 0; background: var(--navy); border-top: 1px solid var(--gold); box-shadow: 0 14px 30px rgba(10, 18, 36, .25); }
+  .nav-item:hover .nav-sub, .nav-item:focus-within .nav-sub { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  .nav-sub a { position: relative; display: block; padding: 12px 24px; color: var(--ivory); font-family: var(--serif-ja); font-size: 14px; letter-spacing: .08em; white-space: nowrap; transition: color .2s, background .2s; }
+  .nav-sub a + a { border-top: 1px solid rgba(247, 244, 238, .12); }
+  .nav-sub a small { display: block; font-family: var(--sans); font-size: 11px; letter-spacing: .1em; color: var(--gold-light); margin-top: 2px; }
+  .nav-sub a:hover { color: var(--gold-light); background: rgba(247, 244, 238, .05); }
+}
+@media (min-width: 1320px) {
+  /* コース一覧の右端に矢印（カーソルを合わせると少し右へ） */
+  .nav-sub a { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+  .nav-sub a::after { content: "→"; font-family: var(--serif-en); color: var(--gold-light); transition: transform .25s; }
+  .nav-sub a:hover::after { transform: translateX(4px); }
+}
+@media (min-width: 1320px) {
+  /* コース一覧の左端を「英語教室」の左端にそろえる */
+  .nav-sub { left: 0; transform: translateY(8px); }
+  .nav-item:hover .nav-sub, .nav-item:focus-within .nav-sub { transform: none; }
+}
+@media (min-width: 1320px) { .nav-sub { left: -24px; } /* 一覧の文字の左端を「英語教室」の文字にそろえる（内側の余白 24px 分ずらす） */ }
+/* 写真がまだない枠の仮の色の入れ替え（トップの3番。写真を入れると使われなくなる） */
+.ph-color { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s ease;
+  background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), transparent 55%), linear-gradient(135deg, #c8cfdc, #97a3b9 55%, #6f7d99); }
+.ph-color.warm { background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.4), transparent 55%), linear-gradient(135deg, #eadcbd, #cdb07a); }
+.ph-color.deep { background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.18), transparent 55%), linear-gradient(135deg, #33476f, #16233f); }
+.ph-color.on { opacity: 1; }
+.ph[data-color-cycle]::after, .ph[data-color-cycle]::before { position: relative; z-index: 1; }
