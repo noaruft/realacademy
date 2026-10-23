@@ -1,9 +1,10 @@
-import { createApi } from "./api.js";
-import { TERMS, WEEKDAYS, addDays, esc, errMsg, fmtDate, fmtTime, mondayOf, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js";
+import { createApi } from "./api.js?v=4298bd4b";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=4298bd4b";
+
+const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
 const $ = id => document.getElementById(id);
 const cfg = window.PORTAL_CONFIG || {};
-if (cfg.homeUrl) { $("homeLink").href = cfg.homeUrl; $("crumbHome").href = cfg.homeUrl; }
 
 const api = await createApi();
 if (api.demo) { $("demoBar").hidden = false; $("demoHint").hidden = false; }
@@ -33,12 +34,30 @@ function show(view) {
 
 async function start() {
   me = await api.me();
-  if (!me) { show("loginView"); $("headerUser").hidden = true; return; }
-  if (me.role === "admin") { location.href = "admin.html"; return; }
+  if (!me) {
+    stopIdleLogout();
+    show("loginView"); $("headerUser").hidden = true;
+    if (/[?&]timeout=1/.test(location.search)) {
+      $("loginError").textContent = "一定時間操作がなかったため、自動でログアウトしました。もう一度ログインしてください。";
+      $("loginError").hidden = false;
+      history.replaceState(null, "", location.pathname + location.hash);
+    }
+    return;
+  }
+  // 先生：開こうとしていたクラス・曜日のページがあれば、そこへ（新しいタブでログインし直したとき）
+  if (me.role === "admin") {
+    const q = new URLSearchParams(location.search);
+    location.href = page("admin") + (q.has("class") ? `?class=${encodeURIComponent(q.get("class"))}&day=${Number(q.get("day"))}` : "");
+    return;
+  }
   $("headerUser").hidden = false;
   if (me.role !== "student") { $("whoName").textContent = ""; show("noneView"); return; }
   $("whoName").textContent = me.student.name + " さん";
   show("myView");
+  startIdleLogout(IDLE_MINUTES, async () => {
+    await api.signOut();
+    location.replace(page("index") + "?timeout=1");
+  });
   [settings, cal] = await Promise.all([api.settings(), api.calendar()]);
   await refresh();
 }
@@ -77,6 +96,7 @@ $("loginForm").addEventListener("submit", async e => {
 });
 
 $("logoutBtn").addEventListener("click", async () => {
+  stopIdleLogout();
   await api.signOut();
   me = null;
   start();
@@ -109,7 +129,7 @@ function render() {
   }
   $("weeks").innerHTML = [...byWeek].map(([wk, list]) => `
     <section class="week">
-      <h3 class="week-head"><span>${fmtDate(wk)} からの週</span>${weekChip(weekInfo(wk, cal))}</h3>
+      <h3 class="week-head"><span>${fmtDate(wk)} からの週</span>${weekChip(myDay(wk))}</h3>
       ${list.map(lessonHtml).join("")}
     </section>`).join("");
 }
@@ -161,19 +181,25 @@ const weekChip = info => {
 };
 
 // ---------- いまの状況（ページ上部） ----------
+// その週の、自分の通常の曜日の日のターム・週（GW などで曜日によって授業の週が分かれるため）
+function myDay(date) {
+  return wk(addDays(mondayOf(date), (me.student.weekday + 6) % 7));
+}
+
 function renderDash() {
   const today = todayStr();
-  const info = wk(today);
+  const info = myDay(today);
   let now = "";
   if (info.kind === "lesson") {
     const plan = yearPlan(info.year, cal);
-    const tw = plan.find(p => p.kind === "test" && p.term === info.term);
+    const tt = info.term === "A" || info.term === "B" ? "B" : "D";   // 次のAssessment（Spring・Summer→Term、Autumn・Winter→Final）
+    const tw = plan.find(p => p.kind === "test" && p.term === tt);
     now = `<div class="now-label">${esc(weekLabel(info))}</div>
-      <div class="progress" role="img" aria-label="Term ${info.term} の ${info.week} 週目（全10週）">${
-        Array.from({ length: 10 }, (_, i) => `<i class="${i < info.week ? "on" : ""}${i === info.week - 1 ? " cur" : ""}"></i>`).join("")}<i class="t" title="Test Week"></i></div>
-      <div class="now-sub">Term ${info.term} の ${info.week} 週目（全10週）${tw ? `・Test Week は ${fmtDate(tw.week_start)} からの週` : ""}</div>`;
+      <div class="progress" role="img" aria-label="${termName(info.term)} の ${info.week} 週目（全10週）">${
+        Array.from({ length: 10 }, (_, i) => `<i class="${i < info.week ? "on" : ""}${i === info.week - 1 ? " cur" : ""}"></i>`).join("")}</div>
+      <div class="now-sub">${termName(info.term)} の ${info.week} 週目（全10週）${tw ? `・${testName(tt)} は ${fmtDate(tw.week_start)} からの週` : ""}</div>`;
   } else if (info.kind === "test") {
-    now = `<div class="now-label">${esc(weekLabel(info))}</div><div class="now-sub">今週は Term ${info.term} のまとめテストの週です。</div>`;
+    now = `<div class="now-label">${esc(weekLabel(info))}</div><div class="now-sub">今週は ${testName(info.term)} の週です。</div>`;
   } else if (info.kind === "holiday") {
     now = `<div class="now-label">${esc(weekLabel(info))}</div><div class="now-sub">今週はお休みです。</div>`;
   }
@@ -196,22 +222,25 @@ function renderTests() {
   const item = (y, term, tw) => {
     const r = tests.find(t => t.school_year === y && t.term === term);
     let state;
-    if (r?.published && r.path) state = `<button class="mat-btn" type="button" data-test="${esc(r.path)}">結果を見る</button>`;
-    else if (r) state = `<span class="tag tag-move">準備中</span><small class="muted">公開までお待ちください</small>`;
+    if (r?.published && (r.path || r.level)) {
+      // 結果はアルファベットだけ（基準は上の説明文に書く）
+      state = (r.level ? `<span class="level-badge" aria-label="結果 ${esc(r.level)}"><span class="k">結果</span><span class="v">${esc(r.level)}</span></span>` : "")
+        + (r.path ? `<button class="mat-btn" type="button" data-test="${esc(r.path)}">結果を見る</button>` : "");
+    } else if (r) state = `<span class="tag tag-move">準備中</span><small class="muted">公開までお待ちください</small>`;
     else if (tw && tw.week_start > today) state = `<span class="tag tag-mute">実施予定</span>`;
     else state = `<span class="tag tag-mute">結果はまだありません</span>`;
     return `<div class="test-row">
-      <div><div class="when">Term ${term} <span class="muted">まとめテスト</span></div>
-        <div class="muted">${tw ? `Test Week：${fmtDate(tw.week_start)}〜${fmtDate(addDays(tw.week_start, 6))}` : ""}</div></div>
+      <div><div class="when">${testName(term)}</div>
+        <div class="muted">${tw ? `実施週：${fmtDate(tw.week_start)}〜${fmtDate(addDays(tw.week_start, 6))}` : ""}</div></div>
       <div class="actions">${state}</div>
     </div>`;
   };
-  const older = tests.filter(t => t.school_year !== year && t.published && t.path);
+  const older = tests.filter(t => t.school_year !== year && t.published && (t.path || t.level));
   $("tests").innerHTML = `<h3 class="year-head">${year}年度</h3>`
-    + TERMS.map(term => item(year, term, plan.find(p => p.kind === "test" && p.term === term))).join("")
+    + TEST_TERMS.map(term => item(year, term, plan.find(p => p.kind === "test" && p.term === term))).join("")
     + (older.length ? `<h3 class="year-head">これまでの年度</h3>` + older
       .sort((a, b) => b.school_year - a.school_year || a.term.localeCompare(b.term))
-      .map(t => item(t.school_year, t.term, null).replace("Term " + t.term, `${t.school_year}年度 Term ${t.term}`)).join("") : "");
+      .map(t => item(t.school_year, t.term, null).replace(testName(t.term), `${t.school_year}年度 ${testName(t.term)}`)).join("") : "");
 }
 $("tests").addEventListener("click", async e => {
   const b = e.target.closest("button[data-test]");
@@ -228,24 +257,24 @@ $("tests").addEventListener("click", async e => {
 
 // ---------- 授業の記録と教材 ----------
 const MAT = {
-  next_homework: "次回までの宿題", next_quiz_range: "次回の小テスト範囲",
-  quiz_answer: "小テストの模範解答", homework_answer: "宿題の模範解答",
+  next_homework: "次回の宿題・小テストの範囲",
+  answers: "模範解答（小テスト・宿題）",
 };
-const lessonLabel = l => l.week_kind === "lesson" ? `Week ${l.week}` : l.week_kind === "test" ? "Test Week" : "";
+const lessonLabel = l => l.week_kind === "lesson" ? `Week ${l.week}` : l.week_kind === "test" ? testName(l.term) : "";
 const matBtn = (m, kind) => m[kind] ? `<button class="mat-btn" type="button" data-path="${esc(m[kind])}">${MAT[kind]}</button>` : "";
 
 function renderResults() {
   const max = settings.quiz_max ?? 20;
   $("scaleNote").textContent = `小テストは${max}点満点です。積極性と宿題は S・A・B の3段階で評価します（S：とてもよくできた　A：よくできた　B：もう少し）。` +
-    "宿題・小テストの範囲・模範解答は、各回の授業が終わると見られるようになります。";
+    "宿題・小テストの範囲・模範解答、小テストの答案は、各回の授業が終わると見られるようになります。";
 
   // いちばん新しい回の「次回までに」
-  const latest = lessons.find(l => l.materials && (l.materials.next_homework || l.materials.next_quiz_range));
+  const latest = lessons.find(l => l.materials && l.materials.next_homework);
   $("nextBox").innerHTML = latest ? `
     <div class="next-box">
       <h3>次回までに</h3>
       <p>${fmtDate(latest.date)}（${esc(lessonLabel(latest))}）の授業で出された宿題と、次回の小テストの範囲です。</p>
-      <div class="mat-btns">${matBtn(latest.materials, "next_homework")}${matBtn(latest.materials, "next_quiz_range")}</div>
+      <div class="mat-btns">${matBtn(latest.materials, "next_homework")}</div>
     </div>` : "";
 
   if (!lessons.length) {
@@ -256,7 +285,7 @@ function renderResults() {
     ? `<span class="v none">未入力</span>` : `<span class="v">${esc(Number.isFinite(+v) && suffix ? +v : v)}${suffix}</span>`;
   let lastTerm = null;
   $("results").innerHTML = lessons.map(l => {
-    const termKey = l.term ? `${l.school_year}年度 Term ${l.term}` : "";
+    const termKey = l.term ? `${l.school_year}年度 ${l.week_kind === "test" ? testName(l.term) : termName(l.term)}` : "";
     const head = termKey && termKey !== lastTerm ? `<h3 class="year-head">${esc(termKey)}</h3>` : "";
     lastTerm = termKey || lastTerm;
     const tag = l.status === "absent" ? `<span class="tag tag-warn">欠席</span>`
@@ -268,11 +297,11 @@ function renderResults() {
         <span class="when">${esc(lessonLabel(l))}<small>${fmtDate(l.date)} ${fmtTime(l.start_time)}〜${fmtTime(l.end_time)}</small></span>${tag}
       </div>
       ${l.status === "absent" || l.week_kind === "test" ? "" : `<div class="scores">
-        <div class="score-box"><span class="k">小テスト</span>${l.quiz_score == null ? val(null) : `<span class="v">${+l.quiz_score}<small> / ${max}</small></span>`}</div>
+        <div class="score-box"><span class="k">小テスト</span>${l.quiz_score == null ? val(null) : `<span class="v">${+l.quiz_score}<small> / ${max}</small></span>`}${l.quiz_pdf ? `<button class="quiz-open" type="button" data-quiz="${esc(l.quiz_pdf)}">答案を見る</button>` : ""}</div>
         <div class="score-box"><span class="k">積極性</span>${val(l.participation)}</div>
-        <div class="score-box"><span class="k">宿題</span>${val(l.homework)}</div>
+        <div class="score-box"><span class="k">宿題</span>${l.homework === "なし" ? `<span class="v none">宿題なし</span>` : val(l.homework)}</div>
       </div>`}
-      ${mats ? `<div class="mat-btns">${mats}</div>` : l.week_kind === "test" ? `<p class="muted" style="margin:8px 0 0">まとめテストの結果は「テスト結果」タブに公開されます。</p>` : `<p class="muted" style="margin:8px 0 0">この回の教材はまだ登録されていません。</p>`}
+      ${mats ? `<div class="mat-btns">${mats}</div>` : l.week_kind === "test" ? `<p class="muted" style="margin:8px 0 0">Assessment の結果は「テスト結果」タブに公開されます。</p>` : `<p class="muted" style="margin:8px 0 0">この回の教材はまだ登録されていません。</p>`}
     </article>`;
   }).join("");
 }
@@ -293,6 +322,19 @@ for (const id of ["nextBox", "results"]) {
     if (b) openMaterial(b.dataset.path);
   });
 }
+// 小テストの答案PDF
+$("results").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-quiz]");
+  if (!b) return;
+  const w = window.open("", "_blank");
+  try {
+    const url = await api.quizUrl(b.dataset.quiz);
+    if (w) w.location.href = url; else location.href = url;
+  } catch (err) {
+    if (w) w.close();
+    toast(errMsg(err), true);
+  }
+});
 
 // ---------- 操作 ----------
 $("weeks").addEventListener("click", e => {

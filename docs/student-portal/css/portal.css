@@ -230,7 +230,7 @@ label.mini { display: inline-block; }
 .dash-now { padding: 20px 24px; background: linear-gradient(160deg, #1b2c4f 0%, #16233f 100%); color: #fff; }
 .now-label { font-family: var(--serif-en); font-size: 26px; letter-spacing: .04em; line-height: 1.2; }
 .now-sub { font-size: 12.5px; opacity: .85; margin-top: 6px; }
-.progress { display: grid; grid-template-columns: repeat(10, 1fr) 1.4fr; gap: 3px; margin-top: 12px; }
+.progress { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 12px; }
 .progress i { height: 6px; background: rgba(255,255,255,.18); }
 .progress i.on { background: var(--gold-grad); }
 .progress i.cur { box-shadow: 0 0 0 1px #fff; }
@@ -317,3 +317,84 @@ label.mini { display: inline-block; }
 /* 校名はホームページと同じ Libre Baskerville */
 .logo-main { font-family: "Libre Baskerville", var(--serif-en); font-weight: 400; letter-spacing: .06em; font-size: 18px; }
 @media (max-width: 480px) { .logo-main { font-size: 15px; letter-spacing: .04em; } }
+/* 自動ログアウトの予告 */
+.idle-warn { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 1000; width: min(92vw, 560px);
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  background: var(--navy); color: #fff; padding: 14px 18px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); font-size: 14px; }
+.idle-warn .btn { flex-shrink: 0; background: #fff; color: var(--navy); border-color: #fff; }
+
+/* 授業の記録：点数を大きく見やすく（2026年10月） */
+.score-box { padding: 14px 10px; }
+.score-box .k { font-size: 13px; margin-bottom: 2px; }
+.score-box .v { font-size: 36px; line-height: 1.2; font-variant-numeric: lining-nums; font-feature-settings: "lnum"; }  /* 数字の高さをそろえて読みやすく */
+.score-box .v small { font-size: 18px; }
+.score-box .v.none { font-size: 14px; line-height: 2.6; }
+@media (max-width: 480px) { .score-box .v { font-size: 30px; } .score-box .v small { font-size: 15px; } }
+/* 小テストの答案を開くボタン */
+.quiz-open { display: block; margin: 8px auto 0; font-size: 12px; padding: 4px 10px; background: #fff; border: 1px solid var(--navy); color: var(--navy); cursor: pointer; }
+.quiz-open:hover { background: var(--navy); color: #fff; }
+/* 先生用：成績入力の答案PDF欄 */
+.grade-table .quiz-pdf { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+
+/* ---------- 先生：クラス・曜日の選択（ログイン直後） ---------- */
+.chooser { max-width: 720px; margin: 0 auto; }
+.chooser-title { font-weight: 500; color: var(--navy); font-size: 20px; text-align: center; margin: 8px 0 20px; }
+.chooser-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+#dayChoices { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 560px) {
+  .chooser-grid { grid-template-columns: 1fr; }
+  #dayChoices { grid-template-columns: repeat(2, 1fr); }
+}
+.chooser-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  min-height: 110px; padding: 16px; background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--accent);
+  color: var(--navy); text-decoration: none; cursor: pointer; font: inherit; text-align: center;
+}
+.chooser-item:hover, .chooser-item:focus-visible { border-color: var(--navy); border-top-color: var(--accent); background: #f7f8fc; outline: none; }
+.chooser-name { font-family: var(--serif-en); font-size: 24px; letter-spacing: .04em; }
+.chooser-grid a .chooser-name { font-family: var(--serif-ja); font-size: 22px; }
+.chooser-sub { font-size: 13px; color: var(--ink-soft); }
+
+/* ---------- 先生：ヘッダーのクラス・曜日の切り替え ---------- */
+.header-user { flex-wrap: wrap; justify-content: flex-end; }
+.switcher { position: relative; }
+.switch-btn { gap: 6px; white-space: nowrap; }
+.switch-arrow { font-size: 12px; }
+.switch-panel {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 50;
+  background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--navy);
+  box-shadow: 0 8px 24px rgba(22, 35, 63, .15); padding: 14px 16px 16px;
+  width: max-content; max-width: calc(100vw - 32px);
+}
+.switch-lead { margin: 0 0 10px; font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+.switch-table { border-collapse: collapse; }
+.switch-table th { text-align: left; font-family: var(--serif-en); font-weight: 500; font-size: 17px; color: var(--navy); padding: 4px 14px 4px 0; white-space: nowrap; }
+.switch-table td { padding: 3px; }
+.switch-table a, .switch-table .is-cur {
+  display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 36px;
+  border: 1px solid var(--line); color: var(--navy); text-decoration: none; font-size: 14px;
+}
+.switch-table a:hover, .switch-table a:focus-visible { border-color: var(--navy); background: #f7f8fc; outline: none; }
+.switch-table .is-cur { background: var(--navy); border-color: var(--navy); color: #fff; }
+/* 切り替えボタンがあるときは、ロゴの文字を折り返さず、ボタンを小さめにする */
+.header-inner:has(.switcher:not([hidden])) .logo { flex-shrink: 0; }
+@media (max-width: 560px) {
+  .header-user .who { display: none; }
+  .header-user { min-width: 0; }
+  .switcher { max-width: 100%; }
+  .switch-btn { padding: 0 8px; font-size: 12px; letter-spacing: 0; max-width: 100%; }
+  #switchCur { overflow: hidden; text-overflow: ellipsis; }
+  .chooser-title span { display: block; }
+}
+
+/* ---------- 先生：年間予定の「休みの週に授業をする曜日」 ---------- */
+.cal-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--ink-soft); }
+.carry-days { display: inline-flex; gap: 10px; flex-wrap: wrap; white-space: nowrap; }
+.carry-days label { display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+
+/* ---------- テスト結果の結果（S・A・B） ---------- */
+.level-pick { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+.level-pick select { width: auto; min-height: 32px; padding: 2px 8px; }
+.level-badge { display: inline-flex; align-items: baseline; gap: 8px; padding: 4px 14px; background: var(--bg-muted); border: 1px solid var(--line); }
+.level-badge .k { font-size: 12px; color: var(--ink-soft); }
+.level-badge .v { font-family: var(--serif-en); font-size: 28px; line-height: 1.1; color: var(--navy); }

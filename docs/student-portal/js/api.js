@@ -6,11 +6,18 @@ const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+
 export async function createApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createMockApi } = await import("./mock.js");
+    const { createMockApi } = await import("./mock.js?v=4298bd4b");
     return createMockApi();
   }
   const { createClient } = await import(SUPABASE_JS);
-  const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  // ログインの記録はタブを閉じると消える場所（sessionStorage）に置く＝ブラウザ（タブ）を閉じるとログアウト。
+  // 以前の形（localStorage）に残っているログインの記録は消しておく。
+  try {
+    Object.keys(localStorage).filter(k => /^sb-.*-auth-token/.test(k)).forEach(k => localStorage.removeItem(k));
+  } catch {}
+  const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+    auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true },
+  });
   const unwrap = ({ data, error }) => {
     if (error) throw error;
     return data;
@@ -25,7 +32,8 @@ export async function createApi() {
       if (error) throw new Error("ログインIDまたはパスワードが正しくありません");
     },
     async signOut() {
-      await sb.auth.signOut();
+      // この端末だけログアウトする（同じアカウントでログイン中のほかの端末はそのまま）
+      await sb.auth.signOut({ scope: "local" });
     },
     // ログイン中の人。null=未ログイン / role: "student" | "admin" | "none"（名簿にない）
     async me() {
@@ -41,6 +49,9 @@ export async function createApi() {
     async changePassword(password) {
       const { error } = await sb.auth.updateUser({ password });
       if (error) throw error;
+      // 名簿スプレッドシートにも新しいパスワードを表示するため、控えを残す（同期で書き戻される）
+      const rec = await sb.rpc("record_my_password", { p_password: password });
+      if (rec.error) throw new Error("パスワードは変更されましたが、名簿への記録に失敗しました。先生に新しいパスワードをお伝えください");
     },
 
     // ---------- 生徒 ----------
@@ -72,6 +83,12 @@ export async function createApi() {
     // 自分のテスト結果（公開済みのものは path あり）
     async myTests() {
       return unwrap(await sb.rpc("my_tests"));
+    },
+    // 小テストの答案PDFを開くための、10分間だけ有効なURL
+    async quizUrl(path) {
+      const { data, error } = await sb.storage.from("tests").createSignedUrl(path, 600);
+      if (error) throw new Error("この答案はまだ見られません");
+      return data.signedUrl;
     },
     async testUrl(path) {
       const { data, error } = await sb.storage.from("tests").createSignedUrl(path, 600);
@@ -118,6 +135,17 @@ export async function createApi() {
         { session_id: sessionId, student_id: studentId, ...patch, updated_at: new Date().toISOString(), updated_by: session?.user.id },
         { onConflict: "session_id,student_id" }));
     },
+    // 小テストの答案PDF（授業×生徒）
+    async uploadQuiz(sessionId, studentId, file) {
+      const path = `quiz/${sessionId}/${studentId}.pdf`;
+      const { error } = await sb.storage.from("tests").upload(path, file, { upsert: true, contentType: "application/pdf" });
+      if (error) throw error;
+      await this.saveGrade(sessionId, studentId, { quiz_pdf: path });
+    },
+    async deleteQuiz(sessionId, studentId) {
+      await sb.storage.from("tests").remove([`quiz/${sessionId}/${studentId}.pdf`]);
+      await this.saveGrade(sessionId, studentId, { quiz_pdf: null });
+    },
     // 登録済みの教材PDFの一覧
     async materials() {
       return unwrap(await sb.from("materials").select("class_id,term,week,kind,path,updated_at")
@@ -127,16 +155,28 @@ export async function createApi() {
     async saveYear(row) {
       unwrap(await sb.from("school_years").upsert(row, { onConflict: "id" }));
     },
-    async setHoliday(weekStart, on, note = null) {
-      unwrap(await sb.rpc("set_holiday_week", { p_week: weekStart, p_on: on, p_note: note }));
+    // carry：休みの週でも授業をする曜日（前の週の分）。null なら今の設定のまま
+    async setHoliday(weekStart, on, note = null, carry = null) {
+      unwrap(await sb.rpc("set_holiday_week", { p_week: weekStart, p_on: on, p_note: note, p_carry: carry }));
     },
-    // ---------- Test Week の結果 ----------
+    // ---------- Term Assessment・Final Assessment の結果 ----------
     async testData(year, term) {
-      const [pub, results] = await Promise.all([
+      const [pub, results, levels] = await Promise.all([
         sb.from("test_publish").select("*").eq("school_year", year).eq("term", term).maybeSingle().then(unwrap),
         sb.from("test_results").select("*").eq("school_year", year).eq("term", term).then(unwrap),
+        sb.from("test_levels").select("*").eq("school_year", year).eq("term", term).then(unwrap),
       ]);
-      return { published: !!pub?.published, published_at: pub?.published_at ?? null, results };
+      return { published: !!pub?.published, published_at: pub?.published_at ?? null, results, levels };
+    },
+    // 結果（S・A・B）。level が null なら消す
+    async saveTestLevel(year, term, studentId, level) {
+      if (!level) {
+        unwrap(await sb.from("test_levels").delete().eq("school_year", year).eq("term", term).eq("student_id", studentId));
+        return;
+      }
+      unwrap(await sb.from("test_levels").upsert(
+        { school_year: year, term, student_id: studentId, level, updated_at: new Date().toISOString() },
+        { onConflict: "school_year,term,student_id" }));
     },
     async setTestPublished(year, term, on) {
       unwrap(await sb.from("test_publish").upsert(

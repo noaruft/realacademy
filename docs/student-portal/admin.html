@@ -8,10 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/portal.css">
+<link rel="stylesheet" href="css/portal.css?v=4298bd4b">
 <link rel="icon" type="image/png" href="img/favicon.png">
-<script src="js/boot.js"></script>
-<script src="config.js"></script>
+<script src="js/boot.js?v=4298bd4b"></script>
+<script src="config.js?v=4298bd4b"></script>
 </head>
 <body>
 <div class="demo-bar" id="demoBar" hidden>
@@ -20,11 +20,20 @@
 </div>
 <header class="site-header">
   <div class="header-inner">
-    <a class="logo" id="homeLink" href="../index.html" aria-label="REAL ACADEMY トップページ">
+    <!-- 生徒用ページはホームページから独立させるため、ロゴはリンクにしない -->
+    <div class="logo" aria-label="REAL ACADEMY">
       <img class="logo-mark" src="img/logo-sm.png" alt="" width="136" height="144">
       <span class="logo-text"><span class="logo-main">REAL ACADEMY</span><span class="logo-sub">Aim high, Fly higher…</span></span>
-    </a>
+    </div>
     <div class="header-user" id="headerUser" hidden>
+      <!-- 別のクラス・曜日のページを新しいタブで開く -->
+      <div class="switcher" id="switcher" hidden>
+        <button class="btn btn-line btn-sm switch-btn" id="switchBtn" type="button" aria-expanded="false" aria-controls="switchPanel"><span id="switchCur"></span><span class="switch-arrow" aria-hidden="true">▾</span></button>
+        <div class="switch-panel" id="switchPanel" hidden>
+          <p class="switch-lead">別のクラス・曜日を新しいタブで開く</p>
+          <table class="switch-table" id="switchGrid"></table>
+        </div>
+      </div>
       <span class="who" id="whoName"></span>
       <button class="btn btn-line btn-sm" id="logoutBtn" type="button">ログアウト</button>
     </div>
@@ -33,11 +42,24 @@
 
 <div class="page-hero">
   <h1>ATTENDANCE</h1>
-  <p>出席管理（先生用）</p>
+  <p id="heroSub">出席管理（先生用）</p>
 </div>
 
 <main>
   <p class="muted" id="loading" style="text-align:center">読み込み中…</p>
+
+  <!-- ログイン直後：クラス → 曜日 の順に選ぶ -->
+  <section class="chooser" id="chooser" hidden>
+    <div id="classStep">
+      <h2 class="chooser-title">クラスを選んでください</h2>
+      <div class="chooser-grid" id="classChoices"></div>
+    </div>
+    <div id="dayStep" hidden>
+      <h2 class="chooser-title"><span id="dayStepClass"></span> の曜日を選んでください</h2>
+      <div class="chooser-grid" id="dayChoices"></div>
+      <button class="btn-text" id="backToClass" type="button">‹ クラスを選び直す</button>
+    </div>
+  </section>
 
   <div id="app" hidden>
     <div class="tabs" role="tablist">
@@ -72,10 +94,10 @@
     <section data-panel="grades" hidden>
       <div class="toolbar">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn btn-line btn-sm" id="prevDay" type="button">‹ 前の日</button>
+          <button class="btn btn-line btn-sm" id="prevDay" type="button">‹ 前の授業</button>
           <input class="input" type="date" id="gradeDate" style="width:auto;min-height:36px">
-          <button class="btn btn-line btn-sm" id="nextDay" type="button">次の日 ›</button>
-          <button class="btn-text" id="gradeToday" type="button">今日</button>
+          <button class="btn btn-line btn-sm" id="nextDay" type="button">次の授業 ›</button>
+          <button class="btn-text" id="gradeToday" type="button">直近の授業</button>
         </div>
       </div>
       <p class="note" id="gradeNote"></p>
@@ -84,11 +106,11 @@
 
     <!-- 年間予定 -->
     <section data-panel="calendar" hidden>
-      <p class="note">年度ごとに「Term A Week 1 の週」を決め、休みの週にチェックを入れてください。各タームの Week 10 の次の週は自動で Test Week になり、休みの週を入れると、それ以降の予定が後ろにずれます。休みの週の授業は自動で休校になり、生徒の画面にも「お休み」と表示されます。</p>
+      <p class="note">年間予定は全クラス共通です。年度ごとに「Term Spring Week 1 の週」を決め、休みの週にチェックを入れてください。1年は全42週で、Spring・Summer の Week 10 の次の週（21週目）が Term Assessment、Autumn・Winter の Week 10 の次の週（42週目）が Final Assessment になります。休みの週を入れると、それ以降の予定が後ろにずれます。休みの週の授業は自動で休校になり、生徒の画面にも「お休み」と表示されます。</p>
       <form class="form-row" id="yearForm">
         <label class="field"><span>年度</span><select class="input" id="calYear" style="width:auto"></select></label>
         <label class="field"><span>年度（数字）</span><input class="input" type="number" name="id" min="2000" max="2100" required style="width:110px"></label>
-        <label class="field"><span>Term A Week 1 の週（その週のどの日でも可）</span><input class="input" type="date" name="start_date" required></label>
+        <label class="field"><span>Term Spring Week 1 の週（その週のどの日でも可）</span><input class="input" type="date" name="start_date" required></label>
         <label class="field"><span>メモ</span><input class="input" name="note" placeholder="例：仮の予定" style="width:160px"></label>
         <button class="btn" type="submit">年度を保存</button>
       </form>
@@ -101,12 +123,12 @@
       <div class="toolbar">
         <div class="form-row" style="margin:0">
           <label class="field"><span>年度</span><select class="input" id="testYear" style="width:auto"></select></label>
-          <label class="field"><span>ターム</span><select class="input" id="testTerm" style="width:auto">
-            <option value="A">Term A</option><option value="B">Term B</option><option value="C">Term C</option><option value="D">Term D</option></select></label>
+          <label class="field"><span>テスト</span><select class="input" id="testTerm" style="width:auto">
+            <option value="B">Term Assessment</option><option value="D">Final Assessment</option></select></label>
         </div>
         <div class="publish-box" id="publishBox"></div>
       </div>
-      <p class="note">Test Week の結果を、生徒ごとにPDFでアップロードします。「公開する」を押すまで、生徒には見えません（公開後は、生徒のMyページの「テスト結果」に本人の分だけが表示されます）。
+      <p class="note">Term Assessment・Final Assessment の結果として、生徒ごとに得点に応じて S・A・B・C の4段階（S：90%以上　A：70%以上90%未満　B：50%以上70%未満　C：50%未満）を選び、PDFをアップロードします。S・A・B・C は選ぶと自動で保存されます。「公開する」を押すまで、生徒には見えません（公開・非公開は全クラス共通です。公開後は、生徒のMyページの「テスト結果」に本人の分だけが表示されます）。
         PDFのファイル名をログインID（例：s26001.pdf）にしておくと、「まとめてアップロード」で一度に登録できます。</p>
       <div class="form-row">
         <label class="btn btn-line btn-sm" style="cursor:pointer">まとめてアップロード<input type="file" id="bulkTest" accept="application/pdf" multiple hidden></label>
@@ -117,7 +139,7 @@
 
     <!-- 授業日・休校 -->
     <section data-panel="sessions" hidden>
-      <p class="note">時間割（設定タブ）から授業日を作ります。すでにある日はそのままです。休校にした日は、生徒の画面に「休校」と表示され、振替先にも選べなくなります。</p>
+      <p class="note">時間割（設定タブ）から、全クラス・全曜日の授業日をまとめて作ります。すでにある日はそのままです。下の一覧には、このクラス・曜日の授業日だけを表示します。休校にした日は、生徒の画面に「休校」と表示され、振替先にも選べなくなります。</p>
       <form class="form-row" id="genForm">
         <label class="field"><span>開始日</span><input class="input" type="date" name="from" required></label>
         <label class="field"><span>終了日</span><input class="input" type="date" name="to" required></label>
@@ -135,13 +157,14 @@
     <!-- 教材 -->
     <section data-panel="materials" hidden>
       <p class="note">教材PDFは、名簿のスプレッドシートのメニュー「生徒用ページ → 教材PDFを反映」で、Google ドライブの教材フォルダから取り込みます。
-        フォルダは「教材フォルダ / A1 / Term A / Week 03 / PDF」の形にし、PDFのファイル名に「次回の宿題」「次回の小テスト範囲」「小テストの模範解答」「宿題の模範解答」のいずれかを含めてください。
+        フォルダは「教材フォルダ / Grammatica / Term Spring / Week 03 / PDF」の形にし、PDFのファイル名に、次回の宿題・小テストの範囲なら「宿題」か「範囲」、模範解答なら「解答」か「答え」を含めてください。
         その週の教材は、生徒がその週の授業を受け終わると、生徒のMyページに表示されます。</p>
       <div id="matTables"></div>
     </section>
 
     <!-- 設定 -->
     <section data-panel="settings" hidden>
+      <p class="note">設定と時間割は全クラス共通です。</p>
       <form id="setForm" class="card" style="max-width:640px">
         <label class="field"><span>1クラスの定員（人）</span><input class="input" type="number" name="capacity" min="1" max="50" required></label>
         <label class="field"><span>受付締切（授業開始の何分前まで）</span><input class="input" type="number" name="deadline_minutes" min="0" step="10" required></label>
@@ -158,6 +181,6 @@
 </main>
 
 <footer class="site-footer">© REAL ACADEMY</footer>
-<script type="module" src="js/admin.js"></script>
+<script type="module" src="js/admin.js?v=4298bd4b"></script>
 </body>
 </html>

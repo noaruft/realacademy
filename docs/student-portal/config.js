@@ -11,5 +11,4 @@ window.PORTAL_CONFIG = {
   // 実際にメールは送られません。tools/import_students.py の LOGIN_DOMAIN と同じ値にしてください。
   loginDomain: "students.realacademy.co.jp",
 
-  homeUrl: "../index.html",  // ロゴと「ホーム」の戻り先
 };

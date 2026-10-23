@@ -8,19 +8,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/portal.css">
+<link rel="stylesheet" href="css/portal.css?v=4298bd4b">
 <link rel="icon" type="image/png" href="img/favicon.png">
-<script src="js/boot.js"></script>
-<script src="config.js"></script>
+<script src="js/boot.js?v=4298bd4b"></script>
+<script src="config.js?v=4298bd4b"></script>
 </head>
 <body>
 <div class="demo-bar" id="demoBar" hidden>お試しモードで表示しています（データはこのブラウザの中だけに保存されます）</div>
 <header class="site-header">
   <div class="header-inner">
-    <a class="logo" id="homeLink" href="../index.html" aria-label="REAL ACADEMY トップページ">
+    <!-- 生徒用ページはホームページから独立させるため、ロゴはリンクにしない -->
+    <div class="logo" aria-label="REAL ACADEMY">
       <img class="logo-mark" src="img/logo-sm.png" alt="" width="136" height="144">
       <span class="logo-text"><span class="logo-main">REAL ACADEMY</span><span class="logo-sub">Aim high, Fly higher…</span></span>
-    </a>
+    </div>
     <div class="header-user" id="headerUser" hidden>
       <span class="who" id="whoName"></span>
       <button class="btn btn-line btn-sm" id="logoutBtn" type="button">ログアウト</button>
@@ -33,7 +34,7 @@
   <p>生徒用ページ</p>
 </div>
 <nav class="crumb" aria-label="パンくず">
-  <div class="inner"><a id="crumbHome" href="../index.html">ホーム</a><span aria-hidden="true">›</span><span>生徒用ページ</span></div>
+  <div class="inner"><span>生徒用ページ</span></div>
 </nav>
 
 <main>
@@ -50,7 +51,7 @@
         <input class="input" name="password" type="password" autocomplete="current-password" required></label>
       <button class="btn btn-block" type="submit">ログイン</button>
       <p class="muted" style="margin:16px 0 0">ログインIDとパスワードは教室からお渡ししています。わからない場合は教室までお問い合わせください。</p>
-      <p class="muted" id="demoHint" hidden style="margin:8px 0 0">お試し用：生徒 <b>s001</b>〜<b>s028</b>／先生 <b>teacher</b>（パスワードはすべて <b>demo1234</b>）</p>
+      <p class="muted" id="demoHint" hidden style="margin:8px 0 0">お試し用：生徒 <b>s001</b>〜<b>s036</b>／先生 <b>teacher</b>（パスワードはすべて <b>demo1234</b>）</p>
     </form>
   </section>
 
@@ -91,7 +92,7 @@
 
     <!-- テスト結果 -->
     <div data-mypanel="tests" hidden>
-      <p class="note">各タームの最後の週（Test Week）に行うまとめテストの結果です。結果は後日、PDFで公開されます。</p>
+      <p class="note">Term Assessment（Summer のあと）と Final Assessment（Winter のあと）の結果です。結果は後日、得点に応じた S・A・B・C の4段階（S：90%以上　A：70%以上90%未満　B：50%以上70%未満　C：50%未満）とPDFで公開されます。</p>
       <div id="tests"></div>
     </div>
 
@@ -138,6 +139,6 @@
 </dialog>
 
 <footer class="site-footer">© REAL ACADEMY</footer>
-<script type="module" src="js/student.js"></script>
+<script type="module" src="js/student.js?v=4298bd4b"></script>
 </body>
 </html>

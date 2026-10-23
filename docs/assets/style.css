@@ -1182,3 +1182,24 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 .ph-color.deep { background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.18), transparent 55%), linear-gradient(135deg, #33476f, #16233f); }
 .ph-color.on { opacity: 1; }
 .ph[data-color-cycle]::after, .ph[data-color-cycle]::before { position: relative; z-index: 1; }
+/* トップの事業カード：目次の下端を左右でそろえる。目次は本文のすぐ下から始め、
+   短いカード（イギリス留学）は各項目の高さを広げて下端を合わせる（英語教室カードの見た目は変わらない） */
+.biz-body .biz-links { flex: 1; display: flex; flex-direction: column; }
+.biz-body .biz-links li { flex: 1; display: flex; }
+.biz-body .biz-links li a { flex: 1; }
+.biz-body .biz-links + .text-link { margin-top: 0; }
+/* トップの事業カード（パソコン幅）：左右のカードで「英字・見出し・本文・目次・リンク」の行の高さを共通にし、
+   本文の行数が違っても目次の上端・下端がそろうようにする（subgrid） */
+@media (min-width: 821px) {
+  .biz-grid { grid-template-rows: auto auto auto auto 1fr auto; row-gap: 0; }
+  .biz-card { display: grid; grid-row: span 6; grid-template-rows: subgrid; row-gap: 0; }
+  .biz-body { grid-row: 2 / span 5; display: grid; grid-template-rows: subgrid; row-gap: 0; }
+  .biz-body .text-link { justify-self: start; align-self: start; }
+}
+/* 各ページ上部の説明文：右に余白が残らないよう、本文の幅いっぱい（左右の余白は対称）まで広げる */
+.page-hero .lead { max-width: none; }
+/* 「STEAM」という単語は、見出し・メニュー・本文のどこでも同じ書体（本文と同じ EB Garamond）で表示する */
+.steam-word { font-family: "EB Garamond", "Noto Serif JP", serif; font-weight: 400; letter-spacing: .04em; }
+/* コース名の見出し「STEAM English Academy」：名前全体を STEAM と同じ書体にそろえ、文字間を詰めて1行に収める */
+.course-name:has(.steam-word) { font-family: "EB Garamond", "Noto Serif JP", serif; letter-spacing: -.005em; white-space: nowrap; font-size: clamp(26px, 2.4vw, 34px); }
+.course-name .steam-word { letter-spacing: inherit; }
