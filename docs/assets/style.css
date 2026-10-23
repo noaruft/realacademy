@@ -159,15 +159,8 @@ html[data-lang="en"] .hero h1 { font-size: clamp(38px, 5.6vw, 66px); line-height
 html[data-lang="en"] .hero h1 em { font-style: italic; }
 .hero .lead { margin-bottom: 36px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-.hero-visual { position: relative; }
-.hero-visual .ph-main { aspect-ratio: 4 / 5; }
-.hero-visual .ph-sub {
-  position: absolute; width: 42%; aspect-ratio: 1; left: -14%; bottom: -8%;
-  border-radius: 50%; border: 8px solid var(--ivory);
-}
 @media (max-width: 820px) {
   .hero-grid { grid-template-columns: 1fr; }
-  .hero-visual { max-width: 420px; margin: 24px auto 0; width: 88%; }
   }
 
 /* ---------- Photo placeholder ---------- */
@@ -717,8 +710,6 @@ html[data-lang="ja"] .voice blockquote { overflow-wrap: anywhere; }
 @media (min-width: 1440px) { .site-header .logo-mark { height: 62px; } .site-header .logo { gap: 14px; } }
 .footer-logo { gap: 16px; }
 .footer-logo .logo-mark { height: 84px; }
-/* トップの丸い枠（写真2番）はロゴを全体が見えるように置く */
-.hero-visual .ph-sub.has-photo { background-size: 70% auto !important; background-position: center !important; background-color: var(--paper) !important; }
 /* フッター：ロゴ・英語教室・REAL ACADEMY・連絡先の4列 */
 @media (min-width: 901px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; } }
 @media (min-width: 761px) and (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
@@ -1110,24 +1101,8 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 .ph-slide { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 1.6s ease; }
 .ph-slide.on { opacity: 1; }
 .show-photo-no .ph[data-slides]::before { z-index: 1; }
-/* トップの1番の写真：パソコン幅では横長（写真と同じ 16:9）。校章の丸は写真に合わせて小さめに。
-   スマホ・タブレット幅（縦1列）では縦長の枠になり、写真の中央を拡大して見せる */
-.hero-visual .ph-main { aspect-ratio: 16 / 9; background-position: center !important; }
-.hero-visual .ph-sub { width: 28%; left: -8%; bottom: -14%; }
-@media (max-width: 820px) {
-  .hero-visual .ph-main { aspect-ratio: 4 / 5; }
-  .hero-visual .ph-sub { width: 42%; left: -14%; bottom: -8%; }
-}
 /* 14番（ボーディング）：スマホの横長の枠では縦写真の頭が切れないよう、少し上寄りを見せる */
 .ph[data-photo="14"], .ph[data-photo="14"] .ph-slide { background-position: center 25% !important; }
-/* トップの最上部（パソコン幅）：画面の左右いっぱいに広げ、写真は右端まで大きく見せる */
-@media (min-width: 821px) {
-  .hero .hero-grid { max-width: none; grid-template-columns: minmax(360px, .8fr) 1.7fr; gap: clamp(32px, 5vw, 88px);
-    padding-left: clamp(32px, 6vw, 120px); padding-right: clamp(20px, 3vw, 56px); }
-  .hero-visual .ph-main { aspect-ratio: 16 / 9; }
-  /* 校章の丸：中心が写真の左下の角にぴったり重なるように置く */
-  .hero-visual .ph-sub { width: 14%; left: 0; bottom: 0; transform: translate(-50%, 50%); border-width: 5px; box-sizing: border-box; }
-}
 /* イギリス留学「目指すのは、…」：横に余裕がある幅では「「行ける学校」ではなく、」を1行に（途中で折り返さない）。
    収まるよう、その幅では文字を少しだけ小さくする。スマホ幅ではこれまでどおり自然に折り返す */
 @media (min-width: 861px) {
@@ -1207,3 +1182,29 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* アクセスページの校舎名：常に2行（REAL ACADEMY／STEAM English Academy 麻布校）で、行間を詰めて折り返さない。文字の大きさは左の列の幅に合わせる */
 .access-grid > div:first-child { container-type: inline-size; }
 .access-name { line-height: 1.25; letter-spacing: .02em; white-space: nowrap; font-size: clamp(16px, 6cqw, 28px); }
+
+/* ---------- トップの最上部：写真（1番。スマホ幅は 1-sp）を背景に敷き、その上に文字を載せる ----------
+   文字の側にだけ紺を薄く重ねて読みやすくする（パソコン幅は左側、スマホ幅は下側） */
+.hero { position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center;
+  min-height: min(calc(100svh - 76px), 860px); background: var(--navy); }
+.hero-bg { position: absolute !important; inset: 0; z-index: -2; background-position: center !important; }
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(17, 27, 49, .86) 0%, rgba(17, 27, 49, .6) 40%, rgba(17, 27, 49, .08) 75%); }
+.hero .hero-grid { grid-template-columns: 1fr; width: 100%; }
+.hero-copy .eyebrow { color: var(--gold-light); }
+.hero .hero-slogan, .hero .hero-sub { color: var(--ivory); }
+.hero-slogan span { background: linear-gradient(100deg, #e2c68e 0%, #f3dfb0 45%, #d2b073 100%); -webkit-background-clip: text; background-clip: text; }
+.hero .btn:not(.ghost) { background: var(--ivory); background-image: none; color: var(--navy); }
+/* カーソルを載せたら色が変わる：ボタンはアイボリー→金、リンクは文字が金に（線も明るい金） */
+.hero .btn:not(.ghost):hover { background: var(--gold-light); color: var(--navy); }
+.hero .text-link { color: var(--ivory); border-bottom-color: var(--gold-light); }
+.hero .text-link:hover { color: var(--gold-light); border-bottom-color: var(--ivory); }
+@media (max-width: 820px) {
+  .hero { align-items: flex-end; }
+  .hero::before { background: linear-gradient(180deg, rgba(17, 27, 49, .3) 0%, rgba(17, 27, 49, .15) 30%, rgba(17, 27, 49, .78) 62%, rgba(17, 27, 49, .94) 100%); }
+}
+/* 縦向きの画面：縦長の写真は空が広いので、下を基準に拡大して空の上の方を切り、校舎を大きく上寄りに見せる（文字は芝生の上） */
+@media (max-width: 820px) and (orientation: portrait) {
+  .hero-bg { transform: scale(1.65); transform-origin: 50% 100%; }
+  .hero::before { background: linear-gradient(180deg, rgba(17, 27, 49, .25) 0%, rgba(17, 27, 49, 0) 20%, rgba(17, 27, 49, 0) 38%, rgba(17, 27, 49, .82) 54%, rgba(17, 27, 49, .94) 100%); }
+}
