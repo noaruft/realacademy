@@ -6,7 +6,7 @@ const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+
 export async function createApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createMockApi } = await import("./mock.js?v=4298bd4b");
+    const { createMockApi } = await import("./mock.js?v=63702de8");
     return createMockApi();
   }
   const { createClient } = await import(SUPABASE_JS);

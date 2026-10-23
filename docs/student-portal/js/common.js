@@ -109,7 +109,7 @@ export const TEST_TERMS = ["B", "D"];
 // テスト結果の4段階（先生が得点を見て選ぶ）。基準（range）は画面の説明文に書き、結果の欄にはアルファベットだけを出す
 export const TEST_LEVELS = [
   { level: "S", range: "90%以上" }, { level: "A", range: "70%以上90%未満" },
-  { level: "B", range: "50%以上70%未満" }, { level: "C", range: "50%未満" },
+  { level: "B", range: "50%以上70%未満" }, { level: "F", range: "50%未満" },
 ];
 export const testName = t => (t === "B" ? "Term Assessment" : t === "D" ? "Final Assessment" : `Assessment ${t}`);
 

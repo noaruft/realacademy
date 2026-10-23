@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=4298bd4b";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=4298bd4b";
+import { createApi } from "./api.js?v=63702de8";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=63702de8";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 
@@ -470,7 +470,7 @@ async function uploadOne(studentId, file) {
   await api.uploadTest(testYear, testTerm, studentId, file);
 }
 
-// 結果（S・A・B・C）を選ぶと自動で保存
+// 結果（S・A・B・F）を選ぶと自動で保存
 $("testGroups").addEventListener("change", async e => {
   if (!e.target.matches("select[data-level]")) return;
   const li = e.target.closest("li[data-st]");
