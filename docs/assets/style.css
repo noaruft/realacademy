@@ -1218,3 +1218,6 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* ヘッダーから開くページ（英語教室・イギリス留学・私たちについて・アクセス・ニュース）の冒頭文：行間を少し詰める */
 .hero-top .lead { line-height: 1.8; }
 html[data-lang="en"] .hero-top .lead { line-height: 1.6; }
+
+/* イギリス留学の冒頭文：文字の間隔を少し詰め、「提供。」だけが次の行に落ちないようにする */
+html[data-lang="ja"] .lead.lead-fit { letter-spacing: .01em; }
