@@ -1189,8 +1189,14 @@ main :is(.btn, .text-link) { font-family: var(--text); }
   min-height: min(calc(100svh - 76px), 860px); background: var(--navy); }
 .hero-bg { position: absolute !important; inset: 0; z-index: -2; background-position: center !important; }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(90deg, rgba(17, 27, 49, .86) 0%, rgba(17, 27, 49, .6) 40%, rgba(17, 27, 49, .08) 75%); }
+  background: linear-gradient(90deg, rgba(17, 27, 49, .86) 0%, rgba(17, 27, 49, .62) 28%, rgba(17, 27, 49, .2) 44%, rgba(17, 27, 49, 0) 58%); }
 .hero .hero-grid { grid-template-columns: 1fr; width: 100%; }
+/* 横長の画面では文字を本文の枠より左へ（ヘッダーのロゴほど端には寄せず、中央の校舎にかからない位置）。
+   上下は中央より少し下（上に余白を足した分の半分だけ下がる） */
+@media (min-width: 821px) {
+  .hero .hero-grid { max-width: none; margin: 0; padding-left: max(var(--gutter), min(9vw, calc((100% - var(--max)) / 2 + var(--gutter))));
+    padding-top: 14vh; }
+}
 .hero-copy .eyebrow { color: var(--gold-light); }
 .hero .hero-slogan, .hero .hero-sub { color: var(--ivory); }
 .hero-slogan span { background: linear-gradient(100deg, #e2c68e 0%, #f3dfb0 45%, #d2b073 100%); -webkit-background-clip: text; background-clip: text; }
