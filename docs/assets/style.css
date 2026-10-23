@@ -398,7 +398,7 @@ html[data-lang="en"] .principle p { font-family: var(--serif-en); font-size: 21p
 .signature small { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); letter-spacing: .12em; }
 @media (max-width: 820px) { .message { grid-template-columns: 1fr; } .message > .ph { position: relative; top: auto; aspect-ratio: 16 / 10; } }
 .slogan { text-align: center; }
-.slogan-en { font-family: var(--serif-en); font-style: italic; font-size: clamp(40px, 6vw, 72px); color: var(--ivory); line-height: 1.1; margin-bottom: 12px; }
+.slogan-en { font-family: var(--serif-en); font-style: italic; font-size: clamp(32px, 5vw, 60px); color: var(--ivory); line-height: 1.1; margin-bottom: 12px; }
 .slogan-ja { font-family: var(--serif-ja); color: var(--gold-light); font-size: 18px; letter-spacing: .14em; margin-bottom: 28px; }
 .slogan .lead { color: rgba(247, 244, 238, .8); margin: 0 auto; }
 .contrib { background: var(--paper); border: 1px solid var(--line); padding: clamp(24px, 4vw, 48px); }
@@ -1203,3 +1203,7 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* コース名の見出し「STEAM English Academy」：名前全体を STEAM と同じ書体にそろえ、文字間を詰めて1行に収める */
 .course-name:has(.steam-word) { font-family: "EB Garamond", "Noto Serif JP", serif; letter-spacing: -.005em; white-space: nowrap; font-size: clamp(26px, 2.4vw, 34px); }
 .course-name .steam-word { letter-spacing: inherit; }
+
+/* アクセスページの校舎名：常に2行（REAL ACADEMY／STEAM English Academy 麻布校）で、行間を詰めて折り返さない。文字の大きさは左の列の幅に合わせる */
+.access-grid > div:first-child { container-type: inline-size; }
+.access-name { line-height: 1.25; letter-spacing: .02em; white-space: nowrap; font-size: clamp(16px, 6cqw, 28px); }
