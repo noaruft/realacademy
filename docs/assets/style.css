@@ -1214,3 +1214,7 @@ main :is(.btn, .text-link) { font-family: var(--text); }
   .hero-bg { transform: scale(1.65); transform-origin: 50% 100%; }
   .hero::before { background: linear-gradient(180deg, rgba(17, 27, 49, .25) 0%, rgba(17, 27, 49, 0) 20%, rgba(17, 27, 49, 0) 38%, rgba(17, 27, 49, .82) 54%, rgba(17, 27, 49, .94) 100%); }
 }
+
+/* ヘッダーから開くページ（英語教室・イギリス留学・私たちについて・アクセス・ニュース）の冒頭文：行間を少し詰める */
+.hero-top .lead { line-height: 1.8; }
+html[data-lang="en"] .hero-top .lead { line-height: 1.6; }
