@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>個人レッスン | REAL ACADEMY</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/portal.css?v=58bc780a">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<script src="js/boot.js?v=58bc780a"></script>
+<script src="config.js?v=58bc780a"></script>
+</head>
+<body>
+<div class="demo-bar" id="demoBar" hidden>
+  お試しモードで表示しています（データはこのブラウザの中だけに保存されます）。別のタブで先生（lt001 など）としてログインすると、予約やメッセージがすぐ届く様子を試せます。
+  <button class="btn-text" id="resetDemo" type="button">お試しデータを初期化</button>
+</div>
+<header class="site-header">
+  <div class="header-inner">
+    <!-- 生徒用ページはホームページから独立させるため、ロゴはリンクにしない -->
+    <div class="logo" aria-label="REAL ACADEMY">
+      <img class="logo-mark" src="img/logo-sm.png" alt="" width="136" height="144">
+      <span class="logo-text"><span class="logo-main">REAL ACADEMY</span><span class="logo-sub">Aim high, Fly higher…</span></span>
+    </div>
+    <div class="header-user" id="headerUser" hidden>
+      <span class="who" id="whoName"></span>
+      <button class="btn btn-line btn-sm" id="logoutBtn" type="button">ログアウト</button>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <h1>PRIVATE LESSONS</h1>
+  <p>個人レッスン</p>
+</div>
+<nav class="crumb" aria-label="パンくず">
+  <div class="inner"><span>個人レッスン</span></div>
+</nav>
+
+<main>
+  <p class="muted" id="loading" style="text-align:center">読み込み中…</p>
+
+  <section id="myView" class="my-wrap" hidden>
+    <!-- いまの状況：チケットの残りと次のレッスン -->
+    <div class="dash">
+      <div class="dash-who">
+        <span class="name" id="pName"></span>
+        <span class="meta">個人レッスン（オンライン・1回60分）<br>時刻はすべて <b>JST（日本時間）</b> です</span>
+      </div>
+      <div class="dash-now" id="dashNow"></div>
+    </div>
+
+    <nav class="tabs my-tabs" role="tablist" aria-label="個人レッスン">
+      <button role="tab" data-mytab="mine" aria-selected="true">予約一覧</button>
+      <button role="tab" data-mytab="book" aria-selected="false">予約する</button>
+      <button role="tab" data-mytab="chat" aria-selected="false">メッセージ<span class="badge" id="unreadBadge" hidden></span></button>
+      <button role="tab" data-mytab="tickets" aria-selected="false">チケット</button>
+    </nav>
+
+    <!-- 予約一覧 -->
+    <div data-mypanel="mine">
+      <p class="note">予約・キャンセルは、レッスン開始の <b>24時間前</b> まで受け付けます。日時や先生を変えたいときは、キャンセルしてから予約し直してください（チケットは元の期限のまま戻ります）。24時間前を過ぎてからお休みするときは「欠席する」を押してください（チケットは戻りません）。Zoom に入るボタンは、開始の10分前から表示されます。</p>
+      <div id="upcoming"></div>
+      <details class="past" id="pastBox">
+        <summary>これまでのレッスン</summary>
+        <div id="past"></div>
+      </details>
+    </div>
+
+    <!-- 予約する -->
+    <div data-mypanel="book" hidden>
+      <p class="note" id="bookNote">カレンダーには、その日に空いている先生の名前が出ます（今日から1か月先まで）。日にちを選ぶと、先生ごとの予約できる時間が表示されます。予約するとチケットを1枚使います（期限の近いものから）。時刻は JST（日本時間）です。</p>
+      <div id="slotList"></div>
+      <details class="past teachers-box">
+        <summary>先生の紹介</summary>
+        <div class="teacher-grid" id="teacherGrid"></div>
+      </details>
+    </div>
+
+    <!-- メッセージ -->
+    <div data-mypanel="chat" hidden>
+      <p class="note">先生と直接やり取りできます。写真やPDFも送れます（写真は自動で縮めて送ります。PDFは10MBまで。送った日から6か月で自動的に削除されます）。新しいメッセージが届くと、メールでもお知らせします。</p>
+      <div id="chatRoot"></div>
+    </div>
+
+    <!-- チケット -->
+    <div data-mypanel="tickets" hidden>
+      <p class="note">チケットの有効期限は、受け取った日から <b>2か月</b> です。期限までに使わなかったチケットはなくなります（返金はありません）。レッスンの日が期限内のチケットだけが使えます。<br>先生の都合でレッスンがキャンセルになったときは、キャンセルの日から2か月の期限で、チケットが1枚戻ります。</p>
+      <div id="ticketBox"></div>
+    </div>
+
+    <p style="text-align:center;margin-top:40px"><button class="btn-text" id="pwBtn" type="button">パスワードを変更する</button></p>
+  </section>
+</main>
+
+<!-- 確認 -->
+<dialog id="confirmDlg">
+  <form class="dlg-body" method="dialog">
+    <h2 id="confirmTitle"></h2>
+    <div id="confirmText" style="margin:8px 0 0"></div>
+    <div class="dlg-foot">
+      <button class="btn btn-line" value="cancel">やめる</button>
+      <button class="btn" value="ok" id="confirmOk">確定する</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- パスワード変更 -->
+<dialog id="pwDlg">
+  <form class="dlg-body" id="pwForm" novalidate>
+    <h2>パスワードを変更する</h2>
+    <p class="error" id="pwError" hidden></p>
+    <label class="field" style="margin-top:12px"><span>新しいパスワード（8文字以上）</span>
+      <input class="input" name="pw1" type="password" autocomplete="new-password" minlength="8" required></label>
+    <label class="field"><span>確認のためもう一度</span>
+      <input class="input" name="pw2" type="password" autocomplete="new-password" minlength="8" required></label>
+    <div class="dlg-foot">
+      <button class="btn btn-line" type="button" data-close>やめる</button>
+      <button class="btn" type="submit">変更する</button>
+    </div>
+  </form>
+</dialog>
+
+<footer class="site-footer">© REAL ACADEMY</footer>
+<script type="module" src="js/lessons-student.js?v=58bc780a"></script>
+</body>
+</html>
