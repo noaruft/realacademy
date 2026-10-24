@@ -1224,3 +1224,9 @@ html[data-lang="ja"] .lead.lead-fit { letter-spacing: .01em; }
 
 /* お問い合わせ：郵便番号の下の案内 */
 .field .field-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted, #8a8d99); letter-spacing: .04em; line-height: 1.6; }
+/* 横に並ぶ2つの欄：見出しが2行に折り返しても、入力欄の高さをそろえる（見出しは入力欄のすぐ上に寄せる） */
+@supports (grid-template-rows: subgrid) {
+  .field-row { grid-template-rows: auto auto auto; }
+  .field-row > .field { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
+  .field-row > .field > label { align-self: end; }
+}

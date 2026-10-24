@@ -92,7 +92,7 @@
   }
 
   // ---------- 郵便番号から住所を入れる ----------
-  // 全角数字やハイフンが入っても、半角・ハイフンなしの7桁に直す。7桁そろったら郵便番号検索（zipcloud：日本郵便のデータ）で調べ、都道府県と「市区町村・町名」を入れる。
+  // 全角数字やハイフンなしで入れても、半角・ハイフンあり（106-0044）に直す。7桁そろったら郵便番号検索（zipcloud：日本郵便のデータ）で調べ、都道府県と「市区町村・町名」を入れる。
   // 市区町村の欄に自分で書いた内容があるときは上書きしない。見つからない・通信できないときは手で入力してもらう。
   var zip = form && form.querySelector("#zip");
   if (zip) {
@@ -109,7 +109,7 @@
       if (d.length !== 7) { lastZip = ""; return; }
       if (d === lastZip) return;
       lastZip = d;
-      zip.value = d;  // 半角・ハイフンなしにそろえる
+      zip.value = d.slice(0, 3) + "-" + d.slice(3);  // 半角・ハイフンありにそろえる
       say("住所を調べています…", "Looking up the address…");
       fetch("https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + d)
         .then(function (r) { return r.json(); })
