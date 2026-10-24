@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=63702de8";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=63702de8";
+import { createApi } from "./api.js?v=58bc780a";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=58bc780a";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 
@@ -773,6 +773,10 @@ if (!me || me.role !== "admin") {
   location.href = page("index") + (params.has("class") ? location.search : "");
 } else {
   $("whoName").textContent = me.admin.name;
+  if (me.lesson?.teacher || me.lesson?.manager) {
+    $("lessonLink").href = page("lesson-teacher");
+    $("lessonLink").hidden = false;
+  }
   $("headerUser").hidden = false;
   startIdleLogout(IDLE_MINUTES, async () => {
     await api.signOut();

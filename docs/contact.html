@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=0ec61f63">
+<link rel="stylesheet" href="assets/style.css?v=a80e681e">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 </head>
@@ -107,6 +107,75 @@
             <label for="tel"><span lang="ja">電話番号</span><span lang="en">Phone</span><span class="req">REQUIRED</span></label>
             <input id="tel" name="tel" type="tel" required autocomplete="tel" data-ph-ja="例）03-0000-0000" data-ph-en="e.g. 03-0000-0000">
           </div>
+        </div>
+        <!-- ご住所：郵便番号（7桁）を入れると、都道府県と市区町村・町名が自動で入る（assets/main.js。zipcloud の郵便番号検索を使う） -->
+        <div class="field-row">
+          <div class="field">
+            <label for="zip"><span lang="ja">郵便番号<wbr>（半角・ハイフンなし）</span><span lang="en">Postal code (7 digits, no hyphen)</span></label>
+            <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="8" data-ph-ja="例）1060044" data-ph-en="e.g. 1060044">
+            <p class="field-hint" data-zip-hint><span lang="ja">7桁を<wbr>入れると、<wbr>住所の<wbr>一部が<wbr>自動で<wbr>入ります</span><span lang="en">Enter 7 digits to fill in part of the address</span></p>
+          </div>
+          <div class="field">
+            <label for="pref"><span lang="ja">都道府県</span><span lang="en">Prefecture</span></label>
+            <select id="pref" name="pref" autocomplete="address-level1">
+              <option value="">選択してください / Select</option>
+              <option>北海道</option>
+              <option>青森県</option>
+              <option>岩手県</option>
+              <option>宮城県</option>
+              <option>秋田県</option>
+              <option>山形県</option>
+              <option>福島県</option>
+              <option>茨城県</option>
+              <option>栃木県</option>
+              <option>群馬県</option>
+              <option>埼玉県</option>
+              <option>千葉県</option>
+              <option>東京都</option>
+              <option>神奈川県</option>
+              <option>新潟県</option>
+              <option>富山県</option>
+              <option>石川県</option>
+              <option>福井県</option>
+              <option>山梨県</option>
+              <option>長野県</option>
+              <option>岐阜県</option>
+              <option>静岡県</option>
+              <option>愛知県</option>
+              <option>三重県</option>
+              <option>滋賀県</option>
+              <option>京都府</option>
+              <option>大阪府</option>
+              <option>兵庫県</option>
+              <option>奈良県</option>
+              <option>和歌山県</option>
+              <option>鳥取県</option>
+              <option>島根県</option>
+              <option>岡山県</option>
+              <option>広島県</option>
+              <option>山口県</option>
+              <option>徳島県</option>
+              <option>香川県</option>
+              <option>愛媛県</option>
+              <option>高知県</option>
+              <option>福岡県</option>
+              <option>佐賀県</option>
+              <option>長崎県</option>
+              <option>熊本県</option>
+              <option>大分県</option>
+              <option>宮崎県</option>
+              <option>鹿児島県</option>
+              <option>沖縄県</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="city"><span lang="ja">市区町村・町名・番地</span><span lang="en">City, street and number</span></label>
+          <input id="city" name="city" type="text" autocomplete="address-line1" data-ph-ja="例）港区東麻布3-8-2" data-ph-en="e.g. Minato-ku, Higashi-Azabu 3-8-2">
+        </div>
+        <div class="field">
+          <label for="building"><span lang="ja">建物名・部<wbr>屋番号</span><span lang="en">Building, room</span></label>
+          <input id="building" name="building" type="text" autocomplete="address-line2" data-ph-ja="例）麻布マルカビル2F" data-ph-en="e.g. Azabu Maruka Bldg. 2F">
         </div>
         <div class="field">
           <label for="grade"><span lang="ja">お子さまの<wbr>学年</span><span lang="en">Child's grade</span></label>
@@ -280,6 +349,6 @@
   </div>
 </footer>
 
-<script src="assets/main.js?v=0add061b"></script>
+<script src="assets/main.js?v=569eb610"></script>
 </body>
 </html>

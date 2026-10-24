@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=63702de8";
-import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=63702de8";
+import { createApi } from "./api.js?v=58bc780a";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=58bc780a";
 
 const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
@@ -48,6 +48,11 @@ async function start() {
   if (me.role === "admin") {
     const q = new URLSearchParams(location.search);
     location.href = page("admin") + (q.has("class") ? `?class=${encodeURIComponent(q.get("class"))}&day=${Number(q.get("day"))}` : "");
+    return;
+  }
+  // 個人レッスン（専用コース）の生徒・先生・管理者は、個人レッスンのページへ
+  if (me.role === "lesson") {
+    location.href = page(me.lesson.student ? "lessons" : "lesson-teacher");
     return;
   }
   $("headerUser").hidden = false;

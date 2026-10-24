@@ -398,3 +398,249 @@ label.mini { display: inline-block; }
 .level-badge { display: inline-flex; align-items: baseline; gap: 8px; padding: 4px 14px; background: var(--bg-muted); border: 1px solid var(--line); }
 .level-badge .k { font-size: 12px; color: var(--ink-soft); }
 .level-badge .v { font-family: var(--serif-en); font-size: 28px; line-height: 1.1; color: var(--navy); }
+
+/* =========================================================
+   個人レッスン（専用コース）
+   ========================================================= */
+.badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; margin-left: 6px;
+  border-radius: 10px; background: var(--ng); color: #fff; font-size: 11px; line-height: 1; letter-spacing: 0; vertical-align: 2px; }
+.dash-now .now-label { font-feature-settings: "lnum"; }
+.now-unit { font-family: var(--sans); font-size: 13px; margin-left: 8px; opacity: .85; letter-spacing: .06em; }
+/* 次のレッスン：日時と先生を1行に。Zoom のボタンはその下で、先生の名前の右端にそろえる */
+.next-lesson.stack { flex-direction: column; align-items: flex-start; gap: 2px; }
+.nl-box { display: inline-flex; flex-direction: column; align-items: flex-end; max-width: 100%; }
+.nl-box .v { align-self: stretch; }
+.dash-now .zoom-btn { margin-top: 10px; }
+/* Zoom のボタン：ほかのボタンより落ち着いた、くすんだ金色（グラデーションなし） */
+.zoom-btn { background: #b8a27a; color: var(--navy); }
+.zoom-btn:hover { background: #c4b08b; filter: none; }
+.lesson .when small { font-family: var(--sans); }
+details.past { margin-top: 28px; }
+details.past > summary { cursor: pointer; font-size: 14px; color: var(--ink-soft); padding: 8px 4px; border-bottom: 1px solid var(--navy); list-style: none; }
+details.past > summary::-webkit-details-marker { display: none; }
+details.past > summary::before { content: "＋ "; color: var(--accent); }
+details.past[open] > summary::before { content: "－ "; }
+
+/* 予約する：先生を選ぶ */
+.teacher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.teacher-card { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--accent); padding: 18px 18px 16px; display: flex; flex-direction: column; }
+.teacher-card h3 { margin: 0 0 6px; font-weight: 500; font-size: 18px; color: var(--navy); }
+.teacher-card p { margin: 0 0 14px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.8; flex: 1; }
+.teacher-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* 予約する：時間を選ぶ */
+.slot-times { display: flex; flex-wrap: wrap; gap: 8px; }
+.slot-btn { min-width: 76px; min-height: 40px; padding: 0 12px; background: #fff; border: 1px solid var(--navy); color: var(--navy); cursor: pointer;
+  font-family: var(--serif-en); font-size: 17px; letter-spacing: .04em; }
+.slot-btn:hover:not(:disabled) { background: var(--navy); color: #fff; }
+.slot-btn:disabled { border-color: var(--line); color: var(--muted); cursor: not-allowed; }
+
+/* チケット */
+.ticket-sum { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.ticket-big { background: #fff; border: 1px solid var(--line); padding: 14px 16px; text-align: center; }
+.ticket-big .k { display: block; font-size: 12.5px; color: var(--ink-soft); }
+.ticket-big .v { font-family: var(--serif-en); font-size: 40px; line-height: 1.2; color: var(--navy); font-feature-settings: "lnum"; }
+.ticket-big .v small { font-size: 15px; margin-left: 4px; color: var(--ink-soft); }
+.ticket-groups { list-style: none; margin: 0 0 8px; padding: 0; }
+.ticket-groups li { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+.ticket-groups .exp { font-family: var(--serif-ja); color: var(--navy); min-width: 90px; }
+.ticket-groups .n { font-family: var(--serif-en); font-size: 18px; }
+
+/* メッセージ */
+.chat { display: grid; grid-template-columns: 240px 1fr; min-height: 460px; background: #fff; border: 1px solid var(--line); }
+.chat-list { list-style: none; margin: 0; padding: 0; border-right: 1px solid var(--line); overflow-y: auto; max-height: 560px; }
+.chat-list button { display: block; width: 100%; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line);
+  padding: 12px 14px; cursor: pointer; }
+.chat-list button:hover { background: #f7f8fc; }
+.chat-list button.is-cur { background: #eceef6; box-shadow: inset 3px 0 0 var(--accent); }
+.chat-list .nm { display: flex; align-items: center; justify-content: space-between; color: var(--navy); font-size: 14.5px; }
+.chat-list .last { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.chat-main { display: flex; flex-direction: column; min-width: 0; }
+.chat-empty { display: flex; align-items: center; justify-content: center; margin: 0; padding: 24px; }
+.chat-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--serif-ja); color: var(--navy); font-size: 16px; }
+.chat-back { display: none; background: none; border: 0; color: var(--ink-soft); cursor: pointer; padding: 4px 6px 4px 0; font-size: 13px; }
+.chat-log { flex: 1; overflow-y: auto; padding: 16px 14px; max-height: 440px; min-height: 260px; background: var(--bg); }
+.msg { display: flex; flex-direction: column; margin-bottom: 12px; max-width: 80%; }
+.msg.mine { margin-left: auto; align-items: flex-end; }
+.msg .bubble { padding: 9px 13px; font-size: 14px; line-height: 1.7; word-break: break-word; background: #fff; border: 1px solid var(--line); }
+.msg.mine .bubble { background: var(--navy); color: #fff; border-color: var(--navy); }
+.msg .stamp { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.chat-form { display: flex; gap: 8px; align-items: flex-end; padding: 10px; border-top: 1px solid var(--line); }
+.chat-form textarea { resize: vertical; min-height: 46px; max-height: 200px; }
+.chat-locked { margin: 0; padding: 12px 14px; border-top: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .chat { grid-template-columns: 1fr; min-height: 0; }
+  .chat-list { border-right: 0; max-height: none; }
+  .chat.is-open .chat-list, .chat .chat-empty { display: none; }
+  .chat-back { display: inline-block; }
+  .chat-log { max-height: 60vh; }
+}
+
+/* 先生：毎週の空き時間の表 */
+table.week-grid { width: 100%; min-width: 640px; border-collapse: collapse; table-layout: fixed; background: #fff; }
+.week-grid th, .week-grid td { border: 1px solid var(--line); padding: 0; text-align: center; }
+.week-grid thead th { background: var(--bg-muted); font-weight: 500; font-size: 13px; color: var(--navy); padding: 6px 2px; line-height: 1.3; }
+.week-grid thead th small { display: block; font-size: 11px; color: var(--ink-soft); }
+.week-grid thead th.is-today { background: var(--navy); color: #fff; }
+.week-grid thead th.is-today small { color: #e7d3a5; }
+.week-grid th.hr { width: 58px; font-family: var(--serif-en); font-size: 14px; color: var(--ink-soft); background: var(--bg-muted); font-weight: 400; }
+.week-grid .cell { display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; height: 34px; border: 0; margin: 0; padding: 0 2px;
+  font-size: 12px; line-height: 1.15; background: #fff; cursor: pointer; color: var(--ink-soft); overflow: hidden; white-space: nowrap; }
+.week-grid .cell.none:hover:not(:disabled) { background: #f2f7f4; }
+.week-grid .cell.none:hover:not(:disabled)::after { content: "＋"; color: var(--ok); }
+.week-grid .cell.open { background: #e9f4ee; color: var(--ok); }
+.week-grid .cell.open:hover:not(:disabled) { background: #f9e9e9; color: var(--ng); }
+.week-grid .cell.open:hover:not(:disabled)::after { content: "取消"; position: absolute; }
+.week-grid .cell.open:hover:not(:disabled) { color: transparent; position: relative; }
+.week-grid .cell.open:hover:not(:disabled)::after { color: var(--ng); }
+.week-grid .cell.booked { background: var(--navy); color: #fff; cursor: default; font-size: 11.5px; }
+.week-grid .cell.booked small { font-size: 10px; color: #e7d3a5; }
+.week-grid .cell:disabled, .week-grid .cell.past { cursor: default; opacity: .45; }
+.week-grid .cell.none:disabled { background: var(--bg-muted); opacity: 1; }
+
+/* 先生：プロフィール・管理者：チケット */
+.kv { display: grid; grid-template-columns: 170px 1fr; gap: 8px 12px; margin: 16px 0 0; font-size: 14px; }
+.kv dt { color: var(--ink-soft); }
+.kv dd { margin: 0; word-break: break-all; }
+@media (max-width: 560px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv dd { margin-bottom: 8px; } }
+.num { font-family: var(--serif-en); font-size: 20px; color: var(--navy); font-feature-settings: "lnum"; }
+.row-acts { white-space: nowrap; text-align: right; }
+.row-acts .mini { margin-left: 6px; }
+ul.plain { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+ul.plain li { padding: 6px 0; border-bottom: 1px dashed var(--line); }
+dialog.wide { width: min(760px, calc(100vw - 32px)); }
+
+/* 予約する：月のカレンダー */
+.cal-wrap { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 12px; }
+.cal { background: #fff; border: 1px solid var(--line); padding: 14px 14px 10px; }
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-nav .btn { min-width: 44px; padding: 0 10px; font-size: 18px; }
+.cal-month { font-family: var(--serif-ja); font-size: 18px; color: var(--navy); }
+table.cal-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.cal-grid th { font-weight: 500; font-size: 12px; color: var(--ink-soft); padding: 4px 0 6px; }
+.cal-grid th.sat { color: #2f5aa8; }
+.cal-grid th.sun { color: var(--ng); }
+.cal-grid td { padding: 2px; height: 58px; vertical-align: top; }
+.cal-day { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; width: 100%; height: 54px;
+  padding: 6px 0 0; border: 1px solid transparent; background: none; color: var(--muted); font: inherit; line-height: 1.2; }
+.cal-day .d { font-family: var(--serif-en); font-size: 17px; font-feature-settings: "lnum"; }
+.cal-day .n { font-size: 10.5px; letter-spacing: 0; }
+.cal-day.today .d { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+button.cal-day { cursor: pointer; }
+.cal-day.has { background: #e9f4ee; border-color: #cfe5d8; color: var(--navy); }
+.cal-day.has .n { color: var(--ok); }
+.cal-day.has:hover { border-color: var(--ok); }
+.cal-day.sel { background: var(--navy); border-color: var(--navy); color: #fff; }
+.cal-day.sel .n { color: #e7d3a5; }
+.cal-day.expired .n { color: var(--muted); }
+.cal-legend { font-size: 12px; color: var(--ink-soft); margin: 8px 0 0; display: flex; align-items: center; gap: 6px; }
+.cal-legend .lg { display: inline-block; width: 14px; height: 14px; background: #e9f4ee; border: 1px solid #cfe5d8; }
+.cal-times h4 { margin: 4px 0 12px; font-family: var(--serif-ja); font-weight: 500; font-size: 18px; color: var(--navy); }
+.cal-times h4 small { font-family: var(--sans); font-size: 12.5px; color: var(--ink-soft); margin-left: 6px; }
+.cal-times .slot-btn { display: inline-flex; align-items: baseline; gap: 2px; min-width: 120px; justify-content: center; }
+.cal-times .slot-btn small { font-size: 13px; opacity: .8; }
+@media (max-width: 640px) {
+  .cal-wrap { grid-template-columns: 1fr; gap: 16px; }
+  .cal { padding: 10px 6px 8px; }
+  .cal-grid td { height: 50px; padding: 1px; }
+  .cal-day { height: 48px; padding-top: 5px; }
+  .cal-day .d { font-size: 15px; }
+}
+.slot-btn { font-feature-settings: "lnum"; }
+.cal-times .slot-btn { font-size: 18px; min-height: 44px; }
+.cal-times .slot-btn small { font-size: 14px; }
+.cal-times h4 small { display: block; margin: 2px 0 0; }
+
+/* メッセージの添付（写真・PDF） */
+.chat-form { display: block; }
+.chat-row { display: flex; gap: 8px; align-items: flex-end; }
+.chat-row textarea { flex: 1; min-width: 0; }
+.chat-attach { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+  min-width: 64px; min-height: 46px; padding: 2px 6px; border: 1px solid var(--navy); background: #fff; color: var(--navy); cursor: pointer; line-height: 1.2; }
+.chat-attach:hover { background: #f7f8fc; }
+.chat-attach span[aria-hidden] { font-size: 16px; }
+.chat-attach .lbl { font-size: 10.5px; letter-spacing: 0; white-space: nowrap; }
+.chat-pending { margin-bottom: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; font-size: 12.5px; padding: 4px 4px 4px 10px; background: #eceef6; color: var(--navy); }
+.chip button { border: 0; background: none; cursor: pointer; font-size: 15px; color: var(--ink-soft); padding: 0 6px; }
+.msg .att { margin-top: 4px; }
+.msg .att-img { display: block; max-width: 240px; border: 1px solid var(--line); background: #fff; }
+.msg .att-img img { display: block; max-width: 100%; max-height: 260px; object-fit: contain; }
+.msg .att-img .muted { display: block; padding: 10px; }
+.msg .att-pdf { max-width: 100%; word-break: break-all; }
+.msg .att-pdf small { font-size: 11px; opacity: .75; margin-left: 4px; }
+.msg .att.gone { font-size: 12px; color: var(--muted); }
+
+/* 先生：空き時間（毎週の表・日ごとの調整） */
+.weekly-grid .cell { height: 30px; }
+.cal-day.t-day { cursor: pointer; }
+.cal-day.t-day:disabled { cursor: default; opacity: .45; }
+.cal-day.t-day .n.bk { color: #fff; background: var(--navy); padding: 0 4px; }
+.cal-day.t-day.sel .n.bk { background: #e7d3a5; color: var(--navy); }
+.cal-day.adj { position: relative; }
+.cal-day.adj::after { content: ""; position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.cal-legend .lg.adj { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 0; margin-left: 10px; }
+.day-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.day-row { display: flex; align-items: center; gap: 10px; padding: 5px 2px; border-bottom: 1px solid var(--line); min-height: 42px; flex-wrap: wrap; }
+.day-row .t { font-family: var(--serif-en); font-size: 16px; color: var(--navy); width: 108px; font-feature-settings: "lnum"; }
+.day-row.past { opacity: .45; }
+.day-tog { min-width: 72px; min-height: 32px; padding: 0 10px; border: 1px solid var(--line); background: #fff; color: var(--muted); cursor: pointer; font-size: 13px; }
+.day-tog.open { background: #e9f4ee; border-color: #cfe5d8; color: var(--ok); }
+.day-tog:hover:not(:disabled) { border-color: var(--navy); }
+.day-tog:disabled { cursor: default; }
+.day-booked { font-size: 13px; color: #fff; background: var(--navy); padding: 4px 10px; }
+.day-acts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+@media (max-width: 560px) {
+  table.weekly-grid { min-width: 0; }
+  .weekly-grid th.hr { width: 44px; font-size: 12px; }
+  .weekly-grid .cell { font-size: 11px; }
+}
+.week-grid th.hr { font-feature-settings: "lnum"; }
+
+/* 先生：毎週の空き時間の「反映」 */
+.weekly-grid .cell.changed { box-shadow: inset 0 0 0 2px var(--accent); }
+.weekly-bar { display: flex; align-items: center; justify-content: flex-end; gap: 14px; flex-wrap: wrap; margin: 10px 0 0; }
+.weekly-state { font-size: 13px; color: var(--warn); margin-right: auto; }
+.weekly-bar.dirty .weekly-state::before { content: "●"; margin-right: 6px; color: var(--accent); }
+.weekly-bar .btn { min-width: 140px; }
+
+/* 先生：イギリス時間 */
+.uk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13px; color: var(--ink-soft);
+  background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--navy); padding: 10px 14px; margin: 0 0 18px; }
+.uk-now { font-size: 12px; padding: 2px 10px; color: #fff; letter-spacing: .1em; }
+.uk-now.summer { background: #c8862b; }
+.uk-now.winter { background: #3a5a92; }
+.uk-soon { color: var(--warn); font-weight: 500; }
+.uk-time { display: block; font-family: var(--sans); font-size: 12px; color: var(--ink-soft); letter-spacing: .02em; margin-top: 1px; }
+.lesson .when .uk-time { display: block; }
+.week-grid th.hr small { display: block; font-family: var(--sans); font-size: 10.5px; color: var(--muted); line-height: 1.1; }
+.day-row .t { width: 150px; line-height: 1.3; }
+.day-row .t .uk-time { font-size: 11.5px; }
+.cal-times h4 small + small { margin-top: 2px; }
+.cal-day.dst .n.sw { color: #fff; background: var(--accent); padding: 0 3px; font-size: 9.5px; }
+.cal-day.dst.sel .n.sw { background: #e7d3a5; color: var(--navy); }
+
+/* 毎週の空き時間（イギリス時間）：日本時間が深夜・早朝の行は薄く */
+.weekly-grid tr.night th.hr, .weekly-grid tr.night .cell.none { background: #f1efe9; }
+.weekly-grid tr.night th.hr { color: #b5b2aa; }
+.week-grid th.hr small i { font-style: normal; font-size: 9.5px; margin-left: 2px; color: var(--accent); }
+
+/* 先生：時間の基準（日本時間／イギリス時間） */
+.tz-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; background: #fff; border: 1px solid var(--line); padding: 10px 14px; margin: 0 0 12px; font-size: 14px; }
+.tz-pick .k { font-size: 13px; color: var(--ink-soft); }
+.tz-pick label { display: inline-flex; align-items: baseline; gap: 6px; cursor: pointer; }
+.tz-pick small { font-size: 11.5px; color: var(--muted); }
+
+/* 予約する：カレンダーの各日に空いている先生の名前 */
+.cal-grid td:has(.s-day) { height: auto; }
+.cal-day.s-day { height: auto; min-height: 72px; padding: 5px 2px 6px; gap: 1px; }
+.cal-day.s-day .tn { display: block; max-width: 100%; font-size: 10.5px; line-height: 1.35; letter-spacing: 0; color: var(--ok);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-day.s-day.sel .tn { color: #e7d3a5; }
+.cal-day.s-day .tn.more { color: var(--ink-soft); }
+.cal-day.s-day:not(.has) .tn { color: var(--muted); }
+.day-teacher { padding: 10px 0 12px; border-bottom: 1px solid var(--line); }
+.day-teacher:last-child { border-bottom: 0; }
+.dt-name { font-family: var(--serif-ja); color: var(--navy); font-size: 16px; margin-bottom: 8px; }
+.teachers-box .teacher-grid { margin-top: 16px; }
+@media (max-width: 640px) { .cal-day.s-day { min-height: 62px; } .cal-day.s-day .tn { font-size: 9.5px; } }

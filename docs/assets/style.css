@@ -1221,3 +1221,6 @@ html[data-lang="en"] .hero-top .lead { line-height: 1.6; }
 
 /* イギリス留学の冒頭文：文字の間隔を少し詰め、「提供。」だけが次の行に落ちないようにする */
 html[data-lang="ja"] .lead.lead-fit { letter-spacing: .01em; }
+
+/* お問い合わせ：郵便番号の下の案内 */
+.field .field-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted, #8a8d99); letter-spacing: .04em; line-height: 1.6; }

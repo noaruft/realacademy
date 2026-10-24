@@ -3,25 +3,47 @@
 
 const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
 
-export async function createApi() {
+// Supabase の接続（1つのページで1つだけ作り、個人レッスンの lesson-api.js とも共有する）
+let client = null;
+export async function supabaseClient() {
+  if (client) return client;
   const cfg = window.PORTAL_CONFIG || {};
-  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createMockApi } = await import("./mock.js?v=63702de8");
-    return createMockApi();
-  }
   const { createClient } = await import(SUPABASE_JS);
   // ログインの記録はタブを閉じると消える場所（sessionStorage）に置く＝ブラウザ（タブ）を閉じるとログアウト。
   // 以前の形（localStorage）に残っているログインの記録は消しておく。
   try {
     Object.keys(localStorage).filter(k => /^sb-.*-auth-token/.test(k)).forEach(k => localStorage.removeItem(k));
   } catch {}
-  const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+  client = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
     auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true },
   });
+  return client;
+}
+
+export async function createApi() {
+  const cfg = window.PORTAL_CONFIG || {};
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+    const { createMockApi } = await import("./mock.js?v=58bc780a");
+    return createMockApi();
+  }
+  const sb = await supabaseClient();
   const unwrap = ({ data, error }) => {
     if (error) throw error;
     return data;
   };
+  // 個人レッスン（専用コース）で何ができるか。表がまだない（schema.sql 未実行）ときは何もできない扱い
+  async function lessonFlags(uid) {
+    try {
+      const [ls, lt] = await Promise.all([
+        sb.from("lesson_students").select("name, active").eq("id", uid).maybeSingle(),
+        sb.from("lesson_teachers").select("name, active, is_teacher, is_manager").eq("id", uid).maybeSingle(),
+      ]);
+      const st = ls.data?.active ? ls.data : null, te = lt.data?.active ? lt.data : null;
+      return { student: !!st, teacher: !!te?.is_teacher, manager: !!te?.is_manager, name: st?.name || te?.name || "" };
+    } catch {
+      return { student: false, teacher: false, manager: false, name: "" };
+    }
+  }
   const toEmail = id => `${id.trim().toLowerCase()}@${cfg.loginDomain}`;
 
   return {
@@ -40,10 +62,12 @@ export async function createApi() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) return null;
       const uid = session.user.id;
+      const lesson = await lessonFlags(uid);
       const a = await sb.from("admins").select("*").eq("id", uid).maybeSingle();
-      if (a.data) return { role: "admin", admin: a.data };
+      if (a.data) return { role: "admin", admin: a.data, lesson };
       const s = await sb.from("students").select("*, classes(name)").eq("id", uid).maybeSingle();
       if (s.data && s.data.active) return { role: "student", student: { ...s.data, class_name: s.data.classes?.name } };
+      if (lesson.student || lesson.teacher || lesson.manager) return { role: "lesson", lesson };
       return { role: "none" };
     },
     async changePassword(password) {
