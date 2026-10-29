@@ -52,6 +52,37 @@
     items.forEach(function (el) { el.classList.add("in"); });
   }
 
+  // ---------- イベント一覧：最初は6件（スマホの1列は3件）までを見せ、次の段は下半分から薄くして畳む。ボタンで全部を開く ----------
+  document.querySelectorAll(".events").forEach(function (list) {
+    var cards = list.querySelectorAll(".event"), more = list.nextElementSibling;
+    if (!more || !more.classList.contains("events-more")) return;
+    var btn = more.querySelector("button"), open = false;
+    more.querySelectorAll(".n").forEach(function (n) { n.textContent = cards.length; });
+    function fold() {
+      list.classList.remove("folded"); list.style.maxHeight = ""; list.style.removeProperty("--fade-from");
+      if (open) return;
+      var cols = getComputedStyle(list).gridTemplateColumns.split(" ").length;
+      var show = cols > 1 ? Math.ceil(6 / cols) * cols : 3;  // 全部見せる件数（段の終わりまで）
+      if (cards.length <= show) { more.hidden = true; return; }
+      var next = cards[show], top = next.offsetTop, h = next.offsetHeight;
+      list.classList.add("folded");
+      list.style.maxHeight = (top + h * 0.8) + "px";      // 次の段は8割まで見せ、
+      list.style.setProperty("--fade-from", (top + h * 0.3) + "px");  // 3割あたりから下を薄くする（半分より下はほとんど見えない）
+      more.hidden = false;
+    }
+    btn.addEventListener("click", function () {
+      open = !open;
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      more.classList.toggle("open", open);
+      fold();
+      if (!open) list.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+    fold();
+    var t;
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(fold, 150); });
+    new MutationObserver(fold).observe(document.documentElement, { attributes: true, attributeFilter: ["data-lang"] });  // 日英の切り替えで高さが変わるため
+  });
+
   // ---------- お問い合わせフォーム ----------
   var form = document.querySelector("form.form");
 
@@ -305,6 +336,10 @@
     var urls = ph.getAttribute("data-slides").split("|");
     var first = (ph.style.backgroundImage.match(/url\(["']?([^"')]+)/) || [])[1];
     if (first) urls.unshift(first);
+    // スマホ幅（820px以下）では、スマホ用の写真（data-slides-sp。1枚目から順に）を使う。画面の向きが変わったときも差し替える
+    var pc = urls, sp = ph.hasAttribute("data-slides-sp") ? ph.getAttribute("data-slides-sp").split("|") : null;
+    var narrow = window.matchMedia("(max-width: 820px)");
+    if (sp && narrow.matches) urls = sp;
     // 2枚目以降は、表示する直前に読み込む（最初の表示を軽くする）
     var layers = urls.map(function (u, i) {
       var d = document.createElement("div");
@@ -320,6 +355,10 @@
       img.onload = img.onerror = function () { layers[n].style.backgroundImage = "url('" + urls[n] + "')"; ready[n] = true; done && done(); };
       img.src = urls[n];
     }
+    if (sp) narrow.addEventListener("change", function () {
+      urls = narrow.matches ? sp : pc;
+      layers.forEach(function (d, n) { if (ready[n]) d.style.backgroundImage = "url('" + urls[n] + "')"; });
+    });
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var i = 0;
     load(1);
