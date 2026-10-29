@@ -2,8 +2,8 @@
 // 左に相手の一覧、右にやり取り。スマホ幅ではどちらか一方を表示する。
 // 写真と PDF を添付できる（写真はブラウザの中で縮めてから送る。送った日から6か月で自動的に消える）。
 
-import { errMsg, esc, toast } from "./common.js?v=19888956";
-import { FILE_KEEP_MONTHS, FILE_MAX_MB, IMAGE_MAX_PX, fileGone, fmtStamp } from "./lesson-common.js?v=19888956";
+import { errMsg, esc, toast } from "./common.js?v=f622146d";
+import { FILE_KEEP_MONTHS, FILE_MAX_MB, IMAGE_MAX_PX, fileGone, fmtStamp } from "./lesson-common.js?v=f622146d";
 
 // 写真は長い辺を IMAGE_MAX_PX まで縮めて JPEG に。PDF はそのまま
 async function prepareFile(file) {

@@ -2,15 +2,15 @@
 // 個人レッスンのページはこのファイルの関数だけを使う（ログイン・ログアウトは api.js）。
 // 本番のルール（24時間前の締め切り・チケット・空き時間など）は supabase/schema.sql の lesson_… 関数にある。
 
-import { fileGone } from "./lesson-common.js?v=19888956";
+import { fileGone } from "./lesson-common.js?v=f622146d";
 
 export async function createLessonApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createLessonMockApi } = await import("./lesson-mock.js?v=19888956");
+    const { createLessonMockApi } = await import("./lesson-mock.js?v=f622146d");
     return createLessonMockApi();
   }
-  const { supabaseClient } = await import("./api.js?v=19888956");
+  const { supabaseClient } = await import("./api.js?v=f622146d");
   const sb = await supabaseClient();
   const unwrap = ({ data, error }) => {
     if (error) throw new Error(error.message || "エラーが発生しました");
@@ -110,7 +110,8 @@ export async function createLessonApi() {
     teacherCancel: (id, note) => rpc("lesson_teacher_cancel", { p_booking: id, p_note: note || null }),
 
     // ---------- 管理者（チケット） ----------
-    ticketOverview: () => rpc("lesson_ticket_overview"),
+    // month：購入を数える月（その月のどこかの日 "2026-10-01"）
+    ticketOverview: month => rpc("lesson_ticket_overview", { p_month: month }),
     async studentTickets(studentId) {
       const [tickets, grants] = await Promise.all([
         rpc("lesson_tickets_of", { p_student: studentId }),

@@ -433,6 +433,18 @@ details.past[open] > summary::before { content: "－ "; }
 .t-msg { display: block; border-left: 2px solid var(--line); padding-left: 10px; }
 .profile-form .field > span small { margin-left: 8px; font-weight: 400; }
 .profile-form .field > small { display: block; margin-top: 4px; }
+/* 管理者：チケットのまとめ（月の切り替え＋生徒ごとの枚数） */
+.ticket-month { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 0 0 12px; }
+.ticket-month .btn { min-width: 40px; padding: 0 10px; font-size: 18px; }
+.ticket-month .tm-sum { margin-left: auto; font-size: 14px; color: var(--ink-soft); }
+.ticket-month .tm-sum b { font-family: var(--serif-en); font-size: 24px; color: var(--navy); margin: 0 2px; font-feature-settings: "lnum"; }
+.tk-table th.n, .tk-table td.n { text-align: right; white-space: nowrap; }
+.tk-table td.n { font-family: var(--serif-en); font-size: 17px; color: var(--navy); font-feature-settings: "lnum"; }
+.tk-table td.n.zero { color: #c3c5cc; }
+.tk-table td.n small { display: block; font-family: var(--sans); font-size: 11px; color: var(--ink-soft); }
+.tk-table .hl { background: #f6f1e6; }
+.tk-table tfoot th { border-top: 2px solid var(--navy); font-weight: 500; color: var(--navy); }
+.tk-table tfoot th.n { font-family: var(--serif-en); font-size: 17px; font-feature-settings: "lnum"; }
 .teacher-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 /* 予約する：時間を選ぶ */

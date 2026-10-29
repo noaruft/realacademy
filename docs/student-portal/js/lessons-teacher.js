@@ -1,10 +1,10 @@
 // 個人レッスン（専用コース）：先生のページ（管理者はチケットの配布と全体の予約も）
-import { createApi } from "./api.js?v=19888956";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=19888956";
-import { createLessonApi } from "./lesson-api.js?v=19888956";
-import { createChat } from "./lesson-chat.js?v=19888956";
-import { FIRST_HOUR, LAST_HOUR, PHASE_TAG, PROFILE_FIELDS, TICKET_MONTHS, ZOOM_OPEN_MINUTES, addDaysJ, addMonthsJ, fmtDay, fmtWhen,
-  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=19888956";
+import { createApi } from "./api.js?v=f622146d";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=f622146d";
+import { createLessonApi } from "./lesson-api.js?v=f622146d";
+import { createChat } from "./lesson-chat.js?v=f622146d";
+import { FIRST_HOUR, LAST_HOUR, PHASE_TAG, PROFILE_FIELDS, ZOOM_OPEN_MINUTES, addDaysJ, fmtDay, fmtWhen,
+  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=f622146d";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 const $ = id => document.getElementById(id);
@@ -462,49 +462,40 @@ function renderProfile() {
 }
 
 // ---------- チケット（管理者） ----------
+// 生徒ごとに、選んだ月の購入枚数（月末の精算用）・購入の合計・使用済み・予約中・未使用・期限切れ
+let ticketMonth = jstToday().slice(0, 7);  // 購入を数える月（"2026-10"）
+let ticketRows = [];
 async function renderTickets() {
-  const rows = await L.ticketOverview();
+  ticketRows = await L.ticketOverview(ticketMonth + "-01");
+  const [y, m] = ticketMonth.split("-").map(Number);
+  const sum = k => ticketRows.reduce((n, s) => n + s[k], 0);
+  const num = n => `<td class="n${n ? "" : " zero"}">${n}</td>`;
+  $("ticketMonth").innerHTML = `
+    <button class="btn btn-line btn-sm" type="button" data-tm="-1" aria-label="前の月">‹</button>
+    <span class="cal-month">${y}年 ${m}月</span>
+    <button class="btn btn-line btn-sm" type="button" data-tm="1" aria-label="次の月" ${ticketMonth >= jstToday().slice(0, 7) ? "disabled" : ""}>›</button>
+    <span class="tm-sum">${m}月の購入　合計 <b>${sum("bought_month")}</b> 枚</span>`;
   $("ticketTable").innerHTML = `
-    <thead><tr><th>生徒</th><th>ログインID</th><th>使えるチケット</th><th>いちばん近い期限</th><th>予約中</th><th></th></tr></thead>
-    <tbody>${rows.map(s => `
+    <thead><tr><th>生徒</th><th>ログインID</th><th class="n hl">${m}月の購入</th><th class="n">購入の合計</th><th class="n">使用済み</th><th class="n">予約中</th><th class="n">未使用</th><th class="n">期限切れ</th><th></th></tr></thead>
+    <tbody>${ticketRows.map(s => `
       <tr>
         <td>${esc(s.name)}${s.active ? "" : ` <span class="tag tag-mute">停止中</span>`}</td>
         <td>${esc(s.login_id)}</td>
-        <td><b class="num">${s.valid}</b> 枚</td>
-        <td>${s.next_expiry ? md(s.next_expiry) : "—"}</td>
-        <td>${s.upcoming} 件</td>
-        <td class="row-acts"><button class="btn btn-sm" type="button" data-grant="${esc(s.id)}">チケットを配る</button>
-          <button class="mini" type="button" data-hist="${esc(s.id)}">記録</button></td>
-      </tr>`).join("")}</tbody>`;
+        ${num(s.bought_month).replace('class="n', 'class="n hl')}${num(s.bought_total)}${num(s.used)}${num(s.booked)}
+        <td class="n${s.unused ? "" : " zero"}">${s.unused}${s.next_expiry ? `<small>${md(s.next_expiry)} まで</small>` : ""}</td>${num(s.expired)}
+        <td class="row-acts"><button class="mini" type="button" data-hist="${esc(s.id)}">記録</button></td>
+      </tr>`).join("")}</tbody>
+    <tfoot><tr><th colspan="2">合計</th>${["bought_month", "bought_total", "used", "booked", "unused", "expired"].map(k => `<th class="n${k === "bought_month" ? " hl" : ""}">${sum(k)}</th>`).join("")}<th></th></tr></tfoot>`;
 }
-let grantTarget = null;
-$("ticketTable").addEventListener("click", async e => {
-  const g = e.target.closest("[data-grant]"), h = e.target.closest("[data-hist]");
-  const rows = (g || h) ? await L.ticketOverview() : [];
-  if (g) {
-    grantTarget = rows.find(s => s.id === g.dataset.grant);
-    $("grantWho").innerHTML = `<b>${esc(grantTarget.name)}</b> さん（${esc(grantTarget.login_id)}）　いま使えるチケット ${grantTarget.valid} 枚`;
-    $("grantForm").reset();
-    $("grantError").hidden = true;
-    $("grantExp").textContent = `期限：${md(addMonthsJ(jstToday(), TICKET_MONTHS))} まで（今日から${TICKET_MONTHS}か月）`;
-    $("grantDlg").showModal();
-  }
-  if (h) showHistory(rows.find(s => s.id === h.dataset.hist));
+$("ticketMonth").addEventListener("click", e => {
+  const b = e.target.closest("[data-tm]");
+  if (!b) return;
+  ticketMonth = monthAdd(ticketMonth, Number(b.dataset.tm));
+  renderTickets();
 });
-$("grantForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const f = e.target;
-  const n = Number(f.count.value);
-  if (!Number.isInteger(n) || n < 1 || n > 50) { $("grantError").textContent = "枚数は1〜50で入力してください"; $("grantError").hidden = false; return; }
-  try {
-    await L.grant(grantTarget.id, n, f.note.value);
-    $("grantDlg").close();
-    toast(`${grantTarget.name} さんにチケットを ${n} 枚配りました`);
-  } catch (err) {
-    $("grantError").textContent = errMsg(err);
-    $("grantError").hidden = false;
-  }
-  renderTab();
+$("ticketTable").addEventListener("click", e => {
+  const h = e.target.closest("[data-hist]");
+  if (h) showHistory(ticketRows.find(s => s.id === h.dataset.hist));
 });
 
 let histStudent = null;
@@ -527,15 +518,15 @@ async function showHistory(st) {
   const list = [...tickets].sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id);
   $("historyWho").textContent = `${st.name} さんのチケット`;
   $("historyBody").innerHTML = `
-    <h3 class="mat-title">配った・追加した記録</h3>
-    ${grants.length ? `<ul class="plain">${[...grants].reverse().map(g => `<li>${md(jst(g.created_at).date)}　${g.count} 枚（${md(g.expires_on)} まで）${g.granted_by === st.id ? `　<span class="tag tag-move">本人が追加</span>` : ""}${g.note ? `　<span class="muted">${esc(g.note)}</span>` : ""}</li>`).join("")}</ul>` : `<p class="muted">まだありません。</p>`}
+    <h3 class="mat-title">購入の記録</h3>
+    ${grants.length ? `<ul class="plain">${[...grants].reverse().map(g => `<li>${md(jst(g.created_at).date)}　${g.count} 枚（${md(g.expires_on)} まで）${g.granted_by === st.id ? "" : `　<span class="tag tag-mute">教室が配布</span>`}${g.note ? `　<span class="muted">${esc(g.note)}</span>` : ""}</li>`).join("")}</ul>` : `<p class="muted">まだありません。</p>`}
     <h3 class="mat-title">チケット1枚ごと</h3>
     ${list.length ? `<div class="table-wrap"><table class="list">
       <thead><tr><th>受け取った日</th><th>種類</th><th>期限</th><th>状態</th><th></th></tr></thead>
       <tbody>${list.map(t => {
         const [label, cls] = state(t);
         const can = !t.booking_id && !t.revoked_at && t.expires_on >= t0;
-        return `<tr><td>${md(jst(t.created_at).date)}</td><td>${t.source === "refund" ? "返却" : "配布"}</td><td>${md(t.expires_on)}</td>
+        return `<tr><td>${md(jst(t.created_at).date)}</td><td>${t.source === "refund" ? "返却" : "購入"}</td><td>${md(t.expires_on)}</td>
           <td><span class="tag ${cls}">${esc(label)}</span></td><td>${can ? `<button class="mini" type="button" data-revoke="${t.id}">取り消す</button>` : ""}</td></tr>`;
       }).join("")}</tbody></table></div>` : `<p class="muted">まだありません。</p>`}`;
   if (!$("historyDlg").open) $("historyDlg").showModal();
@@ -543,7 +534,7 @@ async function showHistory(st) {
 $("historyBody").addEventListener("click", async e => {
   const r = e.target.closest("[data-revoke]");
   if (!r) return;
-  if (!confirm("このチケットを取り消しますか？（配りまちがいのときに使います）")) return;
+  if (!confirm("このチケットを取り消しますか？（まちがって購入したときなどに使います。取り消すと購入の数からも外れます）")) return;
   try {
     await L.revokeTicket(Number(r.dataset.revoke));
     toast("取り消しました");
