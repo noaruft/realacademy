@@ -1,9 +1,9 @@
 // 個人レッスン（専用コース）：生徒のページ
-import { createApi } from "./api.js?v=58bc780a";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=58bc780a";
-import { createLessonApi } from "./lesson-api.js?v=58bc780a";
-import { createChat } from "./lesson-chat.js?v=58bc780a";
-import { DEADLINE_HOURS, PHASE_TAG, ZOOM_OPEN_MINUTES, addDaysJ, fmtDay, fmtWhen, jst, jstToday, mondayJ, phase, phaseLabel } from "./lesson-common.js?v=58bc780a";
+import { createApi } from "./api.js?v=19888956";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=19888956";
+import { createLessonApi } from "./lesson-api.js?v=19888956";
+import { createChat } from "./lesson-chat.js?v=19888956";
+import { DEADLINE_HOURS, PHASE_TAG, TICKET_MONTHS, TICKET_PACKS, ZOOM_OPEN_MINUTES, addDaysJ, addMonthsJ, fmtDay, fmtWhen, jst, jstToday, mondayJ, phase, phaseLabel } from "./lesson-common.js?v=19888956";
 
 const IDLE_MINUTES = 30;  // 操作がないと30分で自動ログアウト
 const $ = id => document.getElementById(id);
@@ -190,7 +190,8 @@ function renderTeachers() {
   $("teacherGrid").innerHTML = teachers.length ? teachers.map(t => `
     <article class="teacher-card">
       <h3>${esc(sensei(t.name))}</h3>
-      <p>${esc(t.profile || "")}</p>
+      ${t.origin || t.hobby ? `<dl class="t-prof">${t.origin ? `<dt>出身</dt><dd>${esc(t.origin)}</dd>` : ""}${t.hobby ? `<dt>趣味</dt><dd>${esc(t.hobby)}</dd>` : ""}</dl>` : ""}
+      <p>${t.message ? `<span class="t-msg">${esc(t.message)}</span>` : ""}</p>
       <div class="teacher-acts"><button class="btn-text" type="button" data-msg="${esc(t.id)}">メッセージを送る</button></div>
     </article>`).join("") : `<p class="card muted">先生がまだ登録されていません。</p>`;
 }
@@ -248,7 +249,7 @@ async function renderSlots() {
     }
     rows += "</tr>";
   }
-  const lead = !maxExp ? `<p class="error">使えるチケットがありません。お支払いの確認後に教室からチケットをお渡しします。</p>`
+  const lead = !maxExp ? `<p class="error">使えるチケットがありません。「チケット」タブから追加してください。</p>`
     : days.some(x => x > maxExp) ? `<p class="muted">お持ちのチケットは ${md(maxExp)} までです。それより後の日は選べません。</p>` : "";
   // 選んだ日：先生ごとに時間を並べる
   const sel = selDay && selDay.slice(0, 7) === calMonth ? byDay.get(selDay) : null;
@@ -313,7 +314,7 @@ $("slotList").addEventListener("click", async e => {
 function noTicketMsg(date) {
   const v = usable();
   return v.length ? `お持ちのチケットは ${md(v.at(-1).expires_on)} までのため、${md(date)} のレッスンには使えません`
-    : "使えるチケットがありません。教室にお問い合わせください";
+    : "使えるチケットがありません。「チケット」タブから追加してください";
 }
 
 
@@ -344,6 +345,7 @@ function renderTickets() {
       <div class="ticket-big"><span class="k">使えるチケット</span><span class="v">${valid.length}<small>枚</small></span></div>
       <div class="ticket-big"><span class="k">予約に使用中</span><span class="v">${inUse.length}<small>枚</small></span></div>
     </div>
+    <p class="ticket-add"><button class="btn" type="button" data-add>チケットを追加する</button></p>
     ${groups.size ? `<ul class="ticket-groups">${[...groups].map(([k, n]) => {
       const [exp, src] = k.split("|");
       return `<li><span class="exp">${md(exp)} まで</span><span class="n">${n} 枚</span>${src === "refund" ? `<span class="tag tag-move">先生の都合でキャンセルされた分</span>` : ""}</li>`;
@@ -354,8 +356,32 @@ function renderTickets() {
       <tbody>${hist.map(t => {
         const [label, cls] = state(t);
         return `<tr><td>${md(jst(t.created_at).date)}</td><td>${t.source === "refund" ? "返却" : "購入"}</td><td>${md(t.expires_on)}</td><td><span class="tag ${cls}">${esc(label)}</span></td></tr>`;
-      }).join("")}</tbody></table></div>` : `<p class="muted">まだチケットはありません。お支払いの確認後に教室からお渡しします。</p>`}`;
+      }).join("")}</tbody></table></div>` : `<p class="muted">まだチケットはありません。上の「チケットを追加する」から追加できます。</p>`}`;
 }
+// 「チケットを追加する」→ 枚数（3・5・10枚）を選んで追加
+$("ticketBox").addEventListener("click", async e => {
+  const b = e.target.closest("[data-add]");
+  if (!b) return;
+  const pick = ask("チケットを追加する", `
+    <p class="muted">枚数を選んでください。期限は今日から${TICKET_MONTHS}か月（${md(addMonthsJ(today(), TICKET_MONTHS))} まで）です。</p>
+    <div class="ticket-packs">${TICKET_PACKS.map(n => `<label><input type="radio" name="pack" value="${n}">${n}<small>枚</small></label>`).join("")}</div>`, "追加する");
+  $("confirmOk").disabled = true;
+  for (const r of $("confirmText").querySelectorAll("[name=pack]")) {
+    r.addEventListener("change", () => { $("confirmOk").disabled = false; $("confirmOk").textContent = `${r.value}枚追加する`; });
+  }
+  if (!await pick) return;
+  const n = Number($("confirmText").querySelector("[name=pack]:checked")?.value);
+  if (!n) return;
+  b.disabled = true;
+  try {
+    await L.addTickets(n);
+    toast(`チケットを ${n} 枚追加しました`);
+    await refresh();
+  } catch (err) {
+    toast(errMsg(err), true);
+    renderTickets();
+  }
+});
 
 // ---------- 確認ダイアログ ----------
 function ask(title, html, okLabel = "確定する") {
@@ -364,6 +390,7 @@ function ask(title, html, okLabel = "確定する") {
     $("confirmTitle").textContent = title;
     $("confirmText").innerHTML = html;
     $("confirmOk").textContent = okLabel;
+    $("confirmOk").disabled = false;
     dlg.returnValue = "";
     dlg.addEventListener("close", () => resolve(dlg.returnValue === "ok"), { once: true });
     dlg.showModal();

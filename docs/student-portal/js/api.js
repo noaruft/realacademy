@@ -23,7 +23,7 @@ export async function supabaseClient() {
 export async function createApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createMockApi } = await import("./mock.js?v=58bc780a");
+    const { createMockApi } = await import("./mock.js?v=19888956");
     return createMockApi();
   }
   const sb = await supabaseClient();
@@ -36,10 +36,10 @@ export async function createApi() {
     try {
       const [ls, lt] = await Promise.all([
         sb.from("lesson_students").select("name, active").eq("id", uid).maybeSingle(),
-        sb.from("lesson_teachers").select("name, active, is_teacher, is_manager").eq("id", uid).maybeSingle(),
+        sb.from("lesson_teachers").select("*").eq("id", uid).maybeSingle(),
       ]);
       const st = ls.data?.active ? ls.data : null, te = lt.data?.active ? lt.data : null;
-      return { student: !!st, teacher: !!te?.is_teacher, manager: !!te?.is_manager, name: st?.name || te?.name || "" };
+      return { student: !!st, teacher: !!te?.is_teacher, manager: !!te?.is_manager, name: st?.name || te?.display_name || te?.name || "" };
     } catch {
       return { student: false, teacher: false, manager: false, name: "" };
     }

@@ -2,15 +2,15 @@
 // 個人レッスンのページはこのファイルの関数だけを使う（ログイン・ログアウトは api.js）。
 // 本番のルール（24時間前の締め切り・チケット・空き時間など）は supabase/schema.sql の lesson_… 関数にある。
 
-import { fileGone } from "./lesson-common.js?v=58bc780a";
+import { fileGone } from "./lesson-common.js?v=19888956";
 
 export async function createLessonApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createLessonMockApi } = await import("./lesson-mock.js?v=58bc780a");
+    const { createLessonMockApi } = await import("./lesson-mock.js?v=19888956");
     return createLessonMockApi();
   }
-  const { supabaseClient } = await import("./api.js?v=58bc780a");
+  const { supabaseClient } = await import("./api.js?v=19888956");
   const sb = await supabaseClient();
   const unwrap = ({ data, error }) => {
     if (error) throw new Error(error.message || "エラーが発生しました");
@@ -44,6 +44,8 @@ export async function createLessonApi() {
     },
     cancel: id => rpc("lesson_cancel", { p_booking: id }),
     absent: id => rpc("lesson_absent", { p_booking: id }),
+    // チケットを自分で追加（3・5・10枚）
+    addTickets: count => rpc("lesson_add_tickets", { p_count: Number(count) }),
 
     // ---------- メッセージ ----------
     async threads() {
@@ -94,12 +96,12 @@ export async function createLessonApi() {
     async myTeacher() {
       return unwrap(await sb.from("lesson_teachers").select("*").eq("id", await me()).single());
     },
-    updateProfile: text => rpc("lesson_update_profile", { p_text: String(text || "") }),
+    // プロフィール（{ name, origin, hobby, message }）。name は生徒の画面などに出す名前（空なら名簿の名前）
+    updateProfile: p => rpc("lesson_update_profile", { p_name: p.name || "", p_origin: p.origin || "", p_hobby: p.hobby || "", p_message: p.message || "" }),
     async weekly() {
       return unwrap(await sb.from("lesson_weekly").select("weekday, hour").eq("teacher_id", await me()));
     },
     saveWeekly: list => rpc("lesson_save_weekly", { p_list: list }),
-    setTimezone: tz => rpc("lesson_set_tz", { p_tz: tz }),
     teacherDays: (from, to) => rpc("lesson_teacher_days", { p_from: from, p_to: to }),
     setDay: (date, hour, open) => rpc("lesson_set_day", { p_date: date, p_hour: hour, p_open: open }),
     closeDay: date => rpc("lesson_close_day", { p_date: date }),

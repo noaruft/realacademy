@@ -426,6 +426,13 @@ details.past[open] > summary::before { content: "－ "; }
 .teacher-card { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--accent); padding: 18px 18px 16px; display: flex; flex-direction: column; }
 .teacher-card h3 { margin: 0 0 6px; font-weight: 500; font-size: 18px; color: var(--navy); }
 .teacher-card p { margin: 0 0 14px; font-size: 13.5px; color: var(--ink-soft); line-height: 1.8; flex: 1; }
+/* 先生のプロフィール（出身・趣味と一言） */
+.t-prof { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; margin: 0 0 10px; font-size: 13px; }
+.t-prof dt { color: var(--accent); font-weight: 500; }
+.t-prof dd { margin: 0; color: var(--ink); }
+.t-msg { display: block; border-left: 2px solid var(--line); padding-left: 10px; }
+.profile-form .field > span small { margin-left: 8px; font-weight: 400; }
+.profile-form .field > small { display: block; margin-top: 4px; }
 .teacher-acts { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 /* 予約する：時間を選ぶ */
@@ -441,6 +448,15 @@ details.past[open] > summary::before { content: "－ "; }
 .ticket-big .k { display: block; font-size: 12.5px; color: var(--ink-soft); }
 .ticket-big .v { font-family: var(--serif-en); font-size: 40px; line-height: 1.2; color: var(--navy); font-feature-settings: "lnum"; }
 .ticket-big .v small { font-size: 15px; margin-left: 4px; color: var(--ink-soft); }
+.ticket-add { text-align: center; margin: 0 0 14px; }
+.ticket-packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.ticket-packs label { display: flex; align-items: baseline; justify-content: center; padding: 12px 6px; border: 1px solid var(--line); background: #fff;
+  cursor: pointer; color: var(--navy); font-family: var(--serif-en); font-size: 24px; font-feature-settings: "lnum"; }
+.ticket-packs label:hover { border-color: var(--navy); }
+.ticket-packs label:has(input:checked) { border-color: var(--navy); background: var(--navy); color: #fff; }
+.ticket-packs label:has(input:focus-visible) { outline: 2px solid var(--gold); outline-offset: 2px; }
+.ticket-packs input { position: absolute; opacity: 0; pointer-events: none; }
+.ticket-packs small { font-family: var(--serif-ja); font-size: 13px; margin-left: 3px; }
 .ticket-groups { list-style: none; margin: 0 0 8px; padding: 0; }
 .ticket-groups li { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 4px; border-bottom: 1px solid var(--line); }
 .ticket-groups .exp { font-family: var(--serif-ja); color: var(--navy); min-width: 90px; }
@@ -644,3 +660,52 @@ button.cal-day { cursor: pointer; }
 .dt-name { font-family: var(--serif-ja); color: var(--navy); font-size: 16px; margin-bottom: 8px; }
 .teachers-box .teacher-grid { margin-top: 16px; }
 @media (max-width: 640px) { .cal-day.s-day { min-height: 62px; } .cal-day.s-day .tn { font-size: 9.5px; } }
+
+/* 先生用ページ（個人レッスン）：コンパクト表示 */
+.page-hero.compact { padding: 14px var(--gutter) 12px; }
+.page-hero.compact h1 { font-size: 20px; }
+.page-hero.compact p { margin: 0; font-size: 12px; }
+details.help { margin: 0 0 14px; font-size: 13px; }
+details.help > summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--ink-soft); list-style: none; padding: 2px 0; }
+details.help > summary::-webkit-details-marker { display: none; }
+details.help > summary::before { content: "?"; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--navy); color: #fff; font-size: 11px; }
+details.help > p { color: var(--ink-soft); background: var(--bg-muted); padding: 10px 14px; margin: 6px 0 0; }
+/* 毎週の空き時間：畳んだ箱の中に、小さなマスの表 */
+.weekly-box { margin-top: 24px; background: #fff; border: 1px solid var(--line); }
+.weekly-box > summary { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; padding: 12px 16px; cursor: pointer; list-style: none; }
+.weekly-box > summary::-webkit-details-marker { display: none; }
+.weekly-box > summary::before { content: "＋"; color: var(--accent); }
+.weekly-box[open] > summary::before { content: "－"; }
+.weekly-box .ttl { font-size: 16px; font-weight: 500; color: var(--navy); }
+.weekly-flag { margin-left: auto; font-size: 13px; color: var(--warn); }
+.weekly-flag::before { content: "●"; margin-right: 6px; color: var(--accent); }
+.weekly-inner { padding: 0 16px 16px; }
+.weekly-inner .tz-pick { margin-bottom: 10px; padding: 8px 12px; }
+table.week-grid.weekly-grid { width: 100%; max-width: 600px; min-width: 0; user-select: none; }
+.weekly-grid thead th { padding: 3px 2px; font-size: 12px; }
+.weekly-grid th.hr { width: 92px; font-size: 12px; line-height: 1.2; padding: 0 4px; white-space: nowrap; }
+.weekly-grid th.hr small { display: inline; margin-left: 5px; }
+/* 日本時間は濃く、イギリス時間は薄く小さく（見比べやすく） */
+.weekly-grid tbody th.hr { color: var(--ink); font-size: 13px; font-weight: 500; }
+.weekly-grid tbody th.hr small { color: var(--muted); font-weight: 400; }
+.weekly-grid thead th.hr { color: var(--ink); }
+.weekly-grid .cell { height: 22px; }
+.weekly-grid .cell.open { background: #a9d5bb; }
+.weekly-grid .cell:hover:not(:disabled)::after { content: none; }
+.weekly-grid .cell.none:hover:not(:disabled) { background: #e3f1e8; }
+.weekly-grid .cell.open:hover:not(:disabled) { background: #8cc5a3; color: transparent; }
+.weekly-grid .cell.changed { box-shadow: inset 0 0 0 2px var(--accent); }
+.weekly-inner .weekly-bar { max-width: 600px; }
+@media (max-width: 640px) { .weekly-grid th.hr { width: 74px; } .weekly-grid th.hr small { display: block; margin: 0; } }
+/* 日ごとの時間：パソコンでは2列（左の列を上から下へ、続きを右の列へ） */
+@media (min-width: 800px) {
+  #dayWrap .cal-wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  #dayWrap .day-list { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(var(--rows), auto); grid-auto-flow: column; column-gap: 16px; }
+  #dayWrap .day-row { gap: 4px 6px; min-height: 40px; padding: 4px 2px; }
+  #dayWrap .day-row .t { width: auto; flex: 1; min-width: 0; font-size: 14px; }
+  #dayWrap .day-row .t .uk-time { font-size: 10.5px; }
+  #dayWrap .day-tog { min-width: 52px; min-height: 28px; padding: 0 6px; font-size: 12px; flex-shrink: 0; }
+  #dayWrap .day-row .tag { font-size: 10px; padding: 1px 4px; white-space: nowrap; }
+  #dayWrap .day-booked { font-size: 12px; }
+}

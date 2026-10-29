@@ -5,7 +5,8 @@
 export const LESSON_MINUTES = 60;   // レッスンの長さ
 export const DEADLINE_HOURS = 24;   // 予約・キャンセルの締め切り（レッスン開始の何時間前まで）
 export const ZOOM_OPEN_MINUTES = 10; // Zoom に入るボタンを出す時刻（開始の何分前から）
-export const TICKET_MONTHS = 2;     // チケットの有効期限（配った日・返した日から）
+export const TICKET_MONTHS = 2;     // チケットの有効期限（配った日・追加した日・返した日から）
+export const TICKET_PACKS = [3, 5, 10]; // 生徒が自分で追加できる枚数（代金は月末に、その月に追加した枚数で精算）
 export const BOOK_AHEAD_MONTHS = 1; // 生徒が予約できるのは今日から何か月先まで
 export const FIRST_HOUR = 7;        // 日ごとの調整でいつも表示する時間帯（日本時間の開始 7:00〜23:00）
 export const LAST_HOUR = 23;        // 　これ以外の時間も、毎週の空き時間や予約があれば表示する
@@ -13,6 +14,13 @@ export const JST = "JST（日本時間）";
 export const FILE_MAX_MB = 10;       // メッセージに添付できるファイルの大きさ（写真は縮めてから送る）
 export const FILE_KEEP_MONTHS = 6;   // 添付ファイルを残す期間（送った日から。過ぎたら自動で消す）
 export const IMAGE_MAX_PX = 1600;    // 写真は長い辺をこの大きさまで縮める
+// 先生のプロフィールの欄（先生が自分のページで書き、生徒の「先生の紹介」に出る）。name は生徒の画面などに出す名前（空なら名簿の名前）
+export const PROFILE_FIELDS = {
+  name: { name: "名前", max: 50 },
+  origin: { name: "出身", max: 50 },
+  hobby: { name: "趣味", max: 50 },
+  message: { name: "一言", max: 50 },
+};
 
 const H9 = 9 * 3600e3;
 const WD = ["日", "月", "火", "水", "木", "金", "土"];

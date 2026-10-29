@@ -1,10 +1,10 @@
 // 個人レッスン（専用コース）：先生のページ（管理者はチケットの配布と全体の予約も）
-import { createApi } from "./api.js?v=58bc780a";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=58bc780a";
-import { createLessonApi } from "./lesson-api.js?v=58bc780a";
-import { createChat } from "./lesson-chat.js?v=58bc780a";
-import { FIRST_HOUR, LAST_HOUR, PHASE_TAG, TICKET_MONTHS, ZOOM_OPEN_MINUTES, addDaysJ, addMonthsJ, fmtDay, fmtWhen,
-  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=58bc780a";
+import { createApi } from "./api.js?v=19888956";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=19888956";
+import { createLessonApi } from "./lesson-api.js?v=19888956";
+import { createChat } from "./lesson-chat.js?v=19888956";
+import { FIRST_HOUR, LAST_HOUR, PHASE_TAG, PROFILE_FIELDS, TICKET_MONTHS, ZOOM_OPEN_MINUTES, addDaysJ, addMonthsJ, fmtDay, fmtWhen,
+  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=19888956";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 const $ = id => document.getElementById(id);
@@ -23,6 +23,7 @@ let tMonth = jstToday().slice(0, 7);  // 日ごとの調整：表示している
 let tDay = jstToday();                // 日ごとの調整：選んでいる日
 let weeklySaved = null;               // 毎週の空き時間：反映済みのもの（"曜日|時" の Set）
 let weeklyDraft = null;               // 毎週の空き時間：画面で選んでいるもの（反映を押すまで生徒には見えない）
+let weeklyAllHours = false;           // 毎週の空き時間：深夜・早朝（0:00〜6:00）の行も出すか
 let chat = null;
 
 // ---------- タブ ----------
@@ -181,35 +182,12 @@ async function renderAvail() {
 }
 
 // ---------- イギリス時間 ----------
-// 先生ごとの「時間の基準」。"uk"（イギリスから教える）なら、イギリス時間を添えて夏時間・冬時間を知らせる。"jp" なら日本時間だけ
-const isUk = () => isTeacher && teacher?.tz !== "jp";
+// 毎週の空き時間・予約は日本時間で扱う。先生の画面には、イギリス時間も添えて夏時間・冬時間を知らせる
+const isUk = () => isTeacher;
 function applyTz() {
   for (const el of document.querySelectorAll("[data-uk]")) el.hidden = !isUk();
-  for (const r of document.querySelectorAll("#tzPick input")) r.checked = r.value === (isUk() ? "uk" : "jp");
   if (isUk()) renderUkBar(); else $("ukBar").hidden = true;
 }
-$("tzPick").addEventListener("change", async e => {
-  const tz = e.target.value;
-  if (weeklyDirty()) {
-    toast("先に、毎週の空き時間を「反映」するか「変更を取り消す」を押してください", true);
-    return applyTz();
-  }
-  const name = tz === "uk" ? "イギリス時間" : "日本時間";
-  if (!await ask(`時間の基準を${name}にしますか？`,
-    `<p>毎週の空き時間を${name}で決めるようにします。いま設定している空き時間は、来週の時差で${name}に直します（来週の日本時間は変わりません）。</p>` +
-    (tz === "uk" ? `<p class="muted">これからは、夏時間・冬時間が切り替わると、イギリス時間はそのままで日本時間が1時間ずれます。</p>`
-      : `<p class="muted">これからは、夏時間・冬時間が切り替わっても日本時間はそのままです。</p>`), "切り替える")) return applyTz();
-  try {
-    await L.setTimezone(tz);
-    teacher = await L.myTeacher();
-    weeklySaved = weeklyDraft = null;  // 曜日・時の数え方が変わったので、表を読み直す
-    toast(`時間の基準を${name}にしました`);
-  } catch (err) {
-    toast(errMsg(err), true);
-  }
-  applyTz();
-  renderTab();
-});
 const zoneText = u => (u.summer ? `夏時間（BST）・日本との時差 ${u.diff}時間` : `冬時間（GMT）・日本との時差 ${u.diff}時間`);
 // その日（日本時間の正午）のイギリスの時間帯
 const dayZone = d => zoneText(uk(jstIso(d, 12)));
@@ -225,7 +203,7 @@ function renderUkBar() {
   const days = n ? Math.round((new Date(n.date + "T12:00:00Z") - new Date(jstToday() + "T12:00:00Z")) / 864e5) : null;
   $("ukBar").innerHTML = `<span class="uk-now ${st.summer ? "summer" : "winter"}">${st.summer ? "夏時間" : "冬時間"}</span>
     <span>イギリスはいま <b>${zoneText(st)}</b>（自動で切り替わります）。</span>
-    ${n ? `<span class="${days <= 14 ? "uk-soon" : ""}">${md(n.date)}（${WD[new Date(n.date + "T12:00:00Z").getUTCDay()]}）から${n.summer ? "夏時間（BST）・時差 8時間" : "冬時間（GMT）・時差 9時間"}になります${days <= 14 ? `（あと${days}日）` : ""}。毎週の空き時間（イギリス時間）は、日本時間が自動で1時間${n.summer ? "早く" : "遅く"}なります。</span>` : ""}`;
+    ${n ? `<span class="${days <= 14 ? "uk-soon" : ""}">${md(n.date)}（${WD[new Date(n.date + "T12:00:00Z").getUTCDay()]}）から${n.summer ? "夏時間（BST）・時差 8時間" : "冬時間（GMT）・時差 9時間"}になります${days <= 14 ? `（あと${days}日）` : ""}。毎週の空き時間（日本時間）は、イギリス時間では1時間${n.summer ? "遅く" : "早く"}なります。</span>` : ""}`;
   $("ukBar").hidden = false;
 }
 
@@ -240,49 +218,74 @@ function renderWeekly(weekly) {
   const on = weeklyDraft;
   const dirty = weeklyDirty();
   $("weeklyCount").textContent = `反映中：毎週 ${weeklySaved.size} 枠`;
+  $("weeklyFlag").hidden = !dirty;
+  if (dirty) $("weeklyBox").open = true;
   $("weeklyApply").disabled = !dirty;
   $("weeklyUndo").hidden = !dirty;
   $("weeklyState").textContent = dirty ? "まだ反映していない変更があります" : "";
   $("weeklyBar").classList.toggle("dirty", dirty);
-  if (!isUk()) return renderWeeklyJp(on);
-  // イギリス時間が基準：行・曜日ともイギリス時間。左の列に、来週の日本時間を添える
+  // 行・曜日とも日本時間。いつもの 7:00〜23:00 と、ほかに設定のある時間（深夜・早朝はボタンで出す）
+  const used = h => WEEK_ORDER.some(w => on.has(`${w}|${h}`) || weeklySaved.has(`${w}|${h}`));
+  const nightRows = Array.from({ length: FIRST_HOUR }, (_, h) => h).filter(h => !used(h)).length;
+  const hours = Array.from({ length: 24 }, (_, h) => h).filter(h => h >= FIRST_HOUR || weeklyAllHours || used(h));
+  // イギリス時間を小さく添える（来週の時差で）
   const nextWeek = uk(new Date(Date.now() + 7 * 864e5).toISOString());
-  const diff = nextWeek.diff;
-  $("weeklyUkNote").textContent = `表の曜日と時刻はイギリス時間です。左の列の JST は、来週の日本時間（イギリスが${nextWeek.summer ? "夏時間 BST・時差 8時間" : "冬時間 GMT・時差 9時間"}）です。` +
-    "夏時間・冬時間が切り替わると、イギリス時間はそのままで、日本時間が自動で1時間ずれます。日本時間が深夜・早朝になる行は薄くしています。";
-  let html = `<thead><tr><th class="hr">UK<small>JST</small></th>${WEEK_ORDER.map(w => `<th>${WD[w]}</th>`).join("")}</tr></thead><tbody>`;
-  for (let h = 0; h < 24; h++) {
-    const jh = h + diff;
-    const night = jh % 24 < FIRST_HOUR;
-    html += `<tr class="${night ? "night" : ""}"><th class="hr">${h}:00<small>${jh % 24}:00${jh >= 24 ? "<i>翌日</i>" : ""}</small></th>` + WEEK_ORDER.map(w => {
-      const o = on.has(`${w}|${h}`);
-      const changed = o !== weeklySaved.has(`${w}|${h}`);
-      return `<td><button class="cell ${o ? "open" : "none"}${changed ? " changed" : ""}" type="button" data-wk="${w}|${h}" aria-pressed="${o}"
-        aria-label="毎週${WD[w]}曜 イギリス時間 ${h}:00〜${h + 1}:00">${o ? "空き" : ""}</button></td>`;
-    }).join("") + "</tr>";
-  }
-  $("weeklyGrid").innerHTML = html + "</tbody>";
-}
-// 日本時間が基準：行・曜日とも日本時間（いつもの 7:00〜23:00 と、ほかに設定のある時間）
-function renderWeeklyJp(on) {
-  $("weeklyUkNote").textContent = "表の曜日と時刻は日本時間です。";
-  const hours = [...new Set([...hourList(), ...[...on, ...weeklySaved].map(k => Number(k.split("|")[1]))])].sort((a, b) => a - b);
-  let html = `<thead><tr><th class="hr">JST</th>${WEEK_ORDER.map(w => `<th>${WD[w]}</th>`).join("")}</tr></thead><tbody>`;
+  const ukOf = h => { const u = h - nextWeek.diff; return `${(u + 24) % 24}:00${u < 0 ? "<i>前日</i>" : ""}`; };
+  $("weeklyUkNote").innerHTML = "曜日と時刻は日本時間です。" +
+    (isUk() ? `小さい数字は来週のイギリス時間（${nextWeek.summer ? "夏時間 BST・時差 8時間" : "冬時間 GMT・時差 9時間"}）。` : "") +
+    (nightRows ? ` <button class="btn-text" type="button" id="weeklyAllBtn">${weeklyAllHours ? "深夜・早朝の行を隠す" : `深夜・早朝（0:00〜${FIRST_HOUR - 1}:00）の行も出す`}</button>` : "");
+  let html = `<thead><tr><th class="hr">JST${isUk() ? "<small>UK</small>" : ""}</th>${WEEK_ORDER.map(w => `<th>${WD[w]}</th>`).join("")}</tr></thead><tbody>`;
   for (const h of hours) {
-    html += `<tr><th class="hr">${h}:00</th>` + WEEK_ORDER.map(w => {
-      const o = on.has(`${w}|${h}`);
-      const changed = o !== weeklySaved.has(`${w}|${h}`);
-      return `<td><button class="cell ${o ? "open" : "none"}${changed ? " changed" : ""}" type="button" data-wk="${w}|${h}" aria-pressed="${o}"
-        aria-label="毎週${WD[w]}曜 ${h}:00〜${h + 1}:00">${o ? "空き" : ""}</button></td>`;
-    }).join("") + "</tr>";
+    html += `<tr class="${h < FIRST_HOUR ? "night" : ""}"><th class="hr">${h}:00${isUk() ? `<small>${ukOf(h)}</small>` : ""}</th>` +
+      WEEK_ORDER.map(w => weeklyCell(w, h, `${h}:00〜${h + 1}:00`)).join("") + "</tr>";
   }
   $("weeklyGrid").innerHTML = html + "</tbody>";
 }
+// 表のマス（空きは色だけで示す。変えたマスは枠で示す）
+function weeklyCell(w, h, label) {
+  const k = `${w}|${h}`, o = weeklyDraft.has(k), changed = o !== weeklySaved.has(k);
+  return `<td><button class="cell ${o ? "open" : "none"}${changed ? " changed" : ""}" type="button" data-wk="${k}" aria-pressed="${o}"
+    aria-label="毎週${WD[w]}曜 ${label}"></button></td>`;
+}
+// マスを押すと切り替わる。マウスで押したままなぞると、なぞったマスを同じ状態（空き／なし）にそろえる
+let paint = null;  // なぞっている間：true=空きにする / false=外す
+let lastPointer = "";  // 最後に押した道具（マウスで押したときは、続く click では何もしない）
+function paintCell(c) {
+  const k = c.dataset.wk;
+  if (paint) weeklyDraft.add(k); else weeklyDraft.delete(k);
+  const changed = paint !== weeklySaved.has(k);
+  c.className = `cell ${paint ? "open" : "none"}${changed ? " changed" : ""}`;
+  c.setAttribute("aria-pressed", String(paint));
+}
+$("weeklyGrid").addEventListener("pointerdown", e => {
+  const c = e.target.closest("[data-wk]");
+  lastPointer = e.pointerType;
+  if (!c || e.pointerType !== "mouse" || e.button !== 0) return;  // スマホは1マスずつ（なぞるとページが動くように）
+  e.preventDefault();
+  paint = !weeklyDraft.has(c.dataset.wk);
+  paintCell(c);
+});
+$("weeklyGrid").addEventListener("pointerover", e => {
+  const c = paint !== null && e.target.closest("[data-wk]");
+  if (c) paintCell(c);
+});
+document.addEventListener("pointerup", () => {
+  if (paint === null) return;
+  paint = null;
+  renderWeekly();
+});
+// スマホで押したとき・キーボード（Enter・スペース）で押したとき
 $("weeklyGrid").addEventListener("click", e => {
   const c = e.target.closest("[data-wk]");
   if (!c) return;
+  if (e.detail !== 0 && lastPointer === "mouse") return;
   const k = c.dataset.wk;
   if (weeklyDraft.has(k)) weeklyDraft.delete(k); else weeklyDraft.add(k);
+  renderWeekly();
+});
+$("weeklyUkNote").addEventListener("click", e => {
+  if (!e.target.closest("#weeklyAllBtn")) return;
+  weeklyAllHours = !weeklyAllHours;
   renderWeekly();
 });
 $("weeklyUndo").addEventListener("click", () => { weeklyDraft = new Set(weeklySaved); renderWeekly(); });
@@ -304,7 +307,7 @@ $("weeklyApply").addEventListener("click", async () => {
 // 反映していない変更があるままページを離れようとしたら確かめる
 window.addEventListener("beforeunload", e => {
   const pf = document.getElementById("profileForm");
-  const profileDirty = pf && teacher && pf.profile.value !== (teacher.profile || "");
+  const profileDirty = pf && teacher && Object.entries(profileNow()).some(([k, v]) => pf[k].value !== v);
   if (weeklyDirty() || profileDirty) { e.preventDefault(); e.returnValue = ""; }
 });
 
@@ -368,7 +371,7 @@ function renderDayCal(days, minM, maxM) {
       </div>
       <div class="cal-times">
         <h4>${esc(fmtDay(tDay))}${isUk() ? `<small>この日のイギリス：${dayZone(tDay)}</small>` : ""}<small>${tDay < today ? "" : "押すと、この日だけ「空き」と「なし」が切り替わります"}</small></h4>
-        <ul class="day-list">${dayRows}</ul>
+        <ul class="day-list" style="--rows:${Math.ceil(dayHours.length / 2)}">${dayRows}</ul>
         ${tDay >= today ? `<div class="day-acts">
           <button class="btn btn-line btn-sm" type="button" id="closeDayBtn">この日をすべてお休みにする</button>
           ${adjusted ? `<button class="btn-text" type="button" id="resetDayBtn">毎週の空き時間に戻す</button>` : ""}
@@ -399,16 +402,31 @@ $("dayWrap").addEventListener("click", async e => {
 });
 
 // ---------- プロフィール ----------
-const PROFILE_MAX = 400;  // 紹介文の文字数の上限
+// 名前・出身・趣味・一言を書いて「反映」すると、生徒の「先生の紹介」に出る（名前は予約やメッセージなど生徒の画面すべてに出る）
+const profileNow = () => ({ name: teacher.display_name || "", origin: teacher.origin || "", hobby: teacher.hobby || "", message: teacher.message || "" });
+// 入力欄の例（名前の欄には名簿の名前を薄く出す）
+const PROFILE_HINT = {
+  origin: "例：イギリス・ロンドン",
+  hobby: "例：紅茶、サッカー観戦",
+  message: "例：はじめての方も、ゆっくり話すところから一緒に練習しましょう。",
+};
 function renderProfile() {
+  const now = profileNow();
+  const input = k => {
+    const { name, max } = PROFILE_FIELDS[k];
+    const ph = k === "name" ? teacher.name : PROFILE_HINT[k];
+    return `<label class="field"><span>${name}<small class="muted" data-count="${k}"></small></span>
+      ${k === "message"  // 一言は1行に収まらないので2行
+        ? `<textarea class="input" name="${k}" rows="2" maxlength="${max}" placeholder="${esc(ph)}">${esc(now[k])}</textarea>`
+        : `<input class="input" name="${k}" maxlength="${max}" placeholder="${esc(ph)}" value="${esc(now[k])}">`}
+      ${k === "name" ? `<small class="muted">生徒の画面（予約・メッセージ・先生の紹介）に出る名前です。空欄なら名簿の名前（${esc(teacher.name)}）が出ます。</small>` : ""}</label>`;
+  };
   $("profileBox").innerHTML = `
-    <h3 class="mat-title" style="margin-top:0">${esc(teacher.name)}</h3>
-    <form id="profileForm">
-      <label class="field"><span>紹介文（生徒が予約するときの「先生の紹介」に表示されます。${PROFILE_MAX}文字まで）</span>
-        <textarea class="input" name="profile" rows="6" maxlength="${PROFILE_MAX}" placeholder="例：出身地、得意な分野、レッスンの進め方など">${esc(teacher.profile || "")}</textarea></label>
+    <h3 class="mat-title" style="margin-top:0">プロフィール</h3>
+    <form id="profileForm" class="profile-form">
+      ${Object.keys(PROFILE_FIELDS).map(input).join("")}
       <div class="weekly-bar" id="profileBar">
         <span class="weekly-state" id="profileState"></span>
-        <span class="muted" id="profileCount"></span>
         <button class="btn" type="submit" id="profileApply" disabled>反映</button>
       </div>
     </form>
@@ -416,23 +434,25 @@ function renderProfile() {
       <dt>Zoom のリンク</dt><dd>${teacher.zoom_url ? `<a href="${esc(teacher.zoom_url)}" target="_blank" rel="noopener">${esc(teacher.zoom_url)}</a>` : "未登録"}</dd>
       <dt>お知らせメールの送り先</dt><dd>${esc(teacher.email || "未登録")}</dd>
     </dl>
-    <p class="muted" style="margin:16px 0 0">紹介文は、ここで書き換えて「反映」を押すと生徒の画面に表示されます。名前・Zoom のリンク・メールアドレスは教室の名簿で管理しています。変更したいときは教室にお知らせください。Zoom のリンクは、予約した生徒にだけ、開始${ZOOM_OPEN_MINUTES}分前から表示されます。</p>`;
+    <p class="muted" style="margin:16px 0 0">プロフィールは、ここで書き換えて「反映」を押すと生徒の画面に表示されます。Zoom のリンク・メールアドレスは教室の名簿で管理しています。変更したいときは教室にお知らせください。Zoom のリンクは、予約した生徒にだけ、開始${ZOOM_OPEN_MINUTES}分前から表示されます。</p>`;
   const f = $("profileForm");
   const sync = () => {
-    const dirty = f.profile.value !== (teacher.profile || "");
+    const was = profileNow();
+    const dirty = Object.keys(PROFILE_FIELDS).some(k => f[k].value !== was[k]);
     $("profileApply").disabled = !dirty;
     $("profileState").textContent = dirty ? "まだ反映していない変更があります" : "";
     $("profileBar").classList.toggle("dirty", dirty);
-    $("profileCount").textContent = `${f.profile.value.length} / ${PROFILE_MAX}文字`;
+    for (const [k, { max }] of Object.entries(PROFILE_FIELDS)) f.querySelector(`[data-count="${k}"]`).textContent = `${f[k].value.length} / ${max}文字`;
   };
-  f.profile.addEventListener("input", sync);
+  f.addEventListener("input", sync);
   f.addEventListener("submit", async e => {
     e.preventDefault();
     $("profileApply").disabled = true;
     try {
-      await L.updateProfile(f.profile.value);
+      await L.updateProfile(Object.fromEntries(Object.keys(PROFILE_FIELDS).map(k => [k, f[k].value])));
       teacher = await L.myTeacher();
-      toast("紹介文を反映しました");
+      $("whoName").textContent = teacher.display_name || teacher.name;
+      toast("プロフィールを反映しました");
     } catch (err) {
       toast(errMsg(err), true);
     }
@@ -507,8 +527,8 @@ async function showHistory(st) {
   const list = [...tickets].sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id);
   $("historyWho").textContent = `${st.name} さんのチケット`;
   $("historyBody").innerHTML = `
-    <h3 class="mat-title">配った記録</h3>
-    ${grants.length ? `<ul class="plain">${[...grants].reverse().map(g => `<li>${md(jst(g.created_at).date)}　${g.count} 枚（${md(g.expires_on)} まで）${g.note ? `　<span class="muted">${esc(g.note)}</span>` : ""}</li>`).join("")}</ul>` : `<p class="muted">まだありません。</p>`}
+    <h3 class="mat-title">配った・追加した記録</h3>
+    ${grants.length ? `<ul class="plain">${[...grants].reverse().map(g => `<li>${md(jst(g.created_at).date)}　${g.count} 枚（${md(g.expires_on)} まで）${g.granted_by === st.id ? `　<span class="tag tag-move">本人が追加</span>` : ""}${g.note ? `　<span class="muted">${esc(g.note)}</span>` : ""}</li>`).join("")}</ul>` : `<p class="muted">まだありません。</p>`}
     <h3 class="mat-title">チケット1枚ごと</h3>
     ${list.length ? `<div class="table-wrap"><table class="list">
       <thead><tr><th>受け取った日</th><th>種類</th><th>期限</th><th>状態</th><th></th></tr></thead>
