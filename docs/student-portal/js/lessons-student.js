@@ -1,9 +1,9 @@
 // 個人レッスン（専用コース）：生徒のページ
-import { createApi } from "./api.js?v=f622146d";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=f622146d";
-import { createLessonApi } from "./lesson-api.js?v=f622146d";
-import { createChat } from "./lesson-chat.js?v=f622146d";
-import { DEADLINE_HOURS, PHASE_TAG, TICKET_MONTHS, TICKET_PACKS, ZOOM_OPEN_MINUTES, addDaysJ, addMonthsJ, fmtDay, fmtWhen, jst, jstToday, mondayJ, phase, phaseLabel } from "./lesson-common.js?v=f622146d";
+import { createApi } from "./api.js?v=f7684c6f";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=f7684c6f";
+import { createLessonApi } from "./lesson-api.js?v=f7684c6f";
+import { createChat } from "./lesson-chat.js?v=f7684c6f";
+import { DEADLINE_HOURS, PHASE_TAG, TICKET_MONTHS, TICKET_PACKS, ZOOM_OPEN_MINUTES, addMonthsJ, fmtDay, fmtWhen, jst, jstToday, phase, phaseLabel } from "./lesson-common.js?v=f7684c6f";
 
 const IDLE_MINUTES = 30;  // 操作がないと30分で自動ログアウト
 const $ = id => document.getElementById(id);
@@ -178,12 +178,9 @@ async function act(fn, okMsg) {
   await refresh();
 }
 
-// ---------- 予約する：先に日にちを選び、その日に空いている先生と時間から選ぶ ----------
-// カレンダーの各日には、その日に空きのある先生の名前を出す（時間は日にちを押すと右／スマホ幅では下に出る）
-let calMonth = null;  // 表示している月（"2026-10"）
-let selDay = null;    // 選んでいる日
+// ---------- 予約する：空きのある日を日付の順に並べ、その日の予約できる時間をボタンで出す ----------
+// 担当の先生が決まっている生徒は先生が1人なので、時間だけを並べる（先生が複数いるときは、日ごとに先生の名前と時間）
 let slotIndex = new Map();  // id → 空き時間（予約するときに使う）
-const shortName = name => (name.includes("先生") ? name.replace(/（.*?）|\(.*?\)/g, "") : name.split(/\s+/)[0]);
 
 // 先生の紹介（タブの下に畳んで置く。メッセージもここから）
 function renderTeachers() {
@@ -218,80 +215,31 @@ async function renderSlots() {
     $("slotList").innerHTML = `<p class="card muted">いま予約できる時間はありません。先生が時間を追加すると、ここに表示されます。</p>`;
     return;
   }
-  const okOf = d => [...(byDay.get(d)?.values() || [])].flat().some(x => !why(x));
   const days = [...byDay.keys()].sort();
-  // 最初は、予約できるいちばん早い日のある月
-  const today = jstToday();
-  if (!selDay || !byDay.has(selDay)) selDay = days.find(okOf) || null;
-  if (!calMonth) calMonth = (selDay || days[0]).slice(0, 7);
-  const minMonth = today.slice(0, 7), maxMonth = days.at(-1).slice(0, 7);
-  if (calMonth < minMonth) calMonth = minMonth;
-  if (calMonth > maxMonth) calMonth = maxMonth;
   const tname = id => teachers.find(t => t.id === id)?.name || "";
-
-  // 月のカレンダー（月曜はじまり）。各日に空きのある先生の名前
-  const [y, m] = calMonth.split("-").map(Number);
-  const last = addDaysJ(`${y + (m === 12 ? 1 : 0)}-${String(m === 12 ? 1 : m + 1).padStart(2, "0")}-01`, -1);
-  let rows = "";
-  for (let d = mondayJ(calMonth + "-01"); d <= last; ) {
-    rows += "<tr>";
-    for (let i = 0; i < 7; i++, d = addDaysJ(d, 1)) {
-      if (d.slice(0, 7) !== calMonth) { rows += `<td class="out"></td>`; continue; }
-      const tm = byDay.get(d) || new Map();
-      const ok = okOf(d);
-      const names = [...tm.keys()].map(id => shortName(tname(id)));
-      const shown = names.slice(0, 3).map(n => `<span class="tn">${esc(n)}</span>`).join("") + (names.length > 3 ? `<span class="tn more">ほか${names.length - 3}人</span>` : "");
-      const num = Number(d.slice(8));
-      const cls = ["cal-day", "s-day", ok ? "has" : tm.size ? "expired" : "", d === selDay ? "sel" : "", d === today ? "today" : ""].filter(Boolean).join(" ");
-      rows += ok
-        ? `<td><button class="${cls}" type="button" data-day="${d}" aria-pressed="${d === selDay}" aria-label="${esc(fmtDay(d))} ${esc(names.join("、"))}"><span class="d">${num}</span>${shown}</button></td>`
-        : `<td><span class="${cls}"><span class="d">${num}</span>${tm.size ? (maxExp ? `<span class="n">期限外</span>` : shown) : ""}</span></td>`;
-    }
-    rows += "</tr>";
-  }
+  const many = teachers.length > 1;
+  const hm = iso => { const t = jst(iso); return `${t.hour}:${String(t.minute).padStart(2, "0")}`; };
+  const btns = list => `<div class="slot-times">${list.map(x => {
+    const w = why(x);
+    return `<button class="slot-btn" type="button" data-slot="${esc(x.id)}" ${w ? `disabled title="${w}"` : ""}>${hm(x.starts_at)}<small>〜${hm(new Date(new Date(x.starts_at).getTime() + 3600e3).toISOString())}</small></button>`;
+  }).join("")}</div>`;
   const lead = !maxExp ? `<p class="error">使えるチケットがありません。「チケット」タブから追加してください。</p>`
-    : days.some(x => x > maxExp) ? `<p class="muted">お持ちのチケットは ${md(maxExp)} までです。それより後の日は選べません。</p>` : "";
-  // 選んだ日：先生ごとに時間を並べる
-  const sel = selDay && selDay.slice(0, 7) === calMonth ? byDay.get(selDay) : null;
-  const times = sel ? [...sel].map(([tid, list]) => `
-    <div class="day-teacher">
-      <div class="dt-name">${esc(sensei(tname(tid)))}</div>
-      <div class="slot-times">${list.map(x => {
-        const h = jst(x.starts_at), e = jst(new Date(new Date(x.starts_at).getTime() + 3600e3).toISOString());
-        const w = why(x);
-        return `<button class="slot-btn" type="button" data-slot="${esc(x.id)}" ${w ? `disabled title="${w}"` : ""}>${h.hour}:${String(h.minute).padStart(2, "0")}<small>〜${e.hour}:${String(e.minute).padStart(2, "0")}</small></button>`;
-      }).join("")}</div>
-    </div>`).join("") : "";
-  $("slotList").innerHTML = lead + `
-    <div class="cal-wrap">
-      <div class="cal">
-        <div class="cal-nav">
-          <button class="btn btn-line btn-sm" type="button" data-cal="-1" ${calMonth <= minMonth ? "disabled" : ""} aria-label="前の月">‹</button>
-          <span class="cal-month">${y}年 ${m}月</span>
-          <button class="btn btn-line btn-sm" type="button" data-cal="1" ${calMonth >= maxMonth ? "disabled" : ""} aria-label="次の月">›</button>
-        </div>
-        <table class="cal-grid">
-          <thead><tr>${["月", "火", "水", "木", "金", "土", "日"].map((w, i) => `<th class="${i === 5 ? "sat" : i === 6 ? "sun" : ""}">${w}</th>`).join("")}</tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-        <p class="cal-legend"><span class="lg has"></span>予約できる日（その日に空いている先生の名前）</p>
-      </div>
-      <div class="cal-times">
-        ${times ? `<h4>${esc(fmtDay(selDay))}<small>予約できる先生と時間（JST）</small></h4>${times}`
-          : `<p class="muted">カレンダーで日にちを選ぶと、その日に予約できる先生と時間が表示されます。</p>`}
-      </div>
+    : days.some(x => x > maxExp) ? `<p class="muted">お持ちのチケットは ${md(maxExp)} までです。それより後の日は予約できません。</p>` : "";
+  const head = many ? "" : `<p class="slot-who">担当の先生：<b>${esc(sensei(tname(teachers[0].id)))}</b></p>`;
+  const rows = days.map(d => {
+    const tm = byDay.get(d), dow = new Date(d + "T00:00:00Z").getUTCDay();
+    const off = !!maxExp && d > maxExp;  // チケットはあるが、その期限より後の日
+    return `<div class="slot-day${off ? " off" : ""}">
+      <div class="sd-date${dow === 6 ? " sat" : dow === 0 ? " sun" : ""}">${esc(fmtDay(d))}${off ? `<small>期限外</small>` : ""}</div>
+      <div class="sd-times">${many
+        ? [...tm].map(([tid, list]) => `<div class="day-teacher"><div class="dt-name">${esc(sensei(tname(tid)))}</div>${btns(list)}</div>`).join("")
+        : btns([...tm.values()].flat())}</div>
     </div>`;
+  }).join("");
+  $("slotList").innerHTML = lead + head + `<div class="slot-days">${rows}</div>`;
 }
 
 $("slotList").addEventListener("click", async e => {
-  const nav = e.target.closest("[data-cal]"), day = e.target.closest("[data-day]");
-  if (nav) {
-    const [y, m] = calMonth.split("-").map(Number);
-    const t = new Date(Date.UTC(y, m - 1 + Number(nav.dataset.cal), 1));
-    calMonth = `${t.getUTCFullYear()}-${String(t.getUTCMonth() + 1).padStart(2, "0")}`;
-    return renderSlots();
-  }
-  if (day) { selDay = day.dataset.day; return renderSlots(); }
   const b = e.target.closest("[data-slot]");
   if (!b) return;
   const picked = slotIndex.get(b.dataset.slot);
@@ -372,6 +320,9 @@ $("ticketBox").addEventListener("click", async e => {
   if (!await pick) return;
   const n = Number($("confirmText").querySelector("[name=pack]:checked")?.value);
   if (!n) return;
+  // もう一度確かめてから購入する
+  if (!await ask("チケットを購入しますか？",
+    `<p><b>${n}枚</b>　期限：${md(addMonthsJ(today(), TICKET_MONTHS))} まで</p>`, "購入する")) return;
   b.disabled = true;
   try {
     await L.addTickets(n);
