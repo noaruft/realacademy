@@ -470,6 +470,7 @@ html[data-lang="en"] .principle p { font-family: var(--serif-en); font-size: 21p
 .article table { width: 100%; border-collapse: collapse; margin: 0 0 1.4em; font-size: 14px; background: var(--paper); }
 .article th, .article td { border: 1px solid var(--line); padding: 10px 14px; text-align: left; vertical-align: top; font-weight: 400; }
 .article th { color: var(--navy); background: var(--ivory-deep); }
+.article img { max-width: 100%; height: auto; }  /* 管理画面で本文に入れた写真 */
 .article-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
 .article-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); }
 .lang-note { display: block; font-size: 13px; color: var(--ink-soft); border: 1px dashed var(--line); padding: 10px 14px; margin-bottom: 24px; }
@@ -1036,9 +1037,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .course-tags .course-age { margin-bottom: 0; }
 /* 前後のクラスへのリンクを2つ並べる */
 .class-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 40px; }
-/* 開講前のクラス（Rhetorica）：白黒で表示 */
-.upcoming { filter: grayscale(1); }
-.upcoming .ph { opacity: .75; }
+/* 開講前のクラス（Rhetorica）：白黒で表示（写真だけはカラー） */
+.upcoming:not(:has(.ph)) { filter: grayscale(1); }
+.upcoming:has(.ph) > .container > :not(.ph) { filter: grayscale(1); }
+.upcoming.bg-light:has(.ph) { background: #fafafa; } /* 白黒にした --paper と同じ色 */
 .upcoming-band { background: var(--navy); color: var(--ivory); padding: 16px 0; font-size: 14px; }
 .upcoming-band .container { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; }
 .upcoming-band strong { color: var(--gold); font-weight: 500; letter-spacing: .12em; }
