@@ -70,7 +70,6 @@ collections:
       default: { field: posted, direction: descending }
     media_folder: /assets/uploads/news
     public_folder: /assets/uploads/news
-    editor: { preview: false }
     fields:
       - { name: posted, label: 掲載日, widget: datetime, type: date }
       - { name: title_ja, label: タイトル（日本語）, widget: string, hint: お知らせ一覧に出るタイトル }
@@ -107,7 +106,6 @@ collections:
       default: { field: start, direction: descending }
     media_folder: /assets/uploads/events
     public_folder: /assets/uploads/events
-    editor: { preview: false }
     fields:
       - { name: title, label: タイトル, widget: string, hint: "例：CHRISTMAS EVENT 2026 🎄" }
       - { name: title_en, label: タイトル（英語表示のとき）, widget: string, required: false, hint: 空ならタイトルと同じ }
@@ -194,7 +192,6 @@ collections:
       default: { field: date, direction: descending }
     media_folder: /assets/uploads/blog
     public_folder: /assets/uploads/blog
-    editor: { preview: false }
     fields:
       - { name: title, label: タイトル（日本語）, widget: string }
       - { name: title_en, label: タイトル（英語）, widget: string, required: false }
@@ -221,7 +218,6 @@ collections:
     description: 「保護者・生徒の声」は、ページごとに別々の一覧です。並べた順に表示されます（ドラッグで並べ替えられます）。
     media_folder: /assets/uploads/voices
     public_folder: /assets/uploads/voices
-    editor: { preview: false }
     files:
       - { name: top, label: トップページ, file: _src/data/voices-top.json, format: json, fields: &voice_fields [{ name: voices, label: 保護者・生徒の声, label_singular: 声, widget: list, summary: "{{fields.name_ja}}", fields: [{ name: name_ja, label: お名前（日本語）, widget: string, hint: "例：小学6年生 Rくんの保護者さま（2025年3月）" }, { name: name_en, label: お名前（英語）, widget: string, required: false, hint: "例：Parent of R, Grade 6 (March 2025)" }, { name: highlight_ja, label: 大きく出る一言（日本語）, widget: string, required: false }, { name: highlight_en, label: 大きく出る一言（英語）, widget: string, required: false }, { name: text_ja, label: 本文（日本語）, widget: text }, { name: text_en, label: 本文（英語）, widget: text, required: false }, { name: photo, label: 写真（丸く切り抜かれます）, widget: image, required: false, hint: 正方形の写真がおすすめです。空のときは、これまでの写真（または空の丸い枠）が出ます }, { name: photo_no, widget: hidden }] }] }
       - { name: school, label: 英語教室, file: _src/data/voices-school.json, format: json, fields: *voice_fields }
@@ -232,7 +228,6 @@ collections:
     label: 実績データ
     label_singular: 実績データ
     description: イギリス留学のページの「実績・データ」です。
-    editor: { preview: false }
     files:
       - name: results
         label: 実績・データ

@@ -1224,6 +1224,11 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 .hero .hero-slogan, .hero .hero-sub { color: var(--ivory); }
 .hero-slogan span { background: linear-gradient(100deg, #e2c68e 0%, #f3dfb0 45%, #d2b073 100%); -webkit-background-clip: text; background-clip: text; }
 .hero .btn:not(.ghost) { background: var(--ivory); background-image: none; color: var(--navy); }
+/* 写真の提供元：右下の隅に小さく。写真と同じ速さでフェードして入れ替わる（重ねて置き、表示中の1つだけ見せる） */
+.photo-credit { position: absolute; right: var(--gutter); bottom: 14px; margin: 0; display: grid; justify-items: end;
+  font-size: 11px; line-height: 1.4; letter-spacing: .06em; color: rgba(247, 244, 238, .78); text-shadow: 0 1px 3px rgba(0, 0, 0, .55); pointer-events: none; }
+.photo-credit > span { grid-area: 1 / 1; opacity: 0; transition: opacity 1.6s ease; white-space: nowrap; }
+.photo-credit > span.on { opacity: 1; }
 /* カーソルを載せたら色が変わる：ボタンはアイボリー→金、リンクは文字が金に（線も明るい金） */
 .hero .btn:not(.ghost):hover { background: var(--gold-light); color: var(--navy); }
 .hero .text-link { color: var(--ivory); border-bottom-color: var(--gold-light); }

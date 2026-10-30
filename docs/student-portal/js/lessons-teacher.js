@@ -1,10 +1,10 @@
 // 個人レッスン（専用コース）：先生のページ（管理者はチケットの配布と全体の予約も）
-import { createApi } from "./api.js?v=f7684c6f";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=f7684c6f";
-import { createLessonApi } from "./lesson-api.js?v=f7684c6f";
-import { createChat } from "./lesson-chat.js?v=f7684c6f";
+import { createApi } from "./api.js?v=e253aa7d";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=e253aa7d";
+import { createLessonApi } from "./lesson-api.js?v=e253aa7d";
+import { createChat } from "./lesson-chat.js?v=e253aa7d";
 import { FIRST_HOUR, LAST_HOUR, PHASE_TAG, PROFILE_FIELDS, ZOOM_OPEN_MINUTES, addDaysJ, fmtDay, fmtWhen,
-  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=f7684c6f";
+  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=e253aa7d";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 const $ = id => document.getElementById(id);
@@ -51,6 +51,7 @@ async function start() {
   L = await createLessonApi();
   $("whoName").textContent = lf.name;
   if (me.role === "admin") { $("scholarsLink").href = page("admin"); $("scholarsLink").hidden = false; }
+  if (isManager) $("siteAdminLink").hidden = false;
   $("heroSub").textContent = isTeacher ? "個人レッスン（先生用）" : "個人レッスン（管理）";
   for (const b of document.querySelectorAll("[data-tab]")) b.hidden = b.dataset.for === "teacher" ? !isTeacher : !isManager;
   $("headerUser").hidden = false;

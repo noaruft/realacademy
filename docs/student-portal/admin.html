@@ -8,10 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/portal.css?v=f7684c6f">
+<link rel="stylesheet" href="css/portal.css?v=e253aa7d">
 <link rel="icon" type="image/png" href="img/favicon.png">
-<script src="js/boot.js?v=f7684c6f"></script>
-<script src="config.js?v=f7684c6f"></script>
+<script src="js/boot.js?v=e253aa7d"></script>
+<script src="config.js?v=e253aa7d"></script>
 </head>
 <body>
 <div class="demo-bar" id="demoBar" hidden>
@@ -36,6 +36,8 @@
       </div>
       <!-- 個人レッスンの先生・管理者を兼ねる人だけに出す -->
       <a class="btn btn-line btn-sm" id="lessonLink" hidden>個人レッスン</a>
+      <!-- 管理者（「講師」シートの役割が管理者・先生・管理者）だけに出す。ホームページの管理画面（../admin/）を新しいタブで開く -->
+      <a class="btn btn-line btn-sm" id="siteAdminLink" href="../admin/" target="_blank" rel="noopener" hidden>ホームページを更新</a>
       <span class="who" id="whoName"></span>
       <button class="btn btn-line btn-sm" id="logoutBtn" type="button">ログアウト</button>
     </div>
@@ -183,6 +185,6 @@
 </main>
 
 <footer class="site-footer">© REAL ACADEMY</footer>
-<script type="module" src="js/admin.js?v=f7684c6f"></script>
+<script type="module" src="js/admin.js?v=e253aa7d"></script>
 </body>
 </html>

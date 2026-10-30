@@ -368,7 +368,7 @@
         layers[i].classList.remove("on");
         layers[next].classList.add("on");
         i = next;
-        ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true }));  // 同じ欄の「色の入れ替え」もそろえて切り替える
+        ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
         load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
       });
     }, 7000);  // 1枚あたりの表示時間（ミリ秒）
@@ -387,6 +387,15 @@
       layers[i].classList.remove("on");
       i = (i + 1) % layers.length;
       layers[i].classList.add("on");
+    });
+  });
+
+  // ---------- 写真の提供元（.photo-credit）：同じ欄の写真の切り替えに合わせて、何枚目の写真かに対応する表記に変える ----------
+  document.querySelectorAll(".photo-credit").forEach(function (credit) {
+    var items = credit.children, area = credit.closest("section") || document;
+    area.addEventListener("phslide", function (e) {
+      var n = e.detail ? e.detail.index : 0;
+      Array.prototype.forEach.call(items, function (el, k) { el.classList.toggle("on", k === n); });
     });
   });
 
