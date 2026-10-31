@@ -85,7 +85,7 @@
             <label><input type="radio" name="type" value="school" required checked><span lang="ja">英語教室</span><span lang="en">English lessons</span></label>
             <label><input type="radio" name="type" value="study" data-study><span lang="ja">留学相談</span><span lang="en">Study abroad</span></label>
             <label><input type="radio" name="type" value="both" data-study><span lang="ja">両方</span><span lang="en">Both</span></label>
-            <label><input type="radio" name="type" value="event"><span lang="ja">イベント参加申込</span><span lang="en">Event application</span></label>
+            
           </div>
         </div>
         <div class="field-row">
@@ -205,30 +205,7 @@
           <input id="school" name="school" type="text" data-ph-ja="例）〇〇小学校" data-ph-en="e.g. Azabu Elementary School">
         </div>
 
-        <div class="event-only" hidden>
-          <div class="field">
-            <label for="event"><span lang="ja">参加希望イベント</span><span lang="en">Event</span><span class="req">REQUIRED</span></label>
-            <select id="event" name="event"><option value="">—</option><option value="halloween-2026">HALLOWEEN EVENT 2026（2026年10月31日（土））</option></select>
-          </div>
-        <div class="event-fields" data-event="halloween-2026" hidden>
-          <div class="field">
-            <span class="label"><span lang="ja">参加希望時間</span><span lang="en">Session</span><span class="req">REQUIRED</span></span>
-            <div class="choices"><label class="full"><input type="radio" name="halloween-2026__1" value="参加希望時間：①16:00〜17:30（満席）" required disabled><span lang="ja">①16:00〜17:30<wbr>（満席）</span><span lang="en">① 16:00–17:30 (full)</span></label><label><input type="radio" name="halloween-2026__1" value="参加希望時間：②18:00〜19:30" required><span lang="ja">②18:00〜19:30</span><span lang="en">② 18:00–19:30</span></label></div>
-          </div>
-          <div class="field">
-            <span class="label"><span lang="ja">アレルギーの<wbr>有無</span><span lang="en">Allergies</span><span class="req">REQUIRED</span></span>
-            <div class="choices"><label><input type="radio" name="halloween-2026__2" value="アレルギーの有無：無" required><span lang="ja">無</span><span lang="en">None</span></label><label><input type="radio" name="halloween-2026__2" value="アレルギーの有無：有" required><span lang="ja">有</span><span lang="en">Yes</span></label></div>
-          </div>
-          <div class="field">
-            <label for="halloween-2026__3"><span lang="ja">アレルギー有りの<wbr>場合の<wbr>詳細</span><span lang="en">Allergy details (if any)</span></label>
-            <input id="halloween-2026__3" name="halloween-2026__3" type="text">
-          </div>
-          <div class="field">
-            <label for="halloween-2026__4"><span lang="ja">備考<wbr>（ハロウィンを<wbr>知った<wbr>きっかけ等）</span><span lang="en">Notes (how you heard about the event, etc.)</span></label>
-            <input id="halloween-2026__4" name="halloween-2026__4" type="text">
-          </div>
-        </div>
-        </div>
+
 
         <div class="study-only" hidden>
           <div class="field">
