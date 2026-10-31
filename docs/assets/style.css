@@ -1096,6 +1096,11 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* フッター Contact 欄の Instagram アイコン（枠なし・金のグラデーション。押すと新しいタブで開く）
    カーソルを合わせると、少し浮いて傾き、金色にほのかに光る */
 .footer-sns { display: inline-block; margin-top: 16px; line-height: 0; }
+/* インスタのアイコンの横に、パンフレット（PDF）のダウンロードのボタン */
+.footer-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.footer-actions .footer-sns { margin-top: 0; }
+.footer-brochure { display: inline-block; padding: 6px 10px; border: 1px solid rgba(231, 211, 165, .55); color: var(--ivory); font-size: 12px; line-height: 1.4; letter-spacing: .02em; white-space: nowrap; }
+.site-footer .footer-brochure:hover { border-color: var(--gold-light); color: var(--gold-light); }
 .footer-sns svg { width: 30px; height: 30px; transition: transform .35s, filter .35s; }
 @media (hover: hover) {
   .footer-sns:hover svg { transform: translateY(-3px) scale(1.12) rotate(-8deg); filter: drop-shadow(0 0 6px rgba(231, 211, 165, .55)); }

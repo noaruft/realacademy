@@ -223,7 +223,7 @@
   }
   // 写真の大きさ（イベントの枠を写真の縦横の比率に合わせるため）と、写真枠の番号のファイル（assets/photos/<番号>.jpg・.webp など）。
   // 一度調べたら覚えておき、入力のたびに読み直してちらつかないようにする
-  var SIZE = {}, NUMBERED = {};
+  var SIZE = {}, NUMBERED = {}, CUR_DOC = null;
   function probe(urls, done) {
     (function next(k) {
       if (k >= urls.length) return done(null);
@@ -240,6 +240,7 @@
       NUMBERED[no] = url;
       if (!url) return;
       SIZE[url] = [w, hh];
+      doc = CUR_DOC || doc; // 表示している枠の中のページ（下の「管理画面に登録」）
       if (doc) doc.querySelectorAll('[data-photo-no="' + no + '"]').forEach(function (el) { fillBox(el, url); });
     });
     return null;
@@ -383,37 +384,100 @@
   }
 
   // ------------------------------------------------------------------ 管理画面に登録
+  // プレビューの中にもう1つ枠（iframe）を作り、その中でページを実際の幅で組む（パソコン 1280px／スマホ 390px）。
+  // サイトの並びは画面の幅で変わるため、右側の狭い欄のままだとパソコンでもスマホの並びになってしまう。
+  // パソコンは欄に収まるよう縮めて見せる。上の「パソコン／スマホ」「日本語／English」で切り替える（選んだものは次の記事でも続く）
+  var FONTS = "https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap";
+  var WIDTH = { pc: 1280, sp: 390 };
+  var view = { mode: "pc", lang: "ja" };
+  var INNER_CSS =
+    "html,body{margin:0}" +
+    ".reveal{opacity:1!important;transform:none!important}" + // ふわっと出す動きは使わない
+    ".voice-slider .voice{opacity:1}";
+
+  function setup(box) {
+    var doc = box.ownerDocument, win = doc.defaultView;
+    var bar = doc.createElement("div");
+    bar.className = "ra-bar";
+    bar.innerHTML =
+      '<div class="ra-seg" data-k="mode"><button type="button" data-v="pc">パソコン</button><button type="button" data-v="sp">スマホ</button></div>' +
+      '<div class="ra-seg" data-k="lang"><button type="button" data-v="ja">日本語</button><button type="button" data-v="en">English</button></div>';
+    var stage = doc.createElement("div");
+    stage.className = "ra-stage";
+    var frame = doc.createElement("iframe");
+    frame.setAttribute("title", "プレビュー");
+    stage.appendChild(frame);
+    box.appendChild(bar);
+    box.appendChild(stage);
+    var inner = frame.contentDocument;
+    inner.open();
+    inner.write('<!doctype html><html lang="ja" data-lang="ja"><head><meta charset="utf-8">' +
+      '<link rel="stylesheet" href="' + FONTS + '"><link rel="stylesheet" href="' + SITE + 'assets/style.css">' +
+      "<style>" + INNER_CSS + "</style></head><body><main></main></body></html>");
+    inner.close();
+    box._ra = { bar: bar, stage: stage, frame: frame, doc: inner, main: inner.querySelector("main") };
+    bar.addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b) return;
+      view[b.parentNode.getAttribute("data-k")] = b.getAttribute("data-v");
+      apply(box);
+    });
+    // 中身の高さが変わったとき（写真や文字の読み込み・入力）と、欄の幅が変わったときに、枠の大きさを合わせ直す
+    new frame.contentWindow.ResizeObserver(function () { layout(box); }).observe(inner.body);
+    win.addEventListener("resize", function () { layout(box); });
+  }
+  function layout(box) {
+    var ra = box._ra, w = WIDTH[view.mode];
+    var scale = Math.min(1, (box.clientWidth - (view.mode === "sp" ? 32 : 0)) / w);
+    var hgt = ra.main.offsetTop + ra.main.offsetHeight;
+    ra.frame.style.width = w + "px";
+    ra.frame.style.height = hgt + "px";
+    ra.frame.style.transform = "scale(" + scale + ")";
+    ra.stage.style.width = w * scale + "px";
+    ra.stage.style.height = hgt * scale + "px";
+  }
+  function apply(box) {
+    var ra = box._ra, root = ra.doc.documentElement;
+    root.setAttribute("data-lang", view.lang);
+    root.setAttribute("lang", view.lang);
+    ra.stage.classList.toggle("sp", view.mode === "sp");
+    ra.bar.querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("on", view[b.parentNode.getAttribute("data-k")] === b.getAttribute("data-v"));
+    });
+    layout(box);
+  }
+
   function register() {
     var CMS = window.CMS, h = window.h || (CMS && CMS.h);
     if (!CMS || !h) return setTimeout(register, 50);
-    CMS.registerPreviewStyle("https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap");
-    CMS.registerPreviewStyle(SITE + "assets/style.css");
     CMS.registerPreviewStyle(
-      ".reveal{opacity:1!important;transform:none!important}" + // ふわっと出す動きは使わない
-      ".voice-slider .voice{opacity:1}" +
-      ".ra-preview-lang{position:fixed;top:10px;right:10px;z-index:100;display:flex;border:1px solid #c9a463;border-radius:999px;overflow:hidden;background:#fff;font:13px/1 'Jost',sans-serif}" +
-      ".ra-preview-lang button{border:0;background:transparent;padding:7px 14px;cursor:pointer;color:#1b2a4a}" +
-      "html[data-lang=ja] .ra-preview-lang [data-l=ja],html[data-lang=en] .ra-preview-lang [data-l=en]{background:#1b2a4a;color:#fff}",
+      "html,body{margin:0;background:#e9e6df}" +
+      ".ra-bar{position:sticky;top:0;z-index:10;display:flex;justify-content:flex-end;gap:8px;padding:8px 10px;background:rgba(233,230,223,.94)}" +
+      ".ra-seg{display:flex;border:1px solid #c9a463;border-radius:999px;overflow:hidden;background:#fff;font:13px/1 system-ui,'Hiragino Sans',sans-serif}" +
+      ".ra-seg button{border:0;background:transparent;padding:7px 14px;cursor:pointer;color:#1b2a4a;font:inherit}" +
+      ".ra-seg button.on{background:#1b2a4a;color:#fff}" +
+      ".ra-stage{overflow:hidden;margin:0 auto;background:#fff}" +
+      ".ra-stage iframe{display:block;border:0;transform-origin:0 0}" +
+      ".ra-stage.sp{margin:8px auto 24px;border-radius:22px;box-shadow:0 0 0 8px #1b2a4a,0 10px 30px rgba(0,0,0,.25)}",
       { raw: true });
 
     function template(build) {
       return function (props) {
-        var doc = props.document;
-        var root = doc && doc.documentElement;
-        if (root && !root.getAttribute("data-lang")) {
-          root.setAttribute("data-lang", "ja");
-          root.setAttribute("lang", "ja");
-        }
         var data = props.entry.getIn(["data"]);
         data = data && data.toJS ? data.toJS() : data || {};
         var html = finish(fixImages(props, build(data, props)));
-        if (doc) setTimeout(function () { fitPhotos(doc); }, 0);
-        var lang = function (l) {
-          return h("button", { type: "button", "data-l": l, onClick: function () { root.setAttribute("data-lang", l); root.setAttribute("lang", l); } }, l === "ja" ? "日本語" : "English");
-        };
-        return h("div", null,
-          h("div", { className: "ra-preview-lang" }, lang("ja"), lang("en")),
-          h("main", { dangerouslySetInnerHTML: { __html: html } }));
+        // 枠（iframe）とボタンは自分で作って持ち続け、入力のたびに中身だけを入れ替える（読み直しでちらつかないように）
+        return h("div", {
+          className: "ra-preview",
+          ref: function (box) {
+            if (!box) return;
+            if (!box._ra) setup(box);
+            CUR_DOC = box._ra.doc;
+            box._ra.main.innerHTML = html;
+            fitPhotos(box._ra.doc);
+            apply(box);
+          },
+        });
       };
     }
     CMS.registerPreviewTemplate("news", template(news));

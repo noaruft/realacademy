@@ -140,8 +140,9 @@ collections:
           - { name: value_ja, label: 内容（日本語）, widget: string }
           - { name: value_en, label: 内容（英語）, widget: string, required: false }
       - { name: photo, label: 写真（チラシなど）, widget: image, required: false, hint: パソコンでは左、スマホでは上に、写真の縦横の比率のまま載ります }
-      - { name: body_ja, label: 本文（日本語）, widget: richtext, required: false, buttons: *buttons, editor_components: *components }
-      - { name: body_en, label: 本文（英語）, widget: richtext, required: false, buttons: *buttons, editor_components: *components, hint: 空のときは、英語表示で「日本語に切り替えてください」の案内が出ます }
+      # イベントの写真は上の「写真（チラシなど）」の1枚だけなので、本文には写真のボタンを出さない（表だけ）
+      - { name: body_ja, label: 本文（日本語）, widget: richtext, required: false, buttons: *buttons, editor_components: [table] }
+      - { name: body_en, label: 本文（英語）, widget: richtext, required: false, buttons: *buttons, editor_components: [table], hint: 空のときは、英語表示で「日本語に切り替えてください」の案内が出ます }
       - name: form
         label: 申込フォームの項目（受付中のあいだ、お問い合わせフォームに出ます）
         label_singular: 申込の項目
