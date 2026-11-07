@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=295f2240">
+<link rel="stylesheet" href="assets/style.css?v=6c66972d">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 </head>
@@ -80,7 +80,7 @@
     <form class="form reveal" novalidate data-endpoint="https://script.google.com/macros/s/AKfycbwd9WupNo89sMDZsyF3UdslJty9MMNEXfumjnOMX7TDYMBDl5kRPI8O2GakIeFgluo7/exec">
       <div class="form-fields">
         <div class="field">
-          <span class="label"><span lang="ja">お問い<wbr>合わせ内容</span><span lang="en">Enquiry about</span><span class="req">REQUIRED</span></span>
+          <span class="label"><span lang="ja">お問い<wbr>合わせ内容</span><span lang="en">Enquiry about</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></span>
           <div class="choices">
             <label><input type="radio" name="type" value="school" required checked><span lang="ja">英語教室</span><span lang="en">English lessons</span></label>
             <label><input type="radio" name="type" value="study" data-study><span lang="ja">留学相談</span><span lang="en">Study abroad</span></label>
@@ -90,7 +90,7 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label for="name"><span lang="ja">保護者さまの<wbr>お名前</span><span lang="en">Your name</span><span class="req">REQUIRED</span></label>
+            <label for="name"><span lang="ja">保護者さまの<wbr>お名前</span><span lang="en">Your name</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <input id="name" name="name" type="text" required autocomplete="name" data-ph-ja="例）麻布 花子" data-ph-en="e.g. Hanako Azabu">
           </div>
           <div class="field">
@@ -100,24 +100,24 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label for="email"><span lang="ja">メールアドレス</span><span lang="en">Email</span><span class="req">REQUIRED</span></label>
+            <label for="email"><span lang="ja">メールアドレス</span><span lang="en">Email</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <input id="email" name="email" type="email" required autocomplete="email" data-ph-ja="例）name@example.com" data-ph-en="e.g. name@example.com">
           </div>
           <div class="field">
-            <label for="tel"><span lang="ja">電話番号</span><span lang="en">Phone</span><span class="req">REQUIRED</span></label>
+            <label for="tel"><span lang="ja">電話番号</span><span lang="en">Phone</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <input id="tel" name="tel" type="tel" required autocomplete="tel" data-ph-ja="例）03-0000-0000" data-ph-en="e.g. 03-0000-0000">
           </div>
         </div>
         <!-- ご住所：郵便番号（7桁）を入れると、都道府県と市区町村・町名が自動で入る（assets/main.js。zipcloud の郵便番号検索を使う） -->
         <div class="field-row">
           <div class="field">
-            <label for="zip"><span lang="ja">郵便番号</span><span lang="en">Postal code</span><span class="req">REQUIRED</span></label>
+            <label for="zip"><span lang="ja">郵便番号</span><span lang="en">Postal code</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="8" required pattern="[0-9]{3}-[0-9]{4}" title="半角数字とハイフンで入力してください（例：106-0044） / Numbers with a hyphen, e.g. 106-0044" data-ph-ja="例）106-0044" data-ph-en="e.g. 106-0044">
             <p class="field-hint"><span lang="ja"><b>半角・ハイフン<wbr>あり</b>（例：106-0044）</span><span lang="en"><b>Numbers with a hyphen</b> (e.g. 106-0044)</span><br>
               <span data-zip-hint><span lang="ja">7桁を<wbr>入れると、<wbr>住所の<wbr>一部が<wbr>自動で<wbr>入ります</span><span lang="en">Enter 7 digits to fill in part of the address</span></span></p>
           </div>
           <div class="field">
-            <label for="pref"><span lang="ja">都道府県</span><span lang="en">Prefecture</span><span class="req">REQUIRED</span></label>
+            <label for="pref"><span lang="ja">都道府県</span><span lang="en">Prefecture</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <select id="pref" name="pref" autocomplete="address-level1" required>
               <option value="">—</option>
               <option value="北海道">北海道 / Hokkaido</option>
@@ -171,7 +171,7 @@
           </div>
         </div>
         <div class="field">
-          <label for="city"><span lang="ja">市区町村・町名・番地</span><span lang="en">City, street and number</span><span class="req">REQUIRED</span></label>
+          <label for="city"><span lang="ja">市区町村・町名・番地</span><span lang="en">City, street and number</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
           <input id="city" name="city" type="text" autocomplete="address-line1" required data-ph-ja="例）港区東麻布3-8-2" data-ph-en="e.g. Minato-ku, Higashi-Azabu 3-8-2">
         </div>
         <div class="field">
@@ -259,7 +259,7 @@
           </select>
         </div>
         <div class="field">
-          <label class="agree"><input type="checkbox" name="agree" required><span><span lang="ja"><a href="policy.html" target="_blank" rel="noopener">個人情報の<wbr>取扱い</a>に<wbr>同意する</span><span lang="en">I agree to the <a href="policy.html" target="_blank" rel="noopener">privacy policy</a></span><span class="req">REQUIRED</span></span></label>
+          <label class="agree"><input type="checkbox" name="agree" required><span><span lang="ja"><a href="policy.html" target="_blank" rel="noopener">個人情報の<wbr>取扱い</a>に<wbr>同意する</span><span lang="en">I agree to the <a href="policy.html" target="_blank" rel="noopener">privacy policy</a></span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></span></label>
         </div>
         <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
         <p class="form-error" role="alert" hidden></p>
@@ -324,12 +324,12 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span><span lang="ja">運営：<span class="ra-name">REAL ACADEMY</span> 合同会社</span><span lang="en"><span class="ra-name">REAL ACADEMY</span> LLC</span>　｜　<a href="policy.html"><span lang="ja">個人情報の<wbr>取扱い</span><span lang="en">Privacy Policy</span></a></span>
+      <span><span lang="ja">運営：<span class="ra-name">REAL ACADEMY</span> 合同会社</span><span lang="en"><span class="ra-name">REAL ACADEMY</span> LLC</span><span class="sep">　｜　</span><a href="policy.html"><span lang="ja">個人情報の<wbr>取扱い</span><span lang="en">Privacy Policy</span></a></span>
       <span>© <span class="year">2026</span> <span class="ra-name">REAL ACADEMY</span></span>
     </div>
   </div>
 </footer>
 
-<script src="assets/main.js?v=be13b14c"></script>
+<script src="assets/main.js?v=7e3a1918"></script>
 </body>
 </html>

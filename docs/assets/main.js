@@ -167,6 +167,8 @@
   // data-endpoint が空の間は送信せず、完了表示だけを出す（確認用）。
   var jaText = function (el) {
     if (!el) return "";
+    el = el.cloneNode(true);  // 「必須」の印は項目名に含めない
+    el.querySelectorAll(".req").forEach(function (r) { r.remove(); });
     var ja = el.querySelector('[lang="ja"]');
     return (ja ? ja.textContent : el.textContent).replace(/REQUIRED/g, "").trim();
   };
@@ -260,6 +262,10 @@
     var track = slider.querySelector(".voices");
     var cards = track ? Array.prototype.slice.call(track.children) : [];
     if (cards.length < 2) return;
+    // キーボードでも動かせるように（Tab で選んで ← → キー）。読み上げでは「保護者・生徒の声」の欄と伝える
+    track.setAttribute("tabindex", "0");
+    track.setAttribute("role", "region");
+    track.setAttribute("aria-label", root.getAttribute("data-lang") === "en" ? "Voices" : "保護者・生徒の声");
     function button(cls, ja, en) {
       var b = document.createElement("button");
       b.type = "button"; b.className = "vs-btn " + cls;

@@ -83,6 +83,7 @@
     return "<table>" + rows.map(function (r, n) {
       var heading = n === 0 && !r[0];
       return "<tr>" + r.map(function (c, k) {
+        if (heading && k === 0 && !c) return '<td class="corner"></td>';  // 左上の空のマス（mdlite.py と同じ）
         var t = heading || k === 0 ? "th" : "td";
         return "<" + t + ">" + c + "</" + t + ">";
       }).join("") + "</tr>";
