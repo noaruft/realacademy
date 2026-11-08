@@ -405,6 +405,61 @@
     });
   });
 
+  // ---------- トップの最上部の動き（.hero-pin）：スクロールの量に合わせて、大きな「REAL ACADEMY」を見出しの位置へ移し、
+  //            紺のかげ・文言・ボタンを順に出す。どこまで進んだか（0〜1）を CSS の変数に渡し、見た目は assets/style.css で決める ----------
+  (function () {
+    var pin = document.querySelector(".hero-pin");
+    if (!pin || !root.classList.contains("hero-anim")) return;
+    var hero = pin.querySelector(".hero"), name = hero.querySelector(".hero-intro-name"),
+        target = hero.querySelector(".hero-copy .eyebrow .ra-name"), copy = hero.querySelector(".hero-copy");
+    if (!name || !target) return;
+    var len = 0, hh = 0, fx = { dx: 0, dy: 0, s: 1 };
+    function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+    function seg(p, a, b) { return clamp((p - a) / (b - a)); }                      // p が a→b の間で 0→1
+    function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }  // ゆっくり動き出して、ゆっくり止まる
+    function set(k, v) { hero.style.setProperty(k, v.toFixed(4)); }
+    function progress() { return len > 0 ? clamp((hh - pin.getBoundingClientRect().top) / len) : 1; }
+    function update() {
+      var p = progress(), m = ease(seg(p, 0, .6));
+      name.style.transform = "translate(" + fx.dx * m + "px," + fx.dy * m + "px) scale(" + (1 + (fx.s - 1) * m) + ")";
+      set("--p", p); set("--m", m);
+      set("--shade", ease(seg(p, .1, .6)));     // 紺のかげ
+      set("--o-cue", 1 - seg(p, 0, .12));      // 「SCROLL」の合図
+      set("--o-eb", m > .999 ? 1 : 0);          // 移り終わったら、本物の「REAL ACADEMY」に入れ替える
+      set("--o-line", seg(p, .58, .72));        // 「REAL ACADEMY」の前の線
+      set("--o-slogan", ease(seg(p, .5, .75)));
+      set("--o-sub", ease(seg(p, .6, .85)));
+      set("--o-act", ease(seg(p, .7, .95)));
+      hero.classList.toggle("copy-off", p < .7);
+    }
+    // 大きな文字と、移り先（見出しの上の「REAL ACADEMY」）の位置・大きさを測る。画面の大きさ・日英の切り替え・文字の読み込みで測り直す
+    function measure() {
+      var header = document.querySelector(".site-header");
+      hh = header ? header.offsetHeight : 0;
+      root.style.setProperty("--hh", hh + "px");
+      len = pin.offsetHeight - hero.offsetHeight;   // 写真が止まっている間のスクロール量（動きを使わない画面では 0）
+      name.style.transform = "none";
+      var a = name.getBoundingClientRect(), b = target.getBoundingClientRect();
+      fx = a.width ? { dx: b.left - a.left, dy: b.top - a.top, s: b.width / a.width } : { dx: 0, dy: 0, s: 1 };
+      update();
+    }
+    var ticking = false;
+    window.addEventListener("scroll", function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; update(); });
+    }, { passive: true });
+    window.addEventListener("resize", measure);
+    if (window.ResizeObserver) new ResizeObserver(measure).observe(copy);
+    if (document.fonts) document.fonts.ready.then(measure);
+    // キーボードでボタンに移ったときは、最後の形まで進めて見えるようにする
+    hero.addEventListener("focusin", function () {
+      var p = progress();
+      if (p < 1) window.scrollBy({ top: (1 - p) * len, behavior: "instant" });
+    });
+    measure();
+  })();
+
   // ---------- コピーライト年 ----------
   document.querySelectorAll(".year").forEach(function (el) { el.textContent = new Date().getFullYear(); });
 })();

@@ -1269,17 +1269,66 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 .hero .btn:not(.ghost):hover { background: var(--gold-light); color: var(--navy); }
 .hero .text-link { color: var(--ivory); border-bottom-color: var(--gold-light); }
 .hero .text-link:hover { color: var(--gold-light); border-bottom-color: var(--ivory); }
+/* スマホ幅：上の端だけ薄く紺を重ね、文字の後ろの紺は文字のかたまり（.hero-copy）に付ける。
+   画面の高さで比べると、ブラウザのバーで表示が低いスマホでは文字が上に来て写真に溶けてしまうため、文字の位置に合わせる（2026年11月8日） */
 @media (max-width: 820px) {
   .hero { align-items: flex-end; }
-  .hero::before { background: linear-gradient(180deg, rgba(17, 27, 49, .3) 0%, rgba(17, 27, 49, .15) 30%, rgba(17, 27, 49, .78) 62%, rgba(17, 27, 49, .94) 100%); }
+  .hero::before { background: linear-gradient(180deg, rgba(17, 27, 49, .25) 0%, rgba(17, 27, 49, 0) 20%); }
+  .hero-copy { position: relative; }
+  .hero-copy::before { content: ""; position: absolute; z-index: -1; pointer-events: none;
+    left: calc(-1 * var(--gutter)); right: calc(-1 * var(--gutter)); top: -180px; bottom: calc(-1 * clamp(72px, 9vw, 112px));
+    background: linear-gradient(180deg, rgba(17, 27, 49, 0) 0, rgba(17, 27, 49, .82) 156px, rgba(17, 27, 49, .94) 100%); }
 }
 /* 縦向きの画面：縦長の写真は空が広いので、下を基準に拡大して空の上の方を切り、校舎を大きく上寄りに見せる（文字は芝生の上） */
 @media (max-width: 820px) and (orientation: portrait) {
   .hero-bg { transform: scale(1.65); transform-origin: 50% 100%; }
   /* 2枚目以降（切り替わる写真）は拡大しない（拡大を打ち消す）。スマホ用の写真（1-2-sp など）をそのまま見せる */
   .hero-bg .ph-slide:not(:first-child) { transform: scale(calc(1 / 1.65)); transform-origin: 50% 100%; }
-  .hero::before { background: linear-gradient(180deg, rgba(17, 27, 49, .25) 0%, rgba(17, 27, 49, 0) 20%, rgba(17, 27, 49, 0) 38%, rgba(17, 27, 49, .82) 54%, rgba(17, 27, 49, .94) 100%); }
 }
+
+/* ---------- トップの最上部の動き（Apple の製品紹介ページのように、スクロールに合わせて画面が変わる） ----------
+   最初は写真と大きな「REAL ACADEMY」だけ。スクロールすると写真はその場に止まったまま、大きな文字が縮みながら
+   見出しの上の「REAL ACADEMY」の位置へ移り、紺のかげが差して、今の文言とボタンが順に出る。変わり終わると、ふつうにページが流れる。
+   変わり終わるまでのスクロール量は、画面の高さの1.4倍（--pin-len）。数字の動きは assets/main.js（.hero-pin）。
+   動きを減らす設定の人・高さ520px未満の画面（横向きのスマホなど）・JavaScript が動かないときは、最初から今の形で出す */
+.hero-veil, .hero-intro, .hero-cue { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-height: 520px) {
+  .hero-anim .hero-pin { --pin-len: 140svh; position: relative; background: var(--navy); height: calc(100svh - var(--hh, 76px) + var(--pin-len)); }
+  .hero-anim .hero { position: sticky; top: var(--hh, 76px); height: calc(100svh - var(--hh, 76px)); min-height: 0; }
+  .hero-anim .hero-copy.reveal { opacity: 1; transform: none; transition: none; }
+  /* 写真：少し寄った状態から、スクロールで元の大きさへ */
+  .hero-anim .hero-bg { scale: calc(1.08 - .08 * var(--p, 0)); }
+  /* 大きな「REAL ACADEMY」：画面の真ん中から、見出しの上の「REAL ACADEMY」と同じ字体・字間のまま縮んで重なる */
+  .hero-anim .hero-intro { display: grid; place-items: center; position: absolute; inset: 0; z-index: 1; pointer-events: none; padding-bottom: 8svh; }
+  .hero-anim .hero-intro-name { font-size: min(7.4vw, 88px); line-height: 1.2; white-space: nowrap; transform-origin: 0 0; will-change: transform;
+    color: color-mix(in srgb, var(--gold-light) calc(var(--m, 0) * 100%), var(--ivory));
+    text-shadow: 0 0 calc((1 - var(--m, 0)) * 28px) rgba(10, 16, 32, calc((1 - var(--m, 0)) * .55));
+    opacity: calc(1 - var(--o-eb, 0)); }
+  .hero-anim .hero-intro-name .ra-name { letter-spacing: .14em; }
+  /* 大きな文字の後ろだけ、ほんのり紺を敷く（スクロールで消える） */
+  .hero-anim .hero-veil { display: block; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(ellipse 75% 32% at 50% 46%, rgba(17, 27, 49, .5), rgba(17, 27, 49, 0) 72%);
+    opacity: calc(1 - var(--shade, 0)); }
+  /* 下の「SCROLL」の合図（線が上から下へ伸びる） */
+  .hero-anim .hero-cue { display: flex; flex-direction: column; align-items: center; gap: 10px; position: absolute; left: 50%; bottom: 20px; translate: -50% 0;
+    font-family: var(--serif-en); font-size: 12px; letter-spacing: .32em; padding-left: .32em; color: var(--ivory); text-shadow: 0 1px 6px rgba(10, 16, 32, .6);
+    opacity: var(--o-cue, 1); pointer-events: none; }
+  .hero-anim .hero-cue::after { content: ""; width: 1px; height: 40px; background: linear-gradient(var(--gold-light), rgba(216, 188, 130, 0)); transform-origin: top; animation: hero-cue 2.2s ease-in-out infinite; }
+  /* 今の文字：順に浮かび上がる（出る前のボタンは押せない。キーボードで移ったときは main.js が最後の形まで進める） */
+  .hero-anim .hero-copy .eyebrow .ra-name { opacity: var(--o-eb, 1); }
+  .hero-anim .hero-copy .eyebrow::before { opacity: var(--o-line, 1); }
+  .hero-anim .hero-slogan { opacity: var(--o-slogan, 1); translate: 0 calc((1 - var(--o-slogan, 1)) * 28px); }
+  .hero-anim .hero-sub { opacity: var(--o-sub, 1); translate: 0 calc((1 - var(--o-sub, 1)) * 24px); }
+  .hero-anim .hero-actions { opacity: var(--o-act, 1); translate: 0 calc((1 - var(--o-act, 1)) * 20px); }
+  .hero-anim .hero.copy-off .hero-actions { pointer-events: none; }
+  /* 紺のかげ：スクロールに合わせて文字の側に差してくる（パソコン幅は左側、スマホ幅は文字の後ろ） */
+  .hero-anim .hero-copy::before { opacity: var(--shade, 1); }
+}
+@media (prefers-reduced-motion: no-preference) and (min-height: 520px) and (min-width: 821px) {
+  .hero-anim .hero::before { opacity: var(--shade, 1); }
+  .hero-anim .hero-veil { background: radial-gradient(ellipse 62% 34% at 50% 46%, rgba(17, 27, 49, .66), rgba(17, 27, 49, .2) 70%, rgba(17, 27, 49, 0) 100%); }
+}
+@keyframes hero-cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
 
 /* ヘッダーから開くページ（英語教室・イギリス留学・私たちについて・アクセス・ニュース）の冒頭文：行間を少し詰める */
 .hero-top .lead { line-height: 1.8; }
