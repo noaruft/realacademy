@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=91726981";
-import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=91726981";
+import { createApi } from "./api.js?v=2d35ae93";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=2d35ae93";
 
 const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
@@ -17,10 +17,12 @@ let lessons = [];
 let tests = [];
 let cal = { years: [], holidays: [] };
 const wk = date => weekInfo(date, cal);
+// Term・Week・Assessment を使うクラスか（英検三級コースのように使わないクラスは、生徒の画面にターム・週・テスト結果を出さない）
+const useTerms = () => me?.student?.use_terms !== false;
 
 // ---------- マイページのタブ ----------
 function showTab(name) {
-  if (!["schedule", "records", "tests"].includes(name)) name = "schedule";
+  if (!["schedule", "records", "tests"].includes(name) || (name === "tests" && !useTerms())) name = "schedule";
   for (const b of document.querySelectorAll("[data-mytab]")) b.setAttribute("aria-selected", String(b.dataset.mytab === name));
   for (const p of document.querySelectorAll("[data-mypanel]")) p.hidden = p.dataset.mypanel !== name;
 }
@@ -60,6 +62,8 @@ async function start() {
   if (me.role !== "student") { $("whoName").textContent = ""; show("noneView"); return; }
   $("whoName").textContent = me.student.name + " さん";
   show("myView");
+  $("testsTab").hidden = !useTerms();
+  showTab(location.hash.slice(1));
   startIdleLogout(IDLE_MINUTES, async () => {
     await api.signOut();
     location.replace(page("index") + "?timeout=1");
@@ -137,7 +141,7 @@ function render() {
   }
   $("weeks").innerHTML = [...byWeek].map(([wk, list]) => `
     <section class="week">
-      <h3 class="week-head"><span>${fmtDate(wk)} からの週</span>${weekChip(myDay(wk))}</h3>
+      <h3 class="week-head"><span>${fmtDate(wk)} からの週</span>${useTerms() ? weekChip(myDay(wk)) : ""}</h3>
       ${list.map(lessonHtml).join("")}
     </section>`).join("");
 }
@@ -202,7 +206,8 @@ function renderDash() {
   const today = todayStr();
   const info = myDay(today);
   let now = "";
-  if (info.kind === "lesson") {
+  if (!useTerms()) now = "";
+  else if (info.kind === "lesson") {
     const plan = yearPlan(info.year, cal);
     const tt = info.term === "A" || info.term === "B" ? "B" : "D";   // 次のAssessment（Spring・Summer→Term、Autumn・Winter→Final）
     const tw = plan.find(p => p.kind === "test" && p.term === tt);
@@ -218,7 +223,7 @@ function renderDash() {
   const next = rows.find(r => !r.cancelled && (r.status === "attend" || r.status === "joined")
     && (r.date > today || (r.date === today && r.end_time > new Date().toTimeString().slice(0, 8))));
   const nextHtml = next ? `<div class="next-lesson"><span class="k">次の授業</span>
-      <span class="v">${fmtDate(next.date)} ${fmtTime(next.start_time)}〜${fmtTime(next.end_time)}</span>${weekChip(wk(next.date))}</div>` : "";
+      <span class="v">${fmtDate(next.date)} ${fmtTime(next.start_time)}〜${fmtTime(next.end_time)}</span>${useTerms() ? weekChip(wk(next.date)) : ""}</div>` : "";
   $("dashNow").innerHTML = now + nextHtml;
 }
 
@@ -272,7 +277,8 @@ const MAT = {
   next_homework: "次回の宿題・小テストの範囲",
   answers: "模範解答（小テスト・宿題）",
 };
-const lessonLabel = l => l.week_kind === "lesson" ? `Week ${l.week}` : l.week_kind === "test" ? testName(l.term) : "";
+const lessonLabel = l => !useTerms() ? "" : l.week_kind === "lesson" ? `Week ${l.week}` : l.week_kind === "test" ? testName(l.term) : "";
+const isTestWeek = l => useTerms() && l.week_kind === "test";  // Assessment の週（成績の欄は出さない）
 const matBtn = (m, kind) => m[kind] ? `<button class="mat-btn" type="button" data-path="${esc(m[kind])}">${MAT[kind]}</button>` : "";
 
 function renderResults() {
@@ -285,7 +291,7 @@ function renderResults() {
   $("nextBox").innerHTML = latest ? `
     <div class="next-box">
       <h3>次回までに</h3>
-      <p>${fmtDate(latest.date)}（${esc(lessonLabel(latest))}）の授業で出された宿題と、次回の小テストの範囲です。</p>
+      <p>${fmtDate(latest.date)}${lessonLabel(latest) ? `（${esc(lessonLabel(latest))}）` : ""}の授業で出された宿題と、次回の小テストの範囲です。</p>
       <div class="mat-btns">${matBtn(latest.materials, "next_homework")}</div>
     </div>` : "";
 
@@ -297,7 +303,7 @@ function renderResults() {
     ? `<span class="v none">未入力</span>` : `<span class="v">${esc(Number.isFinite(+v) && suffix ? +v : v)}${suffix}</span>`;
   let lastTerm = null;
   $("results").innerHTML = lessons.map(l => {
-    const termKey = l.term ? `${l.school_year}年度 ${l.week_kind === "test" ? testName(l.term) : termName(l.term)}` : "";
+    const termKey = l.term && useTerms() ? `${l.school_year}年度 ${l.week_kind === "test" ? testName(l.term) : termName(l.term)}` : "";
     const head = termKey && termKey !== lastTerm ? `<h3 class="year-head">${esc(termKey)}</h3>` : "";
     lastTerm = termKey || lastTerm;
     const tag = l.status === "absent" ? `<span class="tag tag-warn">欠席</span>`
@@ -308,12 +314,12 @@ function renderResults() {
       <div class="result-head">
         <span class="when">${esc(lessonLabel(l))}<small>${fmtDate(l.date)} ${fmtTime(l.start_time)}〜${fmtTime(l.end_time)}</small></span>${tag}
       </div>
-      ${l.status === "absent" || l.week_kind === "test" ? "" : `<div class="scores">
+      ${l.status === "absent" || isTestWeek(l) ? "" : `<div class="scores">
         <div class="score-box"><span class="k">小テスト</span>${l.quiz_score == null ? val(null) : `<span class="v">${+l.quiz_score}<small> / ${max}</small></span>`}${l.quiz_pdf ? `<button class="quiz-open" type="button" data-quiz="${esc(l.quiz_pdf)}">答案を見る</button>` : ""}</div>
         <div class="score-box"><span class="k">積極性</span>${val(l.participation)}</div>
         <div class="score-box"><span class="k">宿題</span>${l.homework === "なし" ? `<span class="v none">宿題なし</span>` : val(l.homework)}</div>
       </div>`}
-      ${mats ? `<div class="mat-btns">${mats}</div>` : l.week_kind === "test" ? `<p class="muted" style="margin:8px 0 0">Assessment の結果は「テスト結果」タブに公開されます。</p>` : `<p class="muted" style="margin:8px 0 0">この回の教材はまだ登録されていません。</p>`}
+      ${mats ? `<div class="mat-btns">${mats}</div>` : isTestWeek(l) ? `<p class="muted" style="margin:8px 0 0">Assessment の結果は「テスト結果」タブに公開されます。</p>` : `<p class="muted" style="margin:8px 0 0">この回の教材はまだ登録されていません。</p>`}
     </article>`;
   }).join("");
 }

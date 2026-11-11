@@ -23,7 +23,7 @@ export async function supabaseClient() {
 export async function createApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createMockApi } = await import("./mock.js?v=91726981");
+    const { createMockApi } = await import("./mock.js?v=2d35ae93");
     return createMockApi();
   }
   const sb = await supabaseClient();
@@ -65,8 +65,8 @@ export async function createApi() {
       const lesson = await lessonFlags(uid);
       const a = await sb.from("admins").select("*").eq("id", uid).maybeSingle();
       if (a.data) return { role: "admin", admin: a.data, lesson };
-      const s = await sb.from("students").select("*, classes(name)").eq("id", uid).maybeSingle();
-      if (s.data && s.data.active) return { role: "student", student: { ...s.data, class_name: s.data.classes?.name } };
+      const s = await sb.from("students").select("*, classes(name, use_terms)").eq("id", uid).maybeSingle();
+      if (s.data && s.data.active) return { role: "student", student: { ...s.data, class_name: s.data.classes?.name, use_terms: s.data.classes?.use_terms !== false } };
       if (lesson.student || lesson.teacher || lesson.manager) return { role: "lesson", lesson };
       return { role: "none" };
     },

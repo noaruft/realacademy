@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=91726981";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=91726981";
+import { createApi } from "./api.js?v=2d35ae93";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=2d35ae93";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 
@@ -222,7 +222,7 @@ function renderGrades() {
     const info = wk(s.date);
     const head = `<div class="day-head"><span class="d">${esc(className(s.class_id))}</span><span>${fmtTime(s.start_time)}〜${fmtTime(s.end_time)}</span></div>
       <div class="week-chip ${info.kind}">${esc(weekLabel(info) || "年間予定の範囲外")}</div>`;
-    if (info.kind === "test") {
+    if (info.kind === "test" && data.classes.find(c => c.id === s.class_id)?.use_terms !== false) {  // Term・Week を使わないクラスは、Assessment の週も成績を入力する
       return `<article class="day">${head}<div class="klass"><p class="muted" style="margin:0">Assessment の週のため、この日の成績入力はありません。結果は「テスト結果」タブでPDFを登録してください。</p></div></article>`;
     }
     return `<article class="day" data-session="${s.id}">

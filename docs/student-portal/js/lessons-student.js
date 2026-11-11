@@ -1,9 +1,9 @@
 // 個人レッスン（専用コース）：生徒のページ
-import { createApi } from "./api.js?v=91726981";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=91726981";
-import { createLessonApi } from "./lesson-api.js?v=91726981";
-import { createChat } from "./lesson-chat.js?v=91726981";
-import { DEADLINE_HOURS, PHASE_TAG, TICKET_MONTHS, TICKET_PACKS, ZOOM_OPEN_MINUTES, addMonthsJ, fmtDay, fmtWhen, jst, jstToday, phase, phaseLabel } from "./lesson-common.js?v=91726981";
+import { createApi } from "./api.js?v=2d35ae93";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=2d35ae93";
+import { createLessonApi } from "./lesson-api.js?v=2d35ae93";
+import { createChat } from "./lesson-chat.js?v=2d35ae93";
+import { DEADLINE_HOURS, PHASE_TAG, TICKET_MONTHS, TICKET_PACKS, ZOOM_OPEN_MINUTES, addMonthsJ, fmtDay, fmtWhen, jst, jstToday, phase, phaseLabel } from "./lesson-common.js?v=2d35ae93";
 
 const IDLE_MINUTES = 30;  // 操作がないと30分で自動ログアウト
 const $ = id => document.getElementById(id);
