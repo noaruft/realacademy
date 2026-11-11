@@ -436,6 +436,13 @@ html[data-lang="en"] .principle p { font-family: var(--serif-en); font-size: 21p
 .results .grade { color: var(--gold-light); font-size: 13px; letter-spacing: .1em; }
 .results small { display: block; color: rgba(247, 244, 238, .65); font-size: 12.5px; }
 .results-sub { margin-top: 24px; color: rgba(247, 244, 238, .8); font-size: 14px; }
+/* 合格実績を畳んだとき（assets/main.js）：下の方を薄くして切り、下に「すべての実績を見る」ボタン */
+.results.folded { overflow: hidden; overflow: clip; -webkit-mask-image: linear-gradient(to bottom, #000 var(--fade-from), transparent 100%); mask-image: linear-gradient(to bottom, #000 var(--fade-from), transparent 100%); }
+.results-more { margin-top: 20px; }
+.results-more:not([hidden]) { display: flex; justify-content: center; }
+.results-more:not(.open) .more-close, .results-more.open .more-open { display: none; }
+.bg-navy .results-more .btn { background: transparent; color: var(--ivory); border-color: rgba(247, 244, 238, .6); }
+.bg-navy .results-more .btn:hover { background: var(--ivory); color: var(--navy); border-color: var(--ivory); }
 @media (max-width: 600px) { .results li { grid-template-columns: 1fr; gap: 2px; } }
 
 /* ---------- よくある質問 ---------- */

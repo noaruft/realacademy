@@ -372,6 +372,11 @@
       '      <h2><span lang="ja">保護者・生徒の声</span><span lang="en">From our families</span></h2>\n    </div>\n    ' + list + "\n  </div>\n</section>\n";
   }
 
+  // build.py の RESULTS_MORE と同じ（プレビューでは畳まず、すべて見せる）
+  var RESULTS_MORE = '<p class="results-more" hidden><button type="button" class="btn ghost" aria-expanded="false">' +
+    '<span class="more-open"><span lang="ja">すべての実績を見る（全<span class="n"></span>件）</span><span lang="en">Show all <span class="n"></span> results</span></span>' +
+    '<span class="more-close"><span lang="ja">閉じる</span><span lang="en">Show fewer</span></span></button></p>';
+
   function results(d) {
     var asOf = filled(d.as_of_ja) ? '<p style="color:rgba(246,241,231,.78)">' + J(text(d.as_of_ja), text(d.as_of_en)) + "</p>" : "";
     var rows = (d.items || []).map(function (r) {
@@ -381,7 +386,7 @@
     var footer = filled(d.footer_ja) ? '\n    <p class="results-sub">' + J(text(d.footer_ja), text(d.footer_en)) + "</p>" : "";
     return '\n<section id="results" class="bg-navy">\n  <div class="container narrow">\n    <div>\n      <p class="eyebrow">Achievements</p>\n' +
       '      <h2><span lang="ja">実績・データ</span><span lang="en">Results</span></h2>\n      ' + asOf + "\n    </div>\n" +
-      '    <ul class="results">\n' + rows + "\n    </ul>" + footer + "\n  </div>\n</section>\n";
+      '    <ul class="results">\n' + rows + "\n    </ul>\n    " + RESULTS_MORE + footer + "\n  </div>\n</section>\n";
   }
 
   // ------------------------------------------------------------------ 管理画面に登録

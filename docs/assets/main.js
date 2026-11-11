@@ -83,6 +83,37 @@
     new MutationObserver(fold).observe(document.documentElement, { attributes: true, attributeFilter: ["data-lang"] });  // 日英の切り替えで高さが変わるため
   });
 
+  // ---------- 合格実績：いつも上から5件を見せ、次の1件は下の方から薄くして畳む。ボタンで全部を開く ----------
+  //   畳む件数が2件より少ないときは、畳まずに全部見せる。JavaScript が動かないときも全部見せる
+  document.querySelectorAll("ul.results").forEach(function (list) {
+    var items = list.querySelectorAll(":scope > li"), more = list.nextElementSibling;
+    if (!more || !more.classList.contains("results-more")) return;
+    var btn = more.querySelector("button"), open = false;
+    var show = 5;  // いつも見せる件数（実績が増えても欄の長さは変わらない）
+    more.querySelectorAll(".n").forEach(function (n) { n.textContent = items.length; });
+    function fold() {
+      list.classList.remove("folded"); list.style.maxHeight = ""; list.style.removeProperty("--fade-from");
+      if (items.length - show < 2) { more.hidden = true; return; }
+      more.hidden = false;
+      if (open) return;
+      var next = items[show], top = next.getBoundingClientRect().top - list.getBoundingClientRect().top, h = next.offsetHeight;  // 一覧の上からの位置
+      list.classList.add("folded");
+      list.style.maxHeight = (top + h * 0.8) + "px";      // 次の1件は8割まで見せ、
+      list.style.setProperty("--fade-from", (top + h * 0.15) + "px");  // 上の方から下を薄くする
+    }
+    btn.addEventListener("click", function () {
+      open = !open;
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      more.classList.toggle("open", open);
+      fold();
+      if (!open) list.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+    fold();
+    var t;
+    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(fold, 150); });
+    new MutationObserver(fold).observe(document.documentElement, { attributes: true, attributeFilter: ["data-lang"] });  // 日英の切り替えで高さが変わるため
+  });
+
   // ---------- お問い合わせフォーム ----------
   var form = document.querySelector("form.form");
 
