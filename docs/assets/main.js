@@ -405,6 +405,70 @@
     });
   });
 
+  // ---------- 比較の表（table.compare-switch）：スマホ幅（600px以下）では、上のボタンで1クラスずつ切り替えて見せる ----------
+  //   表をそのまま元にして作るので、表を書き換えればスマホの表示も変わる。全クラス共通の行（colspan の行）は、
+  //   切り替わる枠の外に一覧で出す。見せ分けは assets/style.css（.cs-box・.cs-common）。JavaScript が動かないときは、今までの縦に並べた表のまま
+  document.querySelectorAll("table.compare-switch").forEach(function (table, n) {
+    var wrap = table.parentNode;
+    var heads = Array.prototype.slice.call(table.querySelectorAll("thead th"));
+    var rows = Array.prototype.slice.call(table.querySelectorAll("tbody tr"));
+    if (heads.length < 2) return;
+    var own = rows.filter(function (r) { return !r.querySelector("td[colspan]"); });
+    var common = rows.filter(function (r) { return r.querySelector("td[colspan]"); });
+    var box = document.createElement("div");
+    box.className = "cs-box";
+    var bar = document.createElement("div");
+    bar.className = "cs-tabs";
+    bar.setAttribute("role", "tablist");
+    box.appendChild(bar);
+    var tabs = [], panels = [];
+    heads.forEach(function (h, i) {
+      var id = "cs" + n + "-" + i;
+      var b = document.createElement("button");
+      b.type = "button"; b.id = id + "-tab";
+      b.setAttribute("role", "tab"); b.setAttribute("aria-controls", id);
+      if (h.classList.contains("upcoming-col")) b.classList.add("upcoming");
+      b.innerHTML = h.innerHTML;  // クラス名と、その下の開講予定
+      bar.appendChild(b);
+      var p = document.createElement("dl");
+      p.className = "cs-panel"; p.id = id;
+      p.setAttribute("role", "tabpanel"); p.setAttribute("aria-labelledby", b.id);
+      p.innerHTML = own.map(function (r) {
+        return "<dt>" + r.querySelector("th").innerHTML + "</dt><dd>" + r.querySelectorAll("td")[i].innerHTML + "</dd>";
+      }).join("");
+      box.appendChild(p);
+      tabs.push(b); panels.push(p);
+    });
+    function select(i, focus) {
+      tabs.forEach(function (b, k) {
+        b.setAttribute("aria-selected", k === i ? "true" : "false");
+        b.tabIndex = k === i ? 0 : -1;
+        panels[k].hidden = k !== i;
+      });
+      if (focus) tabs[i].focus();
+    }
+    tabs.forEach(function (b, i) {
+      b.addEventListener("click", function () { select(i); });
+      b.addEventListener("keydown", function (e) {  // キーボードでは ← → で切り替える
+        var k = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (k === undefined) return;
+        e.preventDefault();
+        select((k + tabs.length) % tabs.length, true);
+      });
+    });
+    select(0);
+    wrap.appendChild(box);
+    if (common.length) {
+      var dl = document.createElement("dl");
+      dl.className = "spec cs-common";
+      dl.innerHTML = common.map(function (r) {
+        return "<dt>" + r.querySelector("th").innerHTML + "</dt><dd>" + r.querySelector("td").innerHTML + "</dd>";
+      }).join("");
+      wrap.appendChild(dl);
+    }
+    wrap.classList.add("has-switch");
+  });
+
   // ---------- トップの最上部の動き（.hero-pin）：スクロールの量に合わせて、大きな「REAL ACADEMY」を見出しの位置へ移し、
   //            紺のかげ・文言・ボタンを順に出す。どこまで進んだか（0〜1）を CSS の変数に渡し、見た目は assets/style.css で決める ----------
   (function () {

@@ -1103,6 +1103,32 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .compare td + td { border-top: 1px dashed var(--line); }
   .compare td.upcoming-col { filter: none; }
 }
+/* 比較の表を、スマホ幅（600px以下）ではボタンで1クラスずつ切り替えて見せる（table.compare-switch。中身は assets/main.js が表から作る）。
+   上のボタン＝クラス名と開講予定、その下＝選んだクラスの項目。全クラス共通の項目（曜日・時間・定員・料金）は、
+   切り替わる枠の外に少し間を空け、概要の一覧（.spec）と同じ形で出す。
+   ボタンの指定は .cs-box から書く（main の中のボタンをゴシック体にする指定より強くして、クラス名を英字の書体で出すため） */
+.cs-box, .cs-common { display: none; }
+@media (max-width: 600px) {
+  .table-wrap.has-switch > table.compare-switch { display: none; }
+  .cs-box { display: block; margin-top: 32px; background: var(--paper); border: 1px solid var(--line); }
+  .cs-tabs { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+  .cs-box .cs-tabs button { font: inherit; cursor: pointer; display: grid; align-content: center; gap: 3px; margin: 0; padding: 12px 4px 10px;
+    background: var(--ivory); color: var(--ink-soft); border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px;
+    font-family: var(--serif-en); font-size: 17px; letter-spacing: .02em; line-height: 1.2; text-align: center; }
+  .cs-tabs button + button { border-left: 1px solid var(--line); }
+  .cs-tabs button small { display: block; font-family: var(--sans); font-size: 12px; letter-spacing: 0; line-height: 1.4; color: var(--gold); }
+  .cs-tabs button.upcoming small { color: #6f6f6b; }
+  .cs-tabs button[aria-selected="true"] { background: var(--paper); color: var(--navy); border-bottom-color: var(--navy); }
+  .cs-tabs button:focus-visible { outline: 2px solid var(--navy); outline-offset: -4px; }
+  .cs-panel { display: grid; grid-template-columns: 5.5em 1fr; margin: 0; padding: 6px 18px 10px; }
+  .cs-panel[hidden] { display: none; }
+  .cs-panel dt { color: var(--gold); font-size: 12.5px; letter-spacing: .08em; padding: 13px 0; border-top: 1px solid var(--line); }
+  .cs-panel dd { margin: 0; min-width: 0; font-size: 14px; line-height: 1.7; padding: 10px 0 10px 6px; border-top: 1px solid var(--line); }
+  .cs-panel dt:first-of-type, .cs-panel dt:first-of-type + dd { border-top: 0; }
+  .cs-panel dd br { display: none; }
+  .cs-common { display: grid; margin-top: 28px; }
+  .cs-common dd { padding-left: 14px; }  /* 見出しが長い英語（Fees & schedule）でも右の文字とくっつかない */
+}
 .course-tags .course-age, .course-tags .open-tag { align-self: stretch; display: inline-flex; align-items: center; }
 .course-tags .course-age { margin: 0; }
 /* 光沢文字（background-clip: text）の g・y の下や斜体の右端が切れないよう、塗りの範囲を少し広げる */
