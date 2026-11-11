@@ -8,10 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/portal.css?v=2d35ae93">
+<link rel="stylesheet" href="css/portal.css?v=18f2d620">
 <link rel="icon" type="image/png" href="img/favicon.png">
-<script src="js/boot.js?v=2d35ae93"></script>
-<script src="config.js?v=2d35ae93"></script>
+<script src="js/boot.js?v=18f2d620"></script>
+<script src="config.js?v=18f2d620"></script>
 </head>
 <body>
 <div class="demo-bar" id="demoBar" hidden>
@@ -70,8 +70,9 @@
     <div class="tabs" role="tablist">
       <button role="tab" data-tab="week" aria-selected="true">出席表</button>
       <button role="tab" data-tab="grades" aria-selected="false">成績入力</button>
-      <button role="tab" data-tab="calendar" aria-selected="false">年間予定</button>
+      <button role="tab" data-tab="homework" aria-selected="false">宿題入力</button>
       <button role="tab" data-tab="tests" aria-selected="false">テスト結果</button>
+      <button role="tab" data-tab="calendar" aria-selected="false">年間予定</button>
       <button role="tab" data-tab="sessions" aria-selected="false">授業日・休校</button>
       <button role="tab" data-tab="students" aria-selected="false">生徒名簿</button>
       <button role="tab" data-tab="materials" aria-selected="false">教材</button>
@@ -107,6 +108,20 @@
       </div>
       <p class="note" id="gradeNote"></p>
       <div class="days" id="gradeDays"></div>
+    </section>
+
+    <!-- 宿題入力：次回の宿題・小テストの範囲を授業ごとに書く（生徒の「授業の記録」に、その授業が終わってから出る） -->
+    <section data-panel="homework" hidden>
+      <div class="toolbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-line btn-sm" id="hwPrev" type="button">‹ 前の授業</button>
+          <input class="input" type="date" id="hwDate" style="width:auto;min-height:36px">
+          <button class="btn btn-line btn-sm" id="hwNext" type="button">次の授業 ›</button>
+          <button class="btn-text" id="hwToday" type="button">直近の授業</button>
+        </div>
+      </div>
+      <p class="note">その授業で出した宿題と、次回の小テストの範囲を書いてください。書いた内容は、生徒のMyページの「授業の記録」に、その授業が終わったあとに表示されます（改行もそのまま表示されます）。</p>
+      <div class="days" id="hwDays"></div>
     </section>
 
     <!-- 年間予定 -->
@@ -172,7 +187,7 @@
       <p class="note">設定と時間割は全クラス共通です。</p>
       <form id="setForm" class="card" style="max-width:640px">
         <label class="field"><span>1クラスの定員（人）</span><input class="input" type="number" name="capacity" min="1" max="50" required></label>
-        <label class="field"><span>受付締切（授業開始の何分前まで）</span><input class="input" type="number" name="deadline_minutes" min="0" step="10" required></label>
+        <label class="field"><span>振替の受付締切（授業開始の何分前まで。欠席の連絡は授業開始まで受け付けます）</span><input class="input" type="number" name="deadline_minutes" min="0" step="10" required></label>
         <label class="field"><span>生徒に見せる期間（週）</span><input class="input" type="number" name="weeks_ahead" min="1" max="12" required></label>
         <label class="field" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="same_week_only"> 振替は同じ週（月〜日）の中だけにする</label>
         <label class="field"><span>小テストの満点（点）</span><input class="input" type="number" name="quiz_max" min="1" max="1000" required></label>
@@ -186,6 +201,6 @@
 </main>
 
 <footer class="site-footer">© REAL ACADEMY</footer>
-<script type="module" src="js/admin.js?v=2d35ae93"></script>
+<script type="module" src="js/admin.js?v=18f2d620"></script>
 </body>
 </html>

@@ -743,3 +743,23 @@ table.week-grid.weekly-grid { width: 100%; max-width: 600px; min-width: 0; user-
   #dayWrap .day-row .tag { font-size: 10px; padding: 1px 4px; white-space: nowrap; }
   #dayWrap .day-booked { font-size: 12px; }
 }
+
+/* 授業の記録：1回の授業を1枚の枠にまとめ、回と回の区切りと、点数の横のつながりをはっきりさせる（2026年11月）
+   上の帯＝回・日時・出席、その下に小テスト・積極性・宿題を1本の行で（縦の線で仕切る）、いちばん下に教材 */
+.result { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--navy); padding: 0; margin: 0 0 18px; }
+.result-head { align-items: center; padding: 12px 16px; background: var(--bg-muted); border-bottom: 1px solid var(--line); }
+.result-head .when small { margin-left: 10px; }
+.result .scores { gap: 0; margin: 0; }
+.result .score-box { background: transparent; }
+.result .score-box + .score-box { border-left: 1px solid var(--line); }
+.result > .mat-btns, .result > p { margin: 0 !important; padding: 12px 16px; border-top: 1px solid var(--line); }
+.year-head + .result, .year-head + article.result { margin-top: 14px; }
+@media (max-width: 480px) { .result .scores { gap: 0; } .result-head { padding: 10px 12px; } .result > .mat-btns, .result > p { padding: 10px 12px; } }
+/* 次回の宿題・小テストの範囲（先生が宿題入力タブで書いた内容。改行もそのまま） */
+.hw-note { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.8; color: var(--ink); }
+.next-box .hw-note { background: var(--bg-muted); padding: 12px 14px; }
+.result > .hw-block { padding: 12px 16px; border-top: 1px solid var(--line); }
+.hw-block .k { display: block; font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; letter-spacing: .04em; }
+@media (max-width: 480px) { .result > .hw-block { padding: 10px 12px; } }
+/* 先生用：宿題入力の欄 */
+.hw-input { width: 100%; min-height: 120px; resize: vertical; line-height: 1.7; font-family: inherit; }

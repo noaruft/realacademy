@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=2d35ae93";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=2d35ae93";
+import { createApi } from "./api.js?v=18f2d620";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=18f2d620";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 
@@ -67,6 +67,9 @@ async function reload() {
       data = await load(gradeDay, gradeDay);
       data.gd = await api.gradeData(gradeDay, gradeDay);
       renderGrades();
+    } else if (tab === "homework") {
+      data = await load(gradeDay, gradeDay);
+      renderHomework();
     } else if (tab === "calendar") {
       renderCalendar();
     } else if (tab === "tests") {
@@ -245,6 +248,47 @@ function renderGrades() {
     </article>`;
   }).join("");
 }
+
+// ---------- 宿題入力（次回の宿題・小テストの範囲）。日付は成績入力と同じ（タブを切り替えても同じ授業のまま） ----------
+$("hwPrev").addEventListener("click", () => { gradeDay = addDays(gradeDay, -7); reload(); });
+$("hwNext").addEventListener("click", () => { gradeDay = addDays(gradeDay, 7); reload(); });
+$("hwToday").addEventListener("click", () => { gradeDay = latestLesson(); reload(); });
+$("hwDate").addEventListener("change", e => { if (e.target.value) { gradeDay = e.target.value; reload(); } });
+
+function renderHomework() {
+  $("hwDate").value = gradeDay;
+  const sessions = data.sessions.filter(s => s.date === gradeDay && !s.cancelled);
+  if (!sessions.length) {
+    $("hwDays").innerHTML = `<p class="card muted">${fmtDate(gradeDay)} は${esc(className(curClass))}・${WEEKDAYS[curDay]}曜の授業がありません。</p>`;
+    return;
+  }
+  $("hwDays").innerHTML = sessions.map(s => `
+    <article class="day" data-session="${s.id}">
+      <div class="day-head"><span class="d">${fmtDate(s.date)}　${esc(className(s.class_id))}</span><span>${fmtTime(s.start_time)}〜${fmtTime(s.end_time)}</span></div>
+      <div class="klass">
+        <label class="field" style="margin:0"><span>次回の宿題・小テストの範囲</span>
+          <textarea class="input hw-input" rows="5" data-hw="1" placeholder="例）Unit 3 の単語（p.24〜25）を覚える／ワークブック p.10〜11&#10;次回の小テスト：Unit 3 の単語">${esc(s.homework_note || "")}</textarea></label>
+        <p class="muted hw-state" style="margin:6px 0 0">${s.homework_note ? "保存済み" : "まだ書かれていません"}</p>
+      </div>
+    </article>`).join("");
+}
+// 書き終えて欄から離れたときに保存する（同じ内容なら保存しない）
+$("hwDays").addEventListener("change", async e => {
+  const el = e.target.closest("[data-hw]"), card = e.target.closest("[data-session]");
+  if (!el || !card) return;
+  const id = Number(card.dataset.session);
+  const text = el.value.trim();
+  const s = data.sessions.find(x => x.id === id);
+  if ((s?.homework_note || "") === text) return;
+  try {
+    await api.updateSession(id, { homework_note: text || null });
+    if (s) s.homework_note = text || null;
+    card.querySelector(".hw-state").textContent = text ? "保存しました" : "消しました";
+    toast(text ? "宿題を保存しました" : "宿題を消しました");
+  } catch (err) {
+    toast(errMsg(err), true);
+  }
+});
 
 // 小テストの答案PDF（アップロード・表示・削除）
 $("gradeDays").addEventListener("change", async e => {
@@ -807,6 +851,7 @@ async function startPage() {
       clearTimeout(timer);
       timer = setTimeout(() => {
         if (tab === "grades" && $("gradeDays").contains(document.activeElement)) return;
+        if (tab === "homework" && $("hwDays").contains(document.activeElement)) return;  // 宿題を書いている途中は画面を作り直さない
         reload();
       }, 300);
     },

@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=2d35ae93";
-import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=2d35ae93";
+import { createApi } from "./api.js?v=18f2d620";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=18f2d620";
 
 const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
@@ -122,7 +122,7 @@ function render() {
   const h = settings.deadline_minutes;
   const deadline = h % 60 === 0 ? `${h / 60}時間前` : `${h}分前`;
   canMove = rows.some(r => !r.is_regular);
-  $("rules").textContent = `${canMove ? "振替・欠席" : "欠席"}の連絡は、授業開始の${deadline}まで受け付けます。` +
+  $("rules").textContent = (canMove ? `振替は授業開始の${deadline}まで、欠席の連絡は授業開始まで受け付けます。` : "欠席の連絡は、授業開始まで受け付けます。") +
     (!canMove ? "このクラスは授業が週1回のため、振替はできません。"
       : settings.same_week_only ? "振替先は同じ週の、空きのある授業から選べます。" : "振替先は空きのある授業から選べます。") +
     `1クラスの定員は${settings.capacity}名です。`;
@@ -151,6 +151,7 @@ function lessonHtml(r) {
   const otherWhen = r.other_date ? `${fmtDate(r.other_date)} ${fmtTime(r.other_start_time)}` : "";
   let tag = "", sub = "", actions = "";
   const id = r.session_id;
+  r = { ...r, started: r.started ?? r.closed };  // データベースが古い（started がない）うちは、今までどおり振替と同じ締め切り
   // 「振替する」ボタン。振替できないクラスでは、斜線を入れて押せないようにする
   const moveBtn = cls => canMove
     ? `<button class="btn${cls} btn-sm" data-act="pick" data-id="${id}">振替する</button>`
@@ -164,9 +165,11 @@ function lessonHtml(r) {
     sub = `${otherWhen} の授業からの振替`;
   } else if (r.status === "attend") {
     tag = `<span class="tag tag-ok">出席予定</span>`;
-    if (!r.closed) actions = `
-      ${moveBtn("")}
+    // 振替は振替の受付期限まで。欠席の連絡は授業開始まで
+    if (!r.started) actions = `
+      ${r.closed ? "" : moveBtn("")}
       <button class="btn btn-line btn-sm" data-act="absent" data-id="${id}">欠席する</button>`;
+    if (r.closed && !r.started && canMove) sub = "振替の受付は終了しました（欠席の連絡は授業開始まで）";
   } else if (r.status === "moved") {
     tag = `<span class="tag tag-move">振替済み</span>`;
     sub = `→ ${otherWhen} に振替`;
@@ -175,11 +178,13 @@ function lessonHtml(r) {
       <button class="btn-text" data-act="undo" data-id="${id}">取り消す</button>`;
   } else if (r.status === "absent") {
     tag = `<span class="tag tag-warn">欠席</span>`;
-    if (!r.closed) actions = `
-      ${moveBtn(" btn-line")}
+    if (!r.started) actions = `
+      ${r.closed ? "" : moveBtn(" btn-line")}
       <button class="btn-text" data-act="undo" data-id="${id}">取り消す</button>`;
   }
-  if (r.closed && !r.cancelled && r.status !== "joined") sub = sub ? `${sub}（受付終了）` : "受付は終了しました";
+  // 受付が終わったら「受付は終了しました」（出席予定・欠席は授業開始まで、振替済みは振替の受付期限まで受け付ける）
+  const over = r.status === "moved" ? r.closed : r.started;
+  if (over && !r.cancelled && r.status !== "joined") sub = sub ? `${sub}（受付終了）` : "受付は終了しました";
 
   return `
     <div class="lesson${r.cancelled ? " is-off" : ""}">
@@ -286,13 +291,13 @@ function renderResults() {
   $("scaleNote").textContent = `小テストは${max}点満点です。積極性と宿題は S・A・B の3段階で評価します（S：とてもよくできた　A：よくできた　B：もう少し）。` +
     "宿題・小テストの範囲・模範解答、小テストの答案は、各回の授業が終わると見られるようになります。";
 
-  // いちばん新しい回の「次回までに」
-  const latest = lessons.find(l => l.materials && l.materials.next_homework);
+  // いちばん新しい回の「次回までに」（先生が宿題入力タブで書いた内容。書いていない回で、以前のPDFがあればPDF）
+  const latest = lessons.find(l => l.homework_note || (l.materials && l.materials.next_homework));
   $("nextBox").innerHTML = latest ? `
     <div class="next-box">
       <h3>次回までに</h3>
       <p>${fmtDate(latest.date)}${lessonLabel(latest) ? `（${esc(lessonLabel(latest))}）` : ""}の授業で出された宿題と、次回の小テストの範囲です。</p>
-      <div class="mat-btns">${matBtn(latest.materials, "next_homework")}</div>
+      ${latest.homework_note ? `<div class="hw-note">${esc(latest.homework_note)}</div>` : `<div class="mat-btns">${matBtn(latest.materials, "next_homework")}</div>`}
     </div>` : "";
 
   if (!lessons.length) {
@@ -309,7 +314,9 @@ function renderResults() {
     const tag = l.status === "absent" ? `<span class="tag tag-warn">欠席</span>`
       : l.status === "joined" ? `<span class="tag tag-move">振替で参加</span>` : `<span class="tag tag-ok">出席</span>`;
     const m = l.materials || {};
-    const mats = Object.keys(MAT).map(k => matBtn(m, k)).join("");
+    // 次回の宿題・小テストの範囲は、先生が書いた内容を出す（書いていない回で、以前のPDFがあればPDFのボタン）
+    const mats = Object.keys(MAT).filter(k => !(k === "next_homework" && l.homework_note)).map(k => matBtn(m, k)).join("");
+    const hw = l.homework_note ? `<div class="hw-block"><span class="k">次回の宿題・小テストの範囲</span><div class="hw-note">${esc(l.homework_note)}</div></div>` : "";
     return `${head}<article class="result">
       <div class="result-head">
         <span class="when">${esc(lessonLabel(l))}<small>${fmtDate(l.date)} ${fmtTime(l.start_time)}〜${fmtTime(l.end_time)}</small></span>${tag}
@@ -319,7 +326,8 @@ function renderResults() {
         <div class="score-box"><span class="k">積極性</span>${val(l.participation)}</div>
         <div class="score-box"><span class="k">宿題</span>${l.homework === "なし" ? `<span class="v none">宿題なし</span>` : val(l.homework)}</div>
       </div>`}
-      ${mats ? `<div class="mat-btns">${mats}</div>` : isTestWeek(l) ? `<p class="muted" style="margin:8px 0 0">Assessment の結果は「テスト結果」タブに公開されます。</p>` : `<p class="muted" style="margin:8px 0 0">この回の教材はまだ登録されていません。</p>`}
+      ${hw}
+      ${mats ? `<div class="mat-btns">${mats}</div>` : hw ? "" : isTestWeek(l) ? `<p class="muted" style="margin:8px 0 0">Assessment の結果は「テスト結果」タブに公開されます。</p>` : `<p class="muted" style="margin:8px 0 0">この回の教材はまだ登録されていません。</p>`}
     </article>`;
   }).join("");
 }
