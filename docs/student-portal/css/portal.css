@@ -103,6 +103,9 @@ main { max-width: 1080px; margin: 0 auto; padding: 40px var(--gutter) 72px; }
 .btn-text { background: none; border: 0; color: var(--ink-soft); text-decoration: underline; cursor: pointer; padding: 6px; min-height: 0; font-size: 13px; text-shadow: none; }
 .btn-sm { min-height: 36px; padding: 0 14px; font-size: 13px; }
 .btn-block { width: 100%; }
+/* 振替できないクラス（授業が週1回だけ）の「振替する」：斜線を入れて、押せないことがひと目でわかるように */
+.btn.btn-nomove:disabled { opacity: 1; filter: none; color: var(--muted); border: 1px solid var(--line); text-shadow: none;
+  background: repeating-linear-gradient(135deg, var(--bg-muted) 0 7px, #e4dfd4 7px 8px); }
 
 /* ---------- フォーム ---------- */
 .field { display: block; margin-bottom: 16px; }

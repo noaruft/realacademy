@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=e253aa7d";
-import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=e253aa7d";
+import { createApi } from "./api.js?v=91726981";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=91726981";
 
 const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
@@ -12,6 +12,7 @@ if (api.demo) { $("demoBar").hidden = false; $("demoHint").hidden = false; }
 let me = null;
 let settings = null;
 let rows = [];
+let canMove = true;  // 振替できるクラスか（自分のクラスに、通常の曜日以外の授業があるか。英検三級コースのように週1回だけのクラスは false）
 let lessons = [];
 let tests = [];
 let cal = { years: [], holidays: [] };
@@ -116,8 +117,10 @@ function render() {
     (regular ? ` ${fmtTime(regular.start_time)}〜${fmtTime(regular.end_time)}` : "");
   const h = settings.deadline_minutes;
   const deadline = h % 60 === 0 ? `${h / 60}時間前` : `${h}分前`;
-  $("rules").textContent = `振替・欠席の連絡は、授業開始の${deadline}まで受け付けます。` +
-    (settings.same_week_only ? "振替先は同じ週の、空きのある授業から選べます。" : "振替先は空きのある授業から選べます。") +
+  canMove = rows.some(r => !r.is_regular);
+  $("rules").textContent = `${canMove ? "振替・欠席" : "欠席"}の連絡は、授業開始の${deadline}まで受け付けます。` +
+    (!canMove ? "このクラスは授業が週1回のため、振替はできません。"
+      : settings.same_week_only ? "振替先は同じ週の、空きのある授業から選べます。" : "振替先は空きのある授業から選べます。") +
     `1クラスの定員は${settings.capacity}名です。`;
 
   // 自分に関係のある授業（通常の曜日と、振替で参加する授業）を週ごとに
@@ -144,6 +147,10 @@ function lessonHtml(r) {
   const otherWhen = r.other_date ? `${fmtDate(r.other_date)} ${fmtTime(r.other_start_time)}` : "";
   let tag = "", sub = "", actions = "";
   const id = r.session_id;
+  // 「振替する」ボタン。振替できないクラスでは、斜線を入れて押せないようにする
+  const moveBtn = cls => canMove
+    ? `<button class="btn${cls} btn-sm" data-act="pick" data-id="${id}">振替する</button>`
+    : `<button class="btn${cls} btn-sm btn-nomove" disabled title="このクラスは振替できません">振替する</button>`;
 
   if (r.cancelled) {
     tag = `<span class="tag tag-ng">休校</span>`;
@@ -154,7 +161,7 @@ function lessonHtml(r) {
   } else if (r.status === "attend") {
     tag = `<span class="tag tag-ok">出席予定</span>`;
     if (!r.closed) actions = `
-      <button class="btn btn-sm" data-act="pick" data-id="${id}">振替する</button>
+      ${moveBtn("")}
       <button class="btn btn-line btn-sm" data-act="absent" data-id="${id}">欠席する</button>`;
   } else if (r.status === "moved") {
     tag = `<span class="tag tag-move">振替済み</span>`;
@@ -165,7 +172,7 @@ function lessonHtml(r) {
   } else if (r.status === "absent") {
     tag = `<span class="tag tag-warn">欠席</span>`;
     if (!r.closed) actions = `
-      <button class="btn btn-line btn-sm" data-act="pick" data-id="${id}">振替する</button>
+      ${moveBtn(" btn-line")}
       <button class="btn-text" data-act="undo" data-id="${id}">取り消す</button>`;
   }
   if (r.closed && !r.cancelled && r.status !== "joined") sub = sub ? `${sub}（受付終了）` : "受付は終了しました";
@@ -385,7 +392,7 @@ function openPicker(from) {
 }
 
 async function confirmAbsent(r) {
-  const ok = await ask("欠席の確認", `${fmtDate(r.date)} ${fmtTime(r.start_time)} の授業を欠席します。あとから振替することもできます。`);
+  const ok = await ask("欠席の確認", `${fmtDate(r.date)} ${fmtTime(r.start_time)} の授業を欠席します。${canMove ? "あとから振替することもできます。" : ""}`);
   if (ok) await run(() => api.requestChange(r.session_id, null), "欠席を登録しました");
 }
 

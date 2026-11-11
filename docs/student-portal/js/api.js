@@ -23,7 +23,7 @@ export async function supabaseClient() {
 export async function createApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createMockApi } = await import("./mock.js?v=e253aa7d");
+    const { createMockApi } = await import("./mock.js?v=91726981");
     return createMockApi();
   }
   const sb = await supabaseClient();
