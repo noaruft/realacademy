@@ -2,15 +2,15 @@
 // 個人レッスンのページはこのファイルの関数だけを使う（ログイン・ログアウトは api.js）。
 // 本番のルール（24時間前の締め切り・チケット・空き時間など）は supabase/schema.sql の lesson_… 関数にある。
 
-import { fileGone } from "./lesson-common.js?v=18f2d620";
+import { fileGone } from "./lesson-common.js?v=74854601";
 
 export async function createLessonApi() {
   const cfg = window.PORTAL_CONFIG || {};
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-    const { createLessonMockApi } = await import("./lesson-mock.js?v=18f2d620");
+    const { createLessonMockApi } = await import("./lesson-mock.js?v=74854601");
     return createLessonMockApi();
   }
-  const { supabaseClient } = await import("./api.js?v=18f2d620");
+  const { supabaseClient } = await import("./api.js?v=74854601");
   const sb = await supabaseClient();
   const unwrap = ({ data, error }) => {
     if (error) throw new Error(error.message || "エラーが発生しました");

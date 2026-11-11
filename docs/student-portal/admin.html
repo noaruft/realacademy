@@ -8,10 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/portal.css?v=18f2d620">
+<link rel="stylesheet" href="css/portal.css?v=74854601">
 <link rel="icon" type="image/png" href="img/favicon.png">
-<script src="js/boot.js?v=18f2d620"></script>
-<script src="config.js?v=18f2d620"></script>
+<script src="js/boot.js?v=74854601"></script>
+<script src="config.js?v=74854601"></script>
 </head>
 <body>
 <div class="demo-bar" id="demoBar" hidden>
@@ -110,7 +110,7 @@
       <div class="days" id="gradeDays"></div>
     </section>
 
-    <!-- 宿題入力：次回の宿題・小テストの範囲を授業ごとに書く（生徒の「授業の記録」に、その授業が終わってから出る） -->
+    <!-- 宿題入力：次回の宿題・小テストの範囲を授業ごとに書く（生徒の「授業の記録」に、授業日の20時から出る） -->
     <section data-panel="homework" hidden>
       <div class="toolbar">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -120,7 +120,7 @@
           <button class="btn-text" id="hwToday" type="button">直近の授業</button>
         </div>
       </div>
-      <p class="note">その授業で出した宿題と、次回の小テストの範囲を書いてください。書いた内容は、生徒のMyページの「授業の記録」に、その授業が終わったあとに表示されます（改行もそのまま表示されます）。</p>
+      <p class="note">その授業で出した宿題と、次回の小テストの範囲を書いてください。書いた内容は、生徒のMyページの「授業の記録」に、授業日の20時から表示されます（改行もそのまま表示されます）。</p>
       <div class="days" id="hwDays"></div>
     </section>
 
@@ -178,7 +178,7 @@
     <section data-panel="materials" hidden>
       <p class="note">教材PDFは、名簿のスプレッドシートのメニュー「生徒用ページ → 教材PDFを反映」で、Google ドライブの教材フォルダから取り込みます。
         フォルダは「教材フォルダ / Grammatica / Term Spring / Week 03 / PDF」の形にし、PDFのファイル名に、次回の宿題・小テストの範囲なら「宿題」か「範囲」、模範解答なら「解答」か「答え」を含めてください。
-        その週の教材は、生徒がその週の授業を受け終わると、生徒のMyページに表示されます。</p>
+        その週の教材は、その週の授業日の20時から、生徒のMyページに表示されます。</p>
       <div id="matTables"></div>
     </section>
 
@@ -201,6 +201,6 @@
 </main>
 
 <footer class="site-footer">© REAL ACADEMY</footer>
-<script type="module" src="js/admin.js?v=18f2d620"></script>
+<script type="module" src="js/admin.js?v=74854601"></script>
 </body>
 </html>

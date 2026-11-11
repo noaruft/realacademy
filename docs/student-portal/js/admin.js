@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=18f2d620";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=18f2d620";
+import { createApi } from "./api.js?v=74854601";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=74854601";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 
@@ -207,7 +207,7 @@ $("gradeDate").addEventListener("change", e => { if (e.target.value) { gradeDay 
 function renderGrades() {
   const max = data.settings.quiz_max ?? 20;
   $("gradeDate").value = gradeDay;
-  $("gradeNote").textContent = `小テストは${max}点満点です。積極性・宿題は S・A・B の3段階で入力してください（S：とてもよくできた　A：よくできた　B：もう少し）。その回に宿題が出ていなければ、宿題は「なし」を選びます。小テストの答案は「PDFを選ぶ」で生徒ごとに登録できます。入力すると自動で保存され、生徒のMyページにはその授業が終わったあとに表示されます。`;
+  $("gradeNote").textContent = `小テストは${max}点満点です。積極性・宿題は S・A・B の3段階で入力してください（S：とてもよくできた　A：よくできた　B：もう少し）。その回に宿題が出ていなければ、宿題は「なし」を選びます。小テストの答案は「PDFを選ぶ」で生徒ごとに登録できます。入力すると自動で保存され、生徒のMyページには授業日の20時から表示されます。`;
   const sessions = data.sessions.filter(s => s.date === gradeDay && !s.cancelled);
   if (!sessions.length) {
     $("gradeDays").innerHTML = `<p class="card muted">${fmtDate(gradeDay)} は${esc(className(curClass))}・${WEEKDAYS[curDay]}曜の授業がありません。</p>`;
