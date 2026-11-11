@@ -1329,6 +1329,14 @@ main :is(.btn, .text-link) { font-family: var(--text); }
   .hero-anim .hero-veil { background: radial-gradient(ellipse 62% 34% at 50% 46%, rgba(17, 27, 49, .66), rgba(17, 27, 49, .2) 70%, rgba(17, 27, 49, 0) 100%); }
 }
 @keyframes hero-cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
+/* トップの最上部より下の欄とフッター：画面に近づくまで、文字の組み立てと描画を後回しにする（見た目は変わらない）。
+   読み込みの最初の1〜2秒は日本語のフォントが細かく分かれて次々に届き、そのたびに文字を組み直すため、
+   ページ全体を組み直していた間は最上部の動きがガクガクしていた（2026年11月11日）。
+   描くまでの高さは、欄の高さ（上下の余白を除く）の平均くらいに見積もる（パソコン 600px・スマホ幅 1050px）。一度描いたあとは本当の高さを覚える */
+main:has(> .hero-pin) > section, body:has(.hero-pin) > .site-footer { content-visibility: auto; contain-intrinsic-size: auto 600px; }
+@media (max-width: 820px) {
+  main:has(> .hero-pin) > section, body:has(.hero-pin) > .site-footer { contain-intrinsic-size: auto 1050px; }
+}
 
 /* ヘッダーから開くページ（英語教室・イギリス留学・私たちについて・アクセス・ニュース）の冒頭文：行間を少し詰める */
 .hero-top .lead { line-height: 1.8; }
