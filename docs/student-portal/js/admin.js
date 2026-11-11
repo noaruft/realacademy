@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=74854601";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=74854601";
+import { createApi } from "./api.js?v=1b1513f2";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=1b1513f2";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 

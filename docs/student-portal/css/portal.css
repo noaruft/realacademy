@@ -763,6 +763,3 @@ table.week-grid.weekly-grid { width: 100%; max-width: 600px; min-width: 0; user-
 @media (max-width: 480px) { .result > .hw-block { padding: 10px 12px; } }
 /* 先生用：宿題入力の欄 */
 .hw-input { width: 100%; min-height: 120px; resize: vertical; line-height: 1.7; font-family: inherit; }
-/* 今日の授業の記録の公開予定（授業日の20時） */
-.open-note { margin: 0 0 18px; padding: 12px 16px; background: #fff; border: 1px dashed var(--accent); color: var(--navy); font-size: 14px; }
-.open-note b { font-weight: 600; }

@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=74854601";
-import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=74854601";
+import { createApi } from "./api.js?v=1b1513f2";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=1b1513f2";
 
 const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
@@ -290,14 +290,6 @@ function renderResults() {
   const max = settings.quiz_max ?? 20;
   $("scaleNote").textContent = `小テストは${max}点満点です。積極性と宿題は S・A・B の3段階で評価します（S：とてもよくできた　A：よくできた　B：もう少し）。` +
     "成績・宿題・小テストの範囲・模範解答、小テストの答案は、各回の授業日の20時（予定）に公開されます。";
-
-  // 今日の授業の記録がまだ公開前なら、公開の時刻（20時。20時より後に終わる授業は終わる時刻）を知らせる
-  const now = new Date(), today = todayStr();
-  const pending = rows.filter(r => r.date === today && !r.cancelled && ["attend", "joined", "absent"].includes(r.status))
-    .map(r => ({ r, open: r.end_time > "20:00:00" ? r.end_time.slice(0, 5) : "20:00" }))
-    .filter(x => now.toTimeString().slice(0, 5) < x.open);
-  $("openNote").innerHTML = pending.map(({ r, open }) =>
-    `<p class="open-note">${fmtDate(r.date)}の授業の成績・宿題は、<b>${open}（予定）</b>に公開されます。</p>`).join("");
 
   // いちばん新しい回の「次回までに」（先生が宿題入力タブで書いた内容。書いていない回で、以前のPDFがあればPDF）
   const latest = lessons.find(l => l.homework_note || (l.materials && l.materials.next_homework));
