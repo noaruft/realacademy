@@ -207,7 +207,8 @@ collections:
           - { label: 教育関連, value: education }
           - { label: 世界情勢, value: world }
           - { label: その他, value: other }
-      - { name: summary, label: 一覧に出る短い紹介文, widget: text, required: false }
+      - { name: summary, label: 一覧に出る短い紹介文（日本語）, widget: text, required: false }
+      - { name: summary_en, label: 一覧に出る短い紹介文（英語）, widget: text, required: false, hint: 空のときは、英語表示でも日本語の紹介文が出ます }
       - { name: body_ja, label: 本文（日本語）, widget: richtext, buttons: *buttons, editor_components: *components }
       - { name: body_en, label: 本文（英語）, widget: richtext, required: false, buttons: *buttons, editor_components: *components }
       - { name: draft, label: 公開しない（チェックすると一覧にもページにも出ません）, widget: boolean, default: false, required: false }
