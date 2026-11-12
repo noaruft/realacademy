@@ -184,11 +184,11 @@
             city.value = auto;
             city.setAttribute("data-auto", auto);
           }
-          say("住所の一部を入れました。続けて番地を入力してください", "Filled in. Please add the street number.");
+          say("住所の一部を入れました。続けて番地を入力してください", "Part of the address has been filled in. Please add the street number.");
           city.focus();
           city.setSelectionRange(city.value.length, city.value.length);
         })
-        .catch(function () { say("自動入力できませんでした。都道府県と住所を入力してください", "Could not look it up. Please fill in the address."); });
+        .catch(function () { say("自動入力できませんでした。都道府県と住所を入力してください", "We couldn't fill in the address automatically. Please enter your prefecture and address."); });
     });
   }
 
@@ -398,17 +398,30 @@
     });
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var i = 0;
-    load(1);
-    setInterval(function () {
-      var next = (i + 1) % layers.length;
-      load(next, function () {
-        layers[i].classList.remove("on");
-        layers[next].classList.add("on");
-        i = next;
-        ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
-        load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
-      });
-    }, 7000);  // 1枚あたりの表示時間（ミリ秒）
+    // 枠が画面に近づいてから、2枚目以降の読み込みと切り替えを始める（下の方の枠の写真を、開いてすぐには読み込まない）
+    if ("IntersectionObserver" in window) {
+      var near = new IntersectionObserver(function (entries) {
+        if (!entries.some(function (e) { return e.isIntersecting; })) return;
+        near.disconnect();
+        start();
+      }, { rootMargin: "300px 0px" });
+      near.observe(ph);
+    } else {
+      start();
+    }
+    function start() {
+      load(1);
+      setInterval(function () {
+        var next = (i + 1) % layers.length;
+        load(next, function () {
+          layers[i].classList.remove("on");
+          layers[next].classList.add("on");
+          i = next;
+          ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
+          load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
+        });
+      }, 7000);  // 1枚あたりの表示時間（ミリ秒）
+    }
   });
 
   // ---------- 写真がまだない枠の仮の色（data-color-cycle）：同じ欄の写真の切り替えに合わせて色を入れ替える ----------

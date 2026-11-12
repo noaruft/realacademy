@@ -319,7 +319,7 @@
     var both = function (k) { return [text(d[k + "_ja"]), text(d[k + "_en"]) || text(d[k + "_ja"])]; };
     var rows = [["日程", "Date"].concat(both("date"))];
     if (filled(d.time_ja)) rows.push(["時間", "Time"].concat(both("time")));
-    rows.push(["場所", "Place"].concat(both("place")));
+    rows.push(["場所", "Venue"].concat(both("place")));
     (d.spec || []).forEach(function (s) { rows.push([text(s.label_ja), text(s.label_en), text(s.value_ja), text(s.value_en)]); });
     var spec = rows.map(function (r) { return "      <dt>" + J(r[0], r[1]) + "</dt><dd>" + J(r[2], r[3] || r[2]) + "</dd>"; }).join("\n");
     var body = bodyHtml(d.body_ja, d.body_en);

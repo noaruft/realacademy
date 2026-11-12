@@ -8,10 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Libre+Baskerville&family=Cormorant+Garamond:wght@400;500&family=Noto+Sans+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/portal.css?v=1b1513f2">
+<link rel="stylesheet" href="css/portal.css?v=ed36f2e0">
 <link rel="icon" type="image/png" href="img/favicon.png">
-<script src="js/boot.js?v=1b1513f2"></script>
-<script src="config.js?v=1b1513f2"></script>
+<script src="js/boot.js?v=ed36f2e0"></script>
+<script src="config.js?v=ed36f2e0"></script>
 </head>
 <body>
 <div class="demo-bar" id="demoBar" hidden>
@@ -69,7 +69,7 @@
 
     <!-- 空き時間：カレンダーで日ごとの調整（上）＋毎週の型（下・畳んである） -->
     <div data-panel="slots" hidden>
-      <details class="help"><summary>使い方</summary><p>生徒が予約できる時間（1回60分）を設定します。生徒には、今日から1か月先までの空き時間が表示されます（開始24時間前まで予約できます）。<br>・<b>カレンダー</b>：日にちを選ぶと、その日の時間が右に出ます。押すたびに「空き」と「なし」が切り替わります（その日だけ）。<br>・<b>毎週の空き時間</b>：下の欄を開き、ふだん毎週レッスンができる時間のマスを押して選び、「反映」を押します（押すまでは生徒の画面に反映されません）。毎週の空き時間は日本時間で決めます。<span data-uk>イギリスの夏時間・冬時間が切り替わると、イギリス時間では1時間ずれます。</span></p></details>
+      <details class="help"><summary>使い方</summary><p>生徒が予約できる時間（1回60分）を設定します。生徒には、今日から1か月先までの空き時間が表示されます（開始24時間前まで予約できます）。<br>・<b>カレンダー</b>：日にちを選ぶと、その日の時間が右（スマホでは下）に出ます。押すたびに「空き」と「なし」が切り替わります（その日だけ）。<br>・<b>毎週の空き時間</b>：下の欄を開き、ふだん毎週レッスンができる時間のマスを押して選び、「反映」を押します（押すまでは生徒の画面に反映されません）。毎週の空き時間は日本時間で決めます。<span data-uk>イギリスの夏時間・冬時間が切り替わると、イギリス時間では1時間ずれます。</span></p></details>
       <div id="dayWrap"></div>
 
       <details class="weekly-box" id="weeklyBox">
@@ -89,7 +89,7 @@
 
     <!-- メッセージ -->
     <div data-panel="chat" hidden>
-      <details class="help"><summary>使い方</summary><p>担当の生徒と、予約のある生徒とやり取りできます（生徒からはいつでも送れます）。写真やPDFも送れます（写真は自動で縮めて送ります。PDFは10MBまで。送った日から6か月で自動的に削除されます）。新しいメッセージが届くと、メールでもお知らせします。</p></details>
+      <details class="help"><summary>使い方</summary><p>担当の生徒と、予約のある生徒とやり取りできます（生徒からはいつでも送れます）。写真やPDFも送れます（写真は自動で縮めて送ります。PDFは10MBまで。写真・PDFは送った日から6か月で自動的に削除されます）。新しいメッセージが届くと、メールでもお知らせします。</p></details>
       <div id="chatRoot"></div>
     </div>
 
@@ -171,6 +171,6 @@
 </dialog>
 
 <footer class="site-footer">© REAL ACADEMY</footer>
-<script type="module" src="js/lessons-teacher.js?v=1b1513f2"></script>
+<script type="module" src="js/lessons-teacher.js?v=ed36f2e0"></script>
 </body>
 </html>

@@ -41,7 +41,7 @@
   if (location.protocol === "file:") {
     document.addEventListener("DOMContentLoaded", function () {
       fail("このページはファイルを直接（ダブルクリックで）開くと動きません。" +
-        "「新開発」フォルダの「確認用サーバーを起動.command」をダブルクリックすると、正しい形で開き直せます。" +
+        "「ホームページ開発」フォルダの「確認用サーバーを起動.command」をダブルクリックすると、正しい形で開き直せます。" +
         "（サーバーが動いていれば http://localhost:8123/student-portal/ からも開けます）");
     });
     return;

@@ -1,10 +1,10 @@
 // 個人レッスン（専用コース）：先生のページ（管理者はチケットの配布と全体の予約も）
-import { createApi } from "./api.js?v=1b1513f2";
-import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=1b1513f2";
-import { createLessonApi } from "./lesson-api.js?v=1b1513f2";
-import { createChat } from "./lesson-chat.js?v=1b1513f2";
+import { createApi } from "./api.js?v=ed36f2e0";
+import { errMsg, esc, page, startIdleLogout, stopIdleLogout, toast } from "./common.js?v=ed36f2e0";
+import { createLessonApi } from "./lesson-api.js?v=ed36f2e0";
+import { createChat } from "./lesson-chat.js?v=ed36f2e0";
 import { FIRST_HOUR, LAST_HOUR, PHASE_TAG, PROFILE_FIELDS, ZOOM_OPEN_MINUTES, addDaysJ, fmtDay, fmtWhen,
-  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=1b1513f2";
+  fmtUk, jst, jstIso, jstToday, mondayJ, ms, phase, phaseLabel, uk, ukStatus } from "./lesson-common.js?v=ed36f2e0";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 const $ = id => document.getElementById(id);

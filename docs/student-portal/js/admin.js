@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=1b1513f2";
-import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=1b1513f2";
+import { createApi } from "./api.js?v=ed36f2e0";
+import { TEST_LEVELS, TEST_TERMS, WEEKDAYS, addDays, page, dow, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, todayStr, termName, testName, toast, weekInfo, weekLabel, yearPlan } from "./common.js?v=ed36f2e0";
 
 const IDLE_MINUTES = 120;  // 先生：操作がないと120分で自動ログアウト
 
@@ -162,13 +162,13 @@ function rowHtml(p, s) {
   const tag = {
     regular: `<span class="tag tag-ok">通常</span>`,
     joined: `<span class="tag tag-move">振替</span>`,
-    moved: `<span class="tag tag-mute">振替済</span>`,
+    moved: `<span class="tag tag-mute">振替済み</span>`,
     absent: `<span class="tag tag-warn">欠席</span>`,
   }[p.kind];
   const sub = p.kind === "joined" ? `${otherTxt}から` : p.kind === "moved" ? `→ ${otherTxt}へ` : "";
   const btn = p.kind === "regular"
     ? `<button class="mini" data-absent="${s.id}" data-st="${p.st.id}" title="電話などで連絡があったとき">欠席にする</button>`
-    : `<button class="mini" data-undo="${p.change.id}">取消</button>`;
+    : `<button class="mini" data-undo="${p.change.id}">取り消す</button>`;
   const out = p.kind === "moved" || p.kind === "absent";
   return `<li class="${out ? "out" : ""}"><span><span class="nm">${esc(p.st.name)}</span>${sub ? `<small class="from">${sub}</small>` : ""}</span><span class="right">${tag}${btn}</span></li>`;
 }
@@ -226,7 +226,7 @@ function renderGrades() {
     const head = `<div class="day-head"><span class="d">${esc(className(s.class_id))}</span><span>${fmtTime(s.start_time)}〜${fmtTime(s.end_time)}</span></div>
       <div class="week-chip ${info.kind}">${esc(weekLabel(info) || "年間予定の範囲外")}</div>`;
     if (info.kind === "test" && data.classes.find(c => c.id === s.class_id)?.use_terms !== false) {  // Term・Week を使わないクラスは、Assessment の週も成績を入力する
-      return `<article class="day">${head}<div class="klass"><p class="muted" style="margin:0">Assessment の週のため、この日の成績入力はありません。結果は「テスト結果」タブでPDFを登録してください。</p></div></article>`;
+      return `<article class="day">${head}<div class="klass"><p class="muted" style="margin:0">Assessment の週のため、この日の成績入力はありません。結果は「テスト結果」タブで登録してください。</p></div></article>`;
     }
     return `<article class="day" data-session="${s.id}">
       ${head}
@@ -497,7 +497,7 @@ function renderTests() {
 $("publishBox").addEventListener("click", async e => {
   if (e.target.id !== "publishBtn") return;
   const on = !data.td.published;
-  const msg = on ? `${testYear}年度 ${testName(testTerm)} の結果を公開します。アップロード済みの生徒は、自分の結果を見られるようになります。よろしいですか？`
+  const msg = on ? `${testYear}年度 ${testName(testTerm)} の結果を公開します。結果の入力またはPDFのアップロードが済んだ生徒は、自分の結果を見られるようになります。よろしいですか？`
     : `${testYear}年度 ${testName(testTerm)} の結果を非公開に戻します。よろしいですか？`;
   if (!confirm(msg)) return;
   try {

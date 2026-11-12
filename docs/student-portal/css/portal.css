@@ -97,7 +97,6 @@ main { max-width: 1080px; margin: 0 auto; padding: 40px var(--gutter) 72px; }
 }
 .btn:hover { filter: brightness(1.04); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-navy { background: var(--navy); text-shadow: none; }
 .btn-line { background: #fff; color: var(--navy); border: 1px solid var(--navy); text-shadow: none; }
 .btn-line:hover { background: var(--bg-muted); filter: none; }
 .btn-text { background: none; border: 0; color: var(--ink-soft); text-decoration: underline; cursor: pointer; padding: 6px; min-height: 0; font-size: 13px; text-shadow: none; }
@@ -675,25 +674,11 @@ button.cal-day { cursor: pointer; }
 .weekly-grid tr.night th.hr { color: #b5b2aa; }
 .week-grid th.hr small i { font-style: normal; font-size: 9.5px; margin-left: 2px; color: var(--accent); }
 
-/* 先生：時間の基準（日本時間／イギリス時間） */
-.tz-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; background: #fff; border: 1px solid var(--line); padding: 10px 14px; margin: 0 0 12px; font-size: 14px; }
-.tz-pick .k { font-size: 13px; color: var(--ink-soft); }
-.tz-pick label { display: inline-flex; align-items: baseline; gap: 6px; cursor: pointer; }
-.tz-pick small { font-size: 11.5px; color: var(--muted); }
-
-/* 予約する：カレンダーの各日に空いている先生の名前 */
-.cal-grid td:has(.s-day) { height: auto; }
-.cal-day.s-day { height: auto; min-height: 72px; padding: 5px 2px 6px; gap: 1px; }
-.cal-day.s-day .tn { display: block; max-width: 100%; font-size: 10.5px; line-height: 1.35; letter-spacing: 0; color: var(--ok);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cal-day.s-day.sel .tn { color: #e7d3a5; }
-.cal-day.s-day .tn.more { color: var(--ink-soft); }
-.cal-day.s-day:not(.has) .tn { color: var(--muted); }
+/* 予約する：その日に空いている先生と時間 */
 .day-teacher { padding: 10px 0 12px; border-bottom: 1px solid var(--line); }
 .day-teacher:last-child { border-bottom: 0; }
 .dt-name { font-family: var(--serif-ja); color: var(--navy); font-size: 16px; margin-bottom: 8px; }
 .teachers-box .teacher-grid { margin-top: 16px; }
-@media (max-width: 640px) { .cal-day.s-day { min-height: 62px; } .cal-day.s-day .tn { font-size: 9.5px; } }
 
 /* 先生用ページ（個人レッスン）：コンパクト表示 */
 .page-hero.compact { padding: 14px var(--gutter) 12px; }
@@ -715,7 +700,6 @@ details.help > p { color: var(--ink-soft); background: var(--bg-muted); padding:
 .weekly-flag { margin-left: auto; font-size: 13px; color: var(--warn); }
 .weekly-flag::before { content: "●"; margin-right: 6px; color: var(--accent); }
 .weekly-inner { padding: 0 16px 16px; }
-.weekly-inner .tz-pick { margin-bottom: 10px; padding: 8px 12px; }
 table.week-grid.weekly-grid { width: 100%; max-width: 600px; min-width: 0; user-select: none; }
 .weekly-grid thead th { padding: 3px 2px; font-size: 12px; }
 .weekly-grid th.hr { width: 92px; font-size: 12px; line-height: 1.2; padding: 0 4px; white-space: nowrap; }

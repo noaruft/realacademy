@@ -95,7 +95,7 @@ export const PHASE_LABEL = {
 // 表示する状態の名前（開始10分前〜開始は「まもなく開始」、始まったら「授業中」）
 export function phaseLabel(b, now = Date.now()) {
   const ph = phase(b, now);
-  if (ph === "live" && now >= ms(b.starts_at)) return "授業中";
+  if (ph === "live" && now >= ms(b.starts_at)) return "レッスン中";
   return PHASE_LABEL[ph];
 }
 export const PHASE_TAG = {

@@ -1,5 +1,5 @@
-import { createApi } from "./api.js?v=1b1513f2";
-import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=1b1513f2";
+import { createApi } from "./api.js?v=ed36f2e0";
+import { TEST_TERMS, WEEKDAYS, addDays, page, esc, errMsg, fmtDate, fmtTime, mondayOf, startIdleLogout, stopIdleLogout, termName, testName, toast, todayStr, weekInfo, weekLabel, yearPlan } from "./common.js?v=ed36f2e0";
 
 const IDLE_MINUTES = 30;  // 生徒：操作がないと30分で自動ログアウト
 
@@ -301,7 +301,7 @@ function renderResults() {
     </div>` : "";
 
   if (!lessons.length) {
-    $("results").innerHTML = `<p class="card muted">まだ受けた授業の記録はありません。各回の成績と教材は、授業日の20時（予定）にここに公開されます。</p>`;
+    $("results").innerHTML = `<p class="card muted">受けた授業の記録はまだありません。各回の成績と教材は、授業日の20時（予定）にここに公開されます。</p>`;
     return;
   }
   const val = (v, suffix = "") => v == null || v === ""
@@ -374,7 +374,7 @@ $("weeks").addEventListener("click", e => {
 });
 
 function openPicker(from) {
-  $("pickSub").textContent = `${fmtDate(from.date)} ${fmtTime(from.start_time)} の授業を休んで、次の授業に参加します`;
+  $("pickSub").textContent = `${fmtDate(from.date)} ${fmtTime(from.start_time)} の授業を休んで、下の一覧から選んだ授業に参加します`;
   const wk = mondayOf(from.date);
   const cands = rows.filter(r => !r.is_regular && (!settings.same_week_only || mondayOf(r.date) === wk));
   if (!cands.length) {
