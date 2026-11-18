@@ -85,7 +85,7 @@
             <label><input type="radio" name="type" value="school" required checked><span lang="ja">英語教室</span><span lang="en">English lessons</span></label>
             <label><input type="radio" name="type" value="study" data-study><span lang="ja">留学相談</span><span lang="en">Study abroad</span></label>
             <label><input type="radio" name="type" value="both" data-study><span lang="ja">両方</span><span lang="en">Both</span></label>
-            
+            <label><input type="radio" name="type" value="event"><span lang="ja">イベント参加申込</span><span lang="en">Event application</span></label>
           </div>
         </div>
         <div class="field-row">
@@ -205,7 +205,15 @@
           <input id="school" name="school" type="text" data-ph-ja="例）〇〇小学校" data-ph-en="e.g. Azabu Primary School">
         </div>
 
+        <div class="event-only" hidden>
+          <div class="field">
+            <label for="event"><span lang="ja">参加希望イベント</span><span lang="en">Event</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+            <select id="event" name="event"><option value="">—</option><option value="christmas2026">CHRISTMAS EVENT 2026 🎄（2026年12月23日（火））</option></select>
+          </div>
+        <div class="event-fields" data-event="christmas2026" hidden>
 
+        </div>
+        </div>
 
         <div class="study-only" hidden>
           <div class="field">
