@@ -304,20 +304,150 @@
       '\n    <div class="article-actions">\n      ' + button + '<a class="text-link" href="news.html#news">' + J("お知らせ一覧へ戻る", "Back to news") + "</a>\n    </div>\n  </div>\n</section>\n";
   }
 
+  // 開催日・最終日（"2026-12-23"）を日付にする。最終日が開催日より前のときは開催日に合わせる（build.py と同じ）
+  function ymd(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || ""));
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function eventDates(d) {
+    var start = ymd(d.start), end = ymd(d.end) || start;
+    if (start && end && end < start) end = start;
+    return [start, end];
+  }
+  function isoOf(dt) {
+    return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+  }
+  // 日程の表示（日本語・英語）を開催日・最終日から作る（build.py の auto_dates と同じ形）
+  var WEEK_JA = "日月火水木金土", WEEK_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var MONTH_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function autoDates(start, end) {
+    if (!start) return ["", ""];
+    var ja = function (x, year, month) {
+      return (year ? x.getFullYear() + "年" : "") + (month ? x.getMonth() + 1 + "月" : "") + x.getDate() + "日（" + WEEK_JA[x.getDay()] + "）";
+    };
+    var en = function (x, month, year) {
+      return WEEK_EN[x.getDay()] + " " + x.getDate() + (month ? " " + MONTH_EN[x.getMonth()] : "") + (year ? " " + x.getFullYear() : "");
+    };
+    if (!end || end <= start) return [ja(start, true, true), en(start, true, true)];
+    var sameYear = start.getFullYear() === end.getFullYear(), sameMonth = sameYear && start.getMonth() === end.getMonth();
+    return [ja(start, true, true) + "〜" + ja(end, !sameYear, !sameMonth), en(start, !sameMonth, !sameYear) + " – " + en(end, true, true)];
+  }
   function eventState(d) {
-    var today = new Date();
-    var iso = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
-    var end = d.end || d.start || "";
+    var iso = isoOf(new Date());
+    var end = eventDates(d)[1];
     var status = String(d.status || "auto").toLowerCase();
     if (status === "open") return "open";
-    if (end && end < iso) return "ended";
+    if (end && isoOf(end) < iso) return "ended";
     if (status === "full" || status === "closed") return status;
     return "open";
   }
+  // ------------------------------------------------------------------ 入力のまちがいらしいところ（プレビューの上に赤い枠で出す。公開は止めない）
+  var WEEK_JA_ORDER = "月火水木金土日";
+  // 文の中の「12月23日（水）」「〜27日（金）」「12月23日(水曜日)」「2027年1月2日（土）」などの曜日を確かめる。
+  // 年・月を省いた日付は、前の日付の年・月を引き継ぐ（月が小さくなったら年をまたいだとみなす）。
+  // 年も月も前に無い日付は基準の日（イベントなら開催日、お知らせ・ブログなら掲載日）の年・月。
+  // 年を書いていない日付が基準の日より半年以上あとになるときは、前の年として数える（1月のイベントの「12月20日までに申込」など）
+  function checkWeekdaysJa(textValue, base, label) {
+    var out = [];
+    if (!base || !filled(textValue)) return out;
+    var re = /(?:(\d{4})\s*年\s*)?(?:(\d{1,2})\s*月\s*)?(\d{1,2})\s*日\s*[（(]\s*([月火水木金土日])(?:曜日?)?\s*[）)]/g;
+    var y = null, mo = null, m;
+    while ((m = re.exec(textValue))) {
+      var hasYear = !!m[1], month = m[2] ? +m[2] : mo;
+      if (hasYear) y = +m[1];
+      else if (y === null) y = base.getFullYear();
+      if (month === null) month = base.getMonth() + 1;
+      if (!hasYear && mo !== null && m[2] && month < mo) y += 1; // 「12月30日〜1月2日」の年またぎ
+      var dt = new Date(y, month - 1, +m[3]);
+      if (!hasYear && mo === null) { // 基準の日から半年以上はなれていたら、となりの年とみなす
+        var gap = (dt - base) / 86400000;
+        if (gap > 183) { y -= 1; dt = new Date(y, month - 1, +m[3]); } else if (gap < -183) { y += 1; dt = new Date(y, month - 1, +m[3]); }
+      }
+      mo = month;
+      if (dt.getMonth() !== month - 1) continue; // 31日のない月など、日付として読めないものは見ない
+      var right = WEEK_JA[dt.getDay()];
+      if (right !== m[4]) out.push(label + "：" + dt.getFullYear() + "年" + month + "月" + m[3] + "日は（" + right + "）です（入力は（" + m[4] + "））。");
+    }
+    return out;
+  }
+  // 英語の日付「Wed 23 Dec 2026」「Mon 27 Jul – Fri 7 Aug 2026」「Fri 23 – Tue 27 Dec 2022」の曜日を確かめる。
+  // 月・年が後ろにだけ書いてあるときは、後ろの月・年を使う
+  function checkWeekdaysEn(textValue, base, label) {
+    var out = [];
+    if (!base || !filled(textValue)) return out;
+    var re = /\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)[a-z]*\.?,?\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?)?(?:,?\s+(\d{4}))?/g;
+    var found = [], m;
+    while ((m = re.exec(textValue))) found.push({ wd: m[1], day: +m[2], mon: m[3] ? MONTH_EN.indexOf(m[3]) : null, year: m[4] ? +m[4] : null });
+    for (var i = found.length - 1, nextMon = null, nextYear = null; i >= 0; i--) {
+      var f = found[i];
+      if (f.mon === null) f.mon = nextMon; else nextMon = f.mon;
+      if (f.year === null) f.year = nextYear; else nextYear = f.year;
+    }
+    found.forEach(function (f) {
+      var mon = f.mon === null ? base.getMonth() : f.mon, year = f.year === null ? base.getFullYear() : f.year;
+      var dt = new Date(year, mon, f.day);
+      if (dt.getMonth() !== mon) return;
+      if (WEEK_EN[dt.getDay()] !== f.wd) out.push(label + "：" + f.day + " " + MONTH_EN[mon] + " " + year + " は " + WEEK_EN[dt.getDay()] + " です（入力は " + f.wd + "）。");
+    });
+    return out;
+  }
+  function eventWarnings(d) {
+    var out = [], ds = eventDates(d), start = ds[0], end = ds[1];
+    var rawEnd = ymd(d.end);
+    if (start && rawEnd && rawEnd < start) out.push("最終日（" + d.end + "）が開催日より前になっています。年をまちがえていませんか？（このままだと開催日1日だけのイベントになります）");
+    if (start && isoOf(end) < isoOf(new Date()) && String(d.status || "auto") !== "open") out.push("開催日を過ぎているので「開催終了」と表示され、申込フォームには出ません。");
+    if (!start) return out;
+    var years = [start.getFullYear(), end.getFullYear()];
+    // 年：タイトル・日程の表示に書いた年が、開催日の年とちがう
+    [["タイトル", d.title], ["タイトル（英語表示のとき）", d.title_en], ["日程の表示（日本語）", d.date_ja], ["日程の表示（英語）", d.date_en]].forEach(function (f) {
+      (String(f[1] || "").match(/(?:19|20)\d{2}/g) || []).forEach(function (yy) {
+        if (years.indexOf(+yy) < 0) out.push(f[0] + "の年（" + yy + "）が、開催日の年（" + start.getFullYear() + "）とちがいます。");
+      });
+    });
+    // 曜日：日付を書きそうな欄をすべて見る
+    var ja = [["日程の表示（日本語）", d.date_ja], ["サブタイトル", d.sub], ["時間（日本語）", d.time_ja], ["本文（日本語）", d.body_ja]];
+    (d.spec || []).forEach(function (s) { ja.push(["「" + (s.label_ja || "そのほかの項目") + "」の内容", s.value_ja]); });
+    (d.form || []).forEach(function (f) { (f.options || []).forEach(function (o) { ja.push(["申込の選択肢", o.ja]); }); });
+    ja.forEach(function (f) { out = out.concat(checkWeekdaysJa(f[1], start, f[0])); });
+    var en = [["日程の表示（英語）", d.date_en], ["時間（英語）", d.time_en], ["本文（英語）", d.body_en]];
+    (d.spec || []).forEach(function (s) { en.push(["「" + (s.label_ja || "そのほかの項目") + "」の内容（英語）", s.value_en]); });
+    en.forEach(function (f) { out = out.concat(checkWeekdaysEn(f[1], start, f[0])); });
+    // 英語の欄が空（日本語は書いてある）。英語表示では日本語のまま出る。終わったイベントでは言わない
+    var ended = isoOf(end) < isoOf(new Date()) && String(d.status || "auto") !== "open";
+    var empty = [];
+    if (filled(d.time_ja) && !filled(d.time_en)) empty.push("時間");
+    if (filled(d.place_ja) && !filled(d.place_en)) empty.push("場所");
+    (d.spec || []).forEach(function (s) {
+      if (filled(s.label_ja) && !filled(s.label_en)) empty.push("「" + s.label_ja + "」の項目名");
+      if (filled(s.value_ja) && !filled(s.value_en)) empty.push("「" + s.label_ja + "」の内容");
+    });
+    if (filled(d.body_ja) && !filled(d.body_en)) empty.push("本文");
+    (d.form || []).forEach(function (f) {
+      if (filled(f.label_ja) && !filled(f.label_en)) empty.push("申込の項目「" + f.label_ja + "」の名前");
+      (f.options || []).forEach(function (o) { if (filled(o.ja) && !filled(o.en)) empty.push("選択肢「" + o.ja + "」"); });
+    });
+    if (empty.length && !ended) out.push("英語の欄が空です：" + empty.join("、") + "（英語表示では日本語のまま出ます）。");
+    if (filled(d.date_ja) || filled(d.date_en)) {
+      var auto = autoDates(start, end);
+      if ((filled(d.date_ja) && d.date_ja.trim() !== auto[0]) || (filled(d.date_en) && d.date_en.trim() !== auto[1]))
+        out.push("「日程の表示」は空にすると、開催日・最終日から自動で作られます（" + auto[0] + "／" + auto[1] + "）。");
+    }
+    if (eventState(d) === "open" && !(d.form || []).length) out.push("申込フォームの項目がありません。申し込みでは、イベント名だけが届きます（参加する回などを選んでもらうときは「申込フォームの項目」を足してください）。");
+    return out;
+  }
+  // お知らせ・ブログ：本文に書いた日付の曜日（基準は掲載日・日付）
+  function articleWarnings(baseKey) {
+    return function (d) {
+      var base = ymd(d[baseKey]);
+      return checkWeekdaysJa(d.body_ja, base, "本文（日本語）").concat(checkWeekdaysEn(d.body_en, base, "本文（英語）"));
+    };
+  }
+  window.RA_eventWarnings = eventWarnings; // 確認用
   function event(d, props) {
     var state = eventState(d);
     var both = function (k) { return [text(d[k + "_ja"]), text(d[k + "_en"]) || text(d[k + "_ja"])]; };
-    var rows = [["日程", "Date"].concat(both("date"))];
+    var ds = eventDates(d), auto = autoDates(ds[0], ds[1]);
+    var rows = [["日程", "Date", text(d.date_ja) || text(auto[0]), text(d.date_en) || text(auto[1])]];
     if (filled(d.time_ja)) rows.push(["時間", "Time"].concat(both("time")));
     rows.push(["場所", "Venue"].concat(both("place")));
     (d.spec || []).forEach(function (s) { rows.push([text(s.label_ja), text(s.label_en), text(s.value_ja), text(s.value_en)]); });
@@ -408,12 +538,15 @@
     bar.innerHTML =
       '<div class="ra-seg" data-k="mode"><button type="button" data-v="pc">パソコン</button><button type="button" data-v="sp">スマホ</button></div>' +
       '<div class="ra-seg" data-k="lang"><button type="button" data-v="ja">日本語</button><button type="button" data-v="en">English</button></div>';
+    var warn = doc.createElement("div");
+    warn.className = "ra-warn";
     var stage = doc.createElement("div");
     stage.className = "ra-stage";
     var frame = doc.createElement("iframe");
     frame.setAttribute("title", "プレビュー");
     stage.appendChild(frame);
     box.appendChild(bar);
+    box.appendChild(warn);
     box.appendChild(stage);
     var inner = frame.contentDocument;
     inner.open();
@@ -421,7 +554,7 @@
       '<link rel="stylesheet" href="' + FONTS + '"><link rel="stylesheet" href="' + SITE + 'assets/style.css">' +
       "<style>" + INNER_CSS + "</style></head><body><main></main></body></html>");
     inner.close();
-    box._ra = { bar: bar, stage: stage, frame: frame, doc: inner, main: inner.querySelector("main") };
+    box._ra = { bar: bar, warn: warn, stage: stage, frame: frame, doc: inner, main: inner.querySelector("main") };
     bar.addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b) return;
@@ -462,16 +595,21 @@
       ".ra-seg{display:flex;border:1px solid #c9a463;border-radius:999px;overflow:hidden;background:#fff;font:13px/1 system-ui,'Hiragino Sans',sans-serif}" +
       ".ra-seg button{border:0;background:transparent;padding:7px 14px;cursor:pointer;color:#1b2a4a;font:inherit}" +
       ".ra-seg button.on{background:#1b2a4a;color:#fff}" +
+      ".ra-warn:empty{display:none}" +
+      ".ra-warn{margin:0 10px 10px;padding:10px 14px 10px 34px;background:#fdf0ef;border:1px solid #e3a8a3;border-radius:6px;color:#8a1f17;font:13px/1.6 system-ui,'Hiragino Sans',sans-serif;position:relative}" +
+      ".ra-warn::before{content:'!';position:absolute;left:11px;top:10px;width:16px;height:16px;border-radius:50%;background:#b3261e;color:#fff;font-weight:700;font-size:11px;line-height:16px;text-align:center}" +
+      ".ra-warn p{margin:0 0 4px}.ra-warn p:last-child{margin:0}" +
       ".ra-stage{overflow:hidden;margin:0 auto;background:#fff}" +
       ".ra-stage iframe{display:block;border:0;transform-origin:0 0}" +
       ".ra-stage.sp{margin:8px auto 24px;border-radius:22px;box-shadow:0 0 0 8px #1b2a4a,0 10px 30px rgba(0,0,0,.25)}",
       { raw: true });
 
-    function template(build) {
+    function template(build, warnings) {
       return function (props) {
         var data = props.entry.getIn(["data"]);
         data = data && data.toJS ? data.toJS() : data || {};
         var html = finish(fixImages(props, build(data, props)));
+        var notes = warnings ? warnings(data) : [];
         // 枠（iframe）とボタンは自分で作って持ち続け、入力のたびに中身だけを入れ替える（読み直しでちらつかないように）
         return h("div", {
           className: "ra-preview",
@@ -480,15 +618,16 @@
             if (!box._ra) setup(box);
             CUR_DOC = box._ra.doc;
             box._ra.main.innerHTML = html;
+            box._ra.warn.innerHTML = notes.map(function (n) { return "<p>" + esc(n) + "</p>"; }).join("");
             fitPhotos(box._ra.doc);
             apply(box);
           },
         });
       };
     }
-    CMS.registerPreviewTemplate("news", template(news));
-    CMS.registerPreviewTemplate("events", template(event));
-    CMS.registerPreviewTemplate("blog", template(blog));
+    CMS.registerPreviewTemplate("news", template(news, articleWarnings("posted")));
+    CMS.registerPreviewTemplate("events", template(event, eventWarnings));
+    CMS.registerPreviewTemplate("blog", template(blog, articleWarnings("date")));
     ["top", "school", "uk"].forEach(function (key) {
       CMS.registerPreviewTemplate(key, template(function (d, props) { return voices(d, props, key); }));
     });

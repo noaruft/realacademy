@@ -71,7 +71,7 @@ collections:
     media_folder: /assets/uploads/news
     public_folder: /assets/uploads/news
     fields:
-      - { name: posted, label: 掲載日, widget: datetime, type: date }
+      - { name: posted, label: 掲載日, widget: datetime, type: date, default: "{{now}}", hint: 新しく作ると今日の日付が入ります }
       - { name: title_ja, label: タイトル（日本語）, widget: string, hint: お知らせ一覧に出るタイトル }
       - { name: title_en, label: タイトル（英語）, widget: string, required: false }
       - { name: heading_ja, label: 記事ページの見出し（日本語）, widget: string, required: false, hint: 一覧のタイトルと変えたいときだけ。空ならタイトルと同じ }
@@ -110,7 +110,7 @@ collections:
       - { name: title, label: タイトル, widget: string, hint: "例：CHRISTMAS EVENT 2026 🎄" }
       - { name: title_en, label: タイトル（英語表示のとき）, widget: string, required: false, hint: 空ならタイトルと同じ }
       - { name: sub, label: サブタイトル, widget: string, required: false }
-      - { name: posted, label: お知らせ一覧への掲載日, widget: datetime, type: date, required: false, hint: 空のときは、お知らせ一覧・トップには出ません（イベント一覧には出ます） }
+      - { name: posted, label: お知らせ一覧への掲載日, widget: datetime, type: date, required: false, default: "{{now}}", hint: 新しく作ると今日の日付が入ります。空にすると、お知らせ一覧・トップには出ません（イベント一覧には出ます） }
       - { name: start, label: 開催日（複数日なら初日）, widget: datetime, type: date }
       - { name: end, label: 最終日, widget: datetime, type: date, required: false, hint: 1日だけなら空でかまいません。この日を過ぎると自動で「開催終了」になります }
       - name: status
@@ -122,8 +122,8 @@ collections:
           - { label: 満席, value: full }
           - { label: 受付終了（手動で締め切る）, value: closed }
           - { label: 常に受付中, value: open }
-      - { name: date_ja, label: 日程の表示（日本語）, widget: string, hint: "例：2026年12月23日（水）" }
-      - { name: date_en, label: 日程の表示（英語）, widget: string, required: false, hint: "例：Wed 23 Dec 2026" }
+      - { name: date_ja, label: 日程の表示（日本語）, widget: string, required: false, hint: "ふつうは空のままで、開催日・最終日から「2026年12月23日（水）」の形で自動で入ります（曜日も自動）。「毎週土曜」など特別な書き方にしたいときだけ書いてください" }
+      - { name: date_en, label: 日程の表示（英語）, widget: string, required: false, hint: "ふつうは空のままで「Wed 23 Dec 2026」の形で自動で入ります" }
       - { name: time_ja, label: 時間（日本語）, widget: text, required: false, hint: "例：16:00〜18:30。改行するとそのまま改行されます" }
       - { name: time_en, label: 時間（英語）, widget: text, required: false }
       - { name: place_ja, label: 場所（日本語）, widget: string, default: STEAM English Academy 麻布校 }
@@ -196,7 +196,7 @@ collections:
     fields:
       - { name: title, label: タイトル（日本語）, widget: string }
       - { name: title_en, label: タイトル（英語）, widget: string, required: false }
-      - { name: date, label: 日付, widget: datetime, type: date }
+      - { name: date, label: 日付, widget: datetime, type: date, default: "{{now}}", hint: 新しく作ると今日の日付が入ります }
       - name: category
         label: カテゴリ
         widget: select

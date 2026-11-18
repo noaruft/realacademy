@@ -33,6 +33,20 @@
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
   }
+  // タイトルから、アドレスの案を作る（英字のタイトルのときだけ。例：「CHRISTMAS EVENT 2026 🎄」→ christmas-event-2026）。
+  // 英語のタイトルの欄があればそちらを使う。日本語だけのタイトルからは作らない（空のまま）
+  var TITLE_FIELDS = { news: ["title_en", "title_ja"], events: ["title_en", "title"], blog: ["title_en", "title"] };
+  function suggestion(k) {
+    var fields = TITLE_FIELDS[k] || [];
+    for (var i = 0; i < fields.length; i++) {
+      var box = document.querySelector('[data-key-path="' + fields[i] + '"] input');
+      var v = box && box.value.trim();
+      if (!v) continue;
+      var s = tidy(v.normalize("NFKC")).replace(/[^a-z0-9-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      if (/[a-z]/.test(s) && s.length <= 60) return s;
+    }
+    return "";
+  }
   // 全角の英数字は半角に、大文字は小文字に、空白と「_」はハイフンに
   function tidy(s) {
     return s.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xfee0); })
@@ -109,9 +123,11 @@
       if (e.key === "Escape") close();
       if (e.key === "Enter" && !e.isComposing && !go.disabled) go.click();
     });
-    input.value = current || "";
+    var suggested = !current && suggestion(k);
+    input.value = current || suggested || "";
     check();
-    setTimeout(function () { input.focus(); }, 0);
+    if (suggested && !go.disabled) msg.textContent = "タイトルから作った案です。直してもかまいません　" + msg.textContent;
+    setTimeout(function () { input.focus(); input.select(); }, 0);
   }
 
   function intercept(e, saveButton) {
