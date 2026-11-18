@@ -420,7 +420,7 @@
           ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
           load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
         });
-      }, 7000);  // 1枚あたりの表示時間（ミリ秒）
+      }, 6500);  // 1枚あたりの表示時間（ミリ秒）
     }
   });
 

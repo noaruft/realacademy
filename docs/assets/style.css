@@ -1170,6 +1170,9 @@ main :is(.btn, .text-link) { font-family: var(--text); }
    2枚目のラウンジは床まで入るよう下をそろえる（上は切れてよい） */
 .ph[data-photo="3"], .ph[data-photo="3"] .ph-slide:first-child { background-position: center 30% !important; }
 .ph[data-photo="3"] .ph-slide:nth-child(2) { background-position: center bottom !important; }
+/* 1番（トップの最上部）の2枚目 Rugby School：塔のてっぺんが切れないよう、写真の上をそろえて見せる（下の木が切れる）。
+   塔が写真の右の端にあるので、横が切れる幅（パソコンの 4:3 に近い画面など）では右をそろえて塔を枠に入れる（左の芝生が切れる） */
+.hero-bg .ph-slide:nth-child(2) { background-position: right top; }
 /* ロゴの枠（class に logo。8〜11番の i-GARTEN・April）：ロゴを中央に置き、地は写真がないときの枠の色のまま（warm は金、無印は青灰）。
    plain はページの地の色に溶け込ませる（地を塗らない） */
 .ph.logo { --ph-bg: radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), transparent 55%), linear-gradient(135deg, #c8cfdc, #97a3b9 55%, #6f7d99); }
@@ -1303,6 +1306,11 @@ main :is(.btn, .text-link) { font-family: var(--text); }
   .hero-bg { transform: scale(1.65); transform-origin: 50% 100%; }
   /* 2枚目以降（切り替わる写真）は拡大しない（拡大を打ち消す）。スマホ用の写真（1-2-sp など）をそのまま見せる */
   .hero-bg .ph-slide:not(:first-child) { transform: scale(calc(1 / 1.65)); transform-origin: 50% 100%; }
+}
+/* 縦向きのスマホで最上部の動きがあるとき、写真は下を基準に少し寄る（下の .hero-anim .hero-bg の scale）ため、上が切れる。
+   2枚目 Rugby School（1-2-sp）は塔のてっぺんが写真の上の端近くにあるので、この写真だけ上を基準に寄るように、寄った分だけ下へずらす */
+@media (max-width: 820px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (min-height: 520px) {
+  .hero-anim .hero-bg .ph-slide:nth-child(2) { transform: translateY(calc((1 - 1 / (1.08 - .08 * var(--p, 0))) / 1.65 * 100%)) scale(calc(1 / 1.65)); }
 }
 
 /* ---------- トップの最上部の動き（Apple の製品紹介ページのように、スクロールに合わせて画面が変わる） ----------
