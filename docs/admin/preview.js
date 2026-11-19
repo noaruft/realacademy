@@ -472,6 +472,87 @@
       '\n    <div class="article-actions">\n      ' + apply + '<a class="text-link" href="news.html#events">' + J("イベント一覧へ戻る", "Back to events") + "</a>\n    </div>\n    </div>\n  </div>\n</section>\n";
   }
 
+  // ------------------------------------------------------------------ イベントの申込フォーム（上の「ページ／申込フォーム」で切り替え）
+  // 公開中（ローカルなら手元）のお問い合わせページ contact.html を読み込み、そこにこのイベントの申込欄を入れて、
+  // 「イベント参加申込」を選んだときの見え方にする。申込欄は build.py の form_field・event_form と同じ形
+  function formField(slug, n, f) {
+    var kind = f.type || "text", name = slug + "__" + n;
+    var labelJa = text(f.label_ja), label = J(labelJa, text(f.label_en));
+    if (kind === "radio" || kind === "checkbox") {
+      var req = kind === "radio" ? '<span class="req">' + J("必須", "REQUIRED") + "</span>" : "";
+      var boxes = (f.options || []).map(function (o) {
+        var ja = text(o.ja), en = text(o.en);
+        var attrs = (kind === "radio" ? " required" : "") + (o.full ? " disabled" : "");
+        return "<label" + (o.full ? ' class="full"' : "") + '><input type="' + kind + '" name="' + name + '" value="' +
+          escAttr(unesc(labelJa + "：" + ja)) + '"' + attrs + ">" + J(ja, en) + "</label>";
+      }).join("");
+      return '          <div class="field">\n            <span class="label">' + label + req + "</span>\n" +
+        '            <div class="choices">' + boxes + "</div>\n          </div>";
+    }
+    var tag = kind === "textarea" ? '<textarea id="' + name + '" name="' + name + '"></textarea>'
+      : '<input id="' + name + '" name="' + name + '" type="text">';
+    return '          <div class="field">\n            <label for="' + name + '">' + label + "</label>\n            " + tag + "\n          </div>";
+  }
+  var CONTACT = { html: null, failed: false, loading: false, waiting: null };
+  function loadContact() {
+    if (CONTACT.loading) return;
+    CONTACT.loading = true;
+    fetch(SITE + "contact.html", { cache: "no-store" }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.text();
+    }).then(function (t) {
+      var main = new DOMParser().parseFromString(t, "text/html").querySelector("main");
+      if (!main || !main.querySelector("form")) throw new Error("no form");
+      CONTACT.html = main.innerHTML;
+    }).catch(function () {
+      CONTACT.failed = true;
+    }).then(function () {
+      if (CONTACT.waiting) CONTACT.waiting();
+    });
+  }
+  function eventFormPage(d, props, slug) {
+    var note = function (s) { return '<section><div class="container"><p>' + s + "</p></div></section>"; };
+    if (CONTACT.failed) return note("お問い合わせページを読み込めませんでした。ページを開き直してください。");
+    if (CONTACT.html == null) { loadContact(); return note("お問い合わせページを読み込んでいます…"); }
+    var wrap = document.createElement("div");
+    wrap.innerHTML = CONTACT.html;
+    var form = wrap.querySelector("form");
+    // 今サイトに出ている「イベント参加申込」と申込欄はいったん外し、このイベントのものに入れ替える
+    wrap.querySelectorAll('input[name="type"][value="event"]').forEach(function (i) { (i.closest("label") || i).remove(); });
+    wrap.querySelectorAll(".event-only").forEach(function (el) { el.setAttribute("data-old", ""); });
+    var types = form.querySelectorAll('input[name="type"]');
+    types.forEach(function (i) { i.removeAttribute("checked"); });
+    var choices = types.length && types[0].closest(".choices");
+    var radio = '<label><input type="radio" name="type" value="event" checked>' + J("イベント参加申込", "Event application") + "</label>";
+    var ds = eventDates(d), auto = autoDates(ds[0], ds[1]);
+    var fields = (d.form || []).map(function (f, i) { return formField(slug, i + 1, f); }).join("\n");
+    var block = '        <div class="event-only">\n          <div class="field">\n' +
+      '            <label for="event">' + J("参加希望イベント", "Event") + '<span class="req">' + J("必須", "REQUIRED") + "</span></label>\n" +
+      '            <select id="event" name="event"><option value="">—</option><option value="' + escAttr(slug) + '" selected>' +
+      text(d.title) + "（" + (text(d.date_ja) || text(auto[0])) + "）</option></select>\n          </div>\n" +
+      '        <div class="event-fields" data-event="' + escAttr(slug) + '">\n' + fields + "\n        </div>\n        </div>";
+    block = finish(block);
+    var old = form.querySelector(".event-only[data-old]"), study = form.querySelector(".study-only");
+    if (old) old.insertAdjacentHTML("beforebegin", block);
+    else if (study) study.insertAdjacentHTML("beforebegin", block);
+    else (form.querySelector(".form-fields") || form).insertAdjacentHTML("beforeend", block);
+    wrap.querySelectorAll(".event-only[data-old]").forEach(function (el) { el.remove(); });
+    if (choices) choices.insertAdjacentHTML("beforeend", finish(radio));
+    return wrap.innerHTML;
+  }
+  // 申込フォームの表示で、種類やイベントを選び直したときに欄を出し分ける（assets/main.js の sync と同じ。送信はしない）
+  function formSync(form) {
+    var checked = form.querySelector('input[name="type"]:checked');
+    var isEvent = !!(checked && checked.value === "event");
+    var sel = form.querySelector('select[name="event"]');
+    var study = form.querySelector(".study-only"), only = form.querySelector(".event-only");
+    if (study) study.hidden = !(checked && checked.hasAttribute("data-study"));
+    if (only) only.hidden = !isEvent;
+    form.querySelectorAll(".event-fields").forEach(function (b) {
+      b.hidden = !(isEvent && sel && sel.value === b.getAttribute("data-event"));
+    });
+  }
+
   function blog(d) {
     var cat = CAT[d.category] || CAT.other;
     var title = text(d.title), titleEn = text(d.title_en);
@@ -525,7 +606,7 @@
   // パソコンは欄に収まるよう縮めて見せる。上の「パソコン／スマホ」「日本語／English」で切り替える（選んだものは次の記事でも続く）
   var FONTS = "https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap";
   var WIDTH = { pc: 1280, sp: 390 };
-  var view = { mode: "pc", lang: "ja" };
+  var view = { mode: "pc", lang: "ja", show: "page" };
   var INNER_CSS =
     "html,body{margin:0}" +
     ".reveal{opacity:1!important;transform:none!important}" + // ふわっと出す動きは使わない
@@ -536,10 +617,13 @@
     var bar = doc.createElement("div");
     bar.className = "ra-bar";
     bar.innerHTML =
+      '<div class="ra-seg" data-k="show" hidden><button type="button" data-v="page">ページ</button><button type="button" data-v="form">申込フォーム</button></div>' +
       '<div class="ra-seg" data-k="mode"><button type="button" data-v="pc">パソコン</button><button type="button" data-v="sp">スマホ</button></div>' +
       '<div class="ra-seg" data-k="lang"><button type="button" data-v="ja">日本語</button><button type="button" data-v="en">English</button></div>';
     var warn = doc.createElement("div");
     warn.className = "ra-warn";
+    var info = doc.createElement("div");
+    info.className = "ra-info";
     var stage = doc.createElement("div");
     stage.className = "ra-stage";
     var frame = doc.createElement("iframe");
@@ -547,6 +631,7 @@
     stage.appendChild(frame);
     box.appendChild(bar);
     box.appendChild(warn);
+    box.appendChild(info);
     box.appendChild(stage);
     var inner = frame.contentDocument;
     inner.open();
@@ -554,12 +639,22 @@
       '<link rel="stylesheet" href="' + FONTS + '"><link rel="stylesheet" href="' + SITE + 'assets/style.css">' +
       "<style>" + INNER_CSS + "</style></head><body><main></main></body></html>");
     inner.close();
-    box._ra = { bar: bar, warn: warn, stage: stage, frame: frame, doc: inner, main: inner.querySelector("main") };
+    box._ra = { bar: bar, warn: warn, info: info, stage: stage, frame: frame, doc: inner, main: inner.querySelector("main"), scale: 1 };
     bar.addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b) return;
-      view[b.parentNode.getAttribute("data-k")] = b.getAttribute("data-v");
-      apply(box);
+      var k = b.parentNode.getAttribute("data-k");
+      view[k] = b.getAttribute("data-v");
+      if (k !== "show") return apply(box);
+      box._ra.render();
+      if (view.show === "form") scrollToEventForm(box);
+      else win.scrollTo(0, 0);
+    });
+    // 申込フォームの表示：送信はさせず、種類・イベントを選び直したら欄を出し分ける
+    inner.addEventListener("submit", function (e) { e.preventDefault(); }, true);
+    inner.addEventListener("change", function (e) {
+      var f = e.target.form;
+      if (f && (e.target.name === "type" || e.target.name === "event")) formSync(f);
     });
     // 中身の高さが変わったとき（写真や文字の読み込み・入力）と、欄の幅が変わったときに、枠の大きさを合わせ直す
     new frame.contentWindow.ResizeObserver(function () { layout(box); }).observe(inner.body);
@@ -572,6 +667,7 @@
     ra.frame.style.width = w + "px";
     ra.frame.style.height = hgt + "px";
     ra.frame.style.transform = "scale(" + scale + ")";
+    ra.scale = scale;
     ra.stage.style.width = w * scale + "px";
     ra.stage.style.height = hgt * scale + "px";
   }
@@ -583,7 +679,19 @@
     ra.bar.querySelectorAll("button").forEach(function (b) {
       b.classList.toggle("on", view[b.parentNode.getAttribute("data-k")] === b.getAttribute("data-v"));
     });
+    // 入力欄の薄い字の例（assets/main.js と同じく、日英で入れ替える）
+    ra.doc.querySelectorAll("[data-ph-ja]").forEach(function (el) {
+      el.placeholder = el.getAttribute(view.lang === "en" ? "data-ph-en" : "data-ph-ja") || "";
+    });
     layout(box);
+  }
+  // 申込フォームに切り替えたら、イベントの申込欄が見える所まで送る
+  function scrollToEventForm(box) {
+    var ra = box._ra, win = box.ownerDocument.defaultView;
+    var target = ra.doc.querySelector(".event-only") || ra.doc.querySelector("form");
+    if (!target) return win.scrollTo(0, 0);
+    var top = ra.stage.getBoundingClientRect().top + win.scrollY + target.getBoundingClientRect().top * ra.scale;
+    win.scrollTo(0, Math.max(0, top - ra.bar.offsetHeight - 70 * ra.scale));
   }
 
   function register() {
@@ -591,10 +699,13 @@
     if (!CMS || !h) return setTimeout(register, 50);
     CMS.registerPreviewStyle(
       "html,body{margin:0;background:#e9e6df}" +
-      ".ra-bar{position:sticky;top:0;z-index:10;display:flex;justify-content:flex-end;gap:8px;padding:8px 10px;background:rgba(233,230,223,.94)}" +
+      ".ra-bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;padding:8px 10px;background:rgba(233,230,223,.94)}" +
       ".ra-seg{display:flex;border:1px solid #c9a463;border-radius:999px;overflow:hidden;background:#fff;font:13px/1 system-ui,'Hiragino Sans',sans-serif}" +
       ".ra-seg button{border:0;background:transparent;padding:7px 14px;cursor:pointer;color:#1b2a4a;font:inherit}" +
       ".ra-seg button.on{background:#1b2a4a;color:#fff}" +
+      ".ra-seg[hidden]{display:none}" +
+      ".ra-info:empty{display:none}" +
+      ".ra-info{margin:0 10px 10px;padding:8px 14px;background:#fff;border:1px solid #d8cfbd;border-radius:6px;color:#555;font:13px/1.6 system-ui,'Hiragino Sans',sans-serif}" +
       ".ra-warn:empty{display:none}" +
       ".ra-warn{margin:0 10px 10px;padding:10px 14px 10px 34px;background:#fdf0ef;border:1px solid #e3a8a3;border-radius:6px;color:#8a1f17;font:13px/1.6 system-ui,'Hiragino Sans',sans-serif;position:relative}" +
       ".ra-warn::before{content:'!';position:absolute;left:11px;top:10px;width:16px;height:16px;border-radius:50%;background:#b3261e;color:#fff;font-weight:700;font-size:11px;line-height:16px;text-align:center}" +
@@ -604,29 +715,41 @@
       ".ra-stage.sp{margin:8px auto 24px;border-radius:22px;box-shadow:0 0 0 8px #1b2a4a,0 10px 30px rgba(0,0,0,.25)}",
       { raw: true });
 
-    function template(build, warnings) {
+    // withForm：イベントだけ。上に「ページ／申込フォーム」を出し、申込フォームの見え方にも切り替えられるようにする
+    function template(build, warnings, withForm) {
       return function (props) {
         var data = props.entry.getIn(["data"]);
         data = data && data.toJS ? data.toJS() : data || {};
-        var html = finish(fixImages(props, build(data, props)));
         var notes = warnings ? warnings(data) : [];
+        var slug = "";
+        try { slug = props.entry.get("slug") || ""; } catch (e) {}
         // 枠（iframe）とボタンは自分で作って持ち続け、入力のたびに中身だけを入れ替える（読み直しでちらつかないように）
         return h("div", {
           className: "ra-preview",
           ref: function (box) {
             if (!box) return;
             if (!box._ra) setup(box);
-            CUR_DOC = box._ra.doc;
-            box._ra.main.innerHTML = html;
-            box._ra.warn.innerHTML = notes.map(function (n) { return "<p>" + esc(n) + "</p>"; }).join("");
-            fitPhotos(box._ra.doc);
-            apply(box);
+            var ra = box._ra;
+            CUR_DOC = ra.doc;
+            ra.bar.querySelector('[data-k="show"]').hidden = !withForm;
+            ra.render = function () {
+              var asForm = withForm && view.show === "form";
+              ra.main.innerHTML = asForm ? eventFormPage(data, props, slug || "new-event") : finish(fixImages(props, build(data, props)));
+              ra.info.textContent = !asForm ? "" : eventState(data) === "open"
+                ? "お問い合わせページで「イベント参加申込」とこのイベントを選んだときの見え方です（ここからは送信できません）。"
+                : "このイベントは今「受付中」ではないため、お問い合わせページには出ません。受付中になると、このように出ます。";
+              if (!asForm) fitPhotos(ra.doc);
+              apply(box);
+            };
+            CONTACT.waiting = function () { if (withForm && view.show === "form") { ra.render(); scrollToEventForm(box); } };
+            ra.render();
+            ra.warn.innerHTML = notes.map(function (n) { return "<p>" + esc(n) + "</p>"; }).join("");
           },
         });
       };
     }
     CMS.registerPreviewTemplate("news", template(news, articleWarnings("posted")));
-    CMS.registerPreviewTemplate("events", template(event, eventWarnings));
+    CMS.registerPreviewTemplate("events", template(event, eventWarnings, true));
     CMS.registerPreviewTemplate("blog", template(blog, articleWarnings("date")));
     ["top", "school", "uk"].forEach(function (key) {
       CMS.registerPreviewTemplate(key, template(function (d, props) { return voices(d, props, key); }));
