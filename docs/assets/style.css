@@ -315,12 +315,17 @@ html[data-lang="en"] .principle p { font-family: var(--serif-en); font-size: 21p
 .field { margin-bottom: 24px; }
 .field label, .field .label { display: block; font-size: 13px; letter-spacing: .08em; margin-bottom: 8px; color: var(--navy); }
 .req { font-size: 12px; color: var(--paper); background: var(--gold); padding: 1px 7px; margin-left: 8px; letter-spacing: .1em; vertical-align: 1px; }
-.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field select, .field textarea {
+.field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="date"], .field input[type="number"], .field select, .field textarea {
   width: 100%; padding: 13px 14px; border: 1px solid var(--line); background: #fff;
   font: inherit; font-size: 15px; color: var(--ink); border-radius: 0;
 }
 .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--mist); outline-offset: 0; border-color: var(--mist); }
 .field textarea { min-height: 140px; resize: vertical; }
+/* 生年月日（日付の欄）：iPhone で中身が中央寄せ・高さ不足になるのをそろえる */
+.field input[type="date"] { -webkit-appearance: none; appearance: none; min-height: 50px; text-align: left; }
+.field input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+/* フォームの中の区切りの見出し（お問い合わせの「お子さまについて」） */
+.form-section { margin: 40px 0 20px; padding-top: 28px; border-top: 1px solid var(--line); font-family: var(--serif-ja); font-size: 17px; letter-spacing: .1em; color: var(--navy); }
 .choices { display: flex; flex-wrap: wrap; gap: 10px; }
 .choices label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); padding: 10px 16px; background: #fff; cursor: pointer; margin: 0; color: var(--ink); font-size: 14px; }
 .choices input { accent-color: var(--navy); }
@@ -764,6 +769,12 @@ html[data-lang="ja"] .voice blockquote { overflow-wrap: anywhere; }
 .choices label.full input { background: var(--ivory-deep); }
 /* お問い合わせフォーム：送信エラーと、いたずら対策の見えない欄 */
 .form-error { color: #8c0002; background: #f9e9e9; border: 1px solid #e8c4c4; padding: 10px 14px; font-size: 14px; margin: 0 0 16px; }
+/* 送信を押したときの、未入力・形の違う必須の欄（assets/main.js の markInvalid）。正しく入れ直すと消える */
+.field.is-invalid input:not([type="radio"]):not([type="checkbox"]), .field.is-invalid select, .field.is-invalid textarea { border-color: #c0392b; background: #fff6f5; }
+.field.is-invalid .choices label { border-color: #c0392b; }
+.field.is-invalid label.agree { color: #8c0002; }
+.field-error { margin: 6px 0 0; color: #b3261e; font-size: 12.5px; letter-spacing: .04em; line-height: 1.6; }
+.field-error::before { content: "！"; font-weight: 700; margin-right: 2px; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
 /* =====================================================================
@@ -1380,7 +1391,7 @@ html[data-lang="ja"] .lead.lead-fit { letter-spacing: .01em; }
 .field .field-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted, #8a8d99); letter-spacing: .04em; line-height: 1.6; }
 /* 横に並ぶ2つの欄：見出しが2行に折り返しても、入力欄の高さをそろえる（見出しは入力欄のすぐ上に寄せる） */
 @supports (grid-template-rows: subgrid) {
-  .field-row { grid-template-rows: auto auto auto; }
-  .field-row > .field { display: grid; grid-row: span 3; grid-template-rows: subgrid; }
+  .field-row { grid-template-rows: auto auto auto auto; }  /* 見出し・入力欄・案内・入力漏れの表示（.field-error） */
+  .field-row > .field { display: grid; grid-row: span 4; grid-template-rows: subgrid; }
   .field-row > .field > label { align-self: end; }
 }

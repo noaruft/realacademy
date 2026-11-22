@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=5c07be40">
+<link rel="stylesheet" href="assets/style.css?v=07577897">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 </head>
@@ -65,7 +65,7 @@
 <section>
   <div class="container form-wrap">
     <div class="reveal">
-      <h2><span lang="ja">お電話・<wbr>メールでも<br>承ります</span><span lang="en">Call or email us</span></h2>
+      <h2><span lang="ja"><span style="white-space: nowrap">お問い<wbr>合わせ</span><wbr>フォームより<br>ご連絡ください</span><span lang="en">Please contact us using the enquiry form</span></h2>
       <div class="info-card">
         <a class="tel" href="tel:0364355320">03<span class="tel-hy">-</span>6435<span class="tel-hy">-</span>5320</a>
         <p class="form-note"><span lang="ja">受付：火〜金 13:00〜18:00／土 10:00〜17:00<br>日・月は<wbr>お休みです。</span><span lang="en">Tue–Fri 13:00–18:00 / Sat 10:00–17:00<br>Closed Sundays and Mondays.</span></p>
@@ -92,10 +92,6 @@
           <div class="field">
             <label for="name"><span lang="ja">保護者さまの<wbr>お名前</span><span lang="en">Your name</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <input id="name" name="name" type="text" required autocomplete="name" data-ph-ja="例）麻布 花子" data-ph-en="e.g. Hanako Azabu">
-          </div>
-          <div class="field">
-            <label for="child"><span lang="ja">お子さまの<wbr>お名前</span><span lang="en">Child's name</span></label>
-            <input id="child" name="child" type="text" data-ph-ja="例）麻布 太郎" data-ph-en="e.g. Taro Azabu">
           </div>
         </div>
         <div class="field-row">
@@ -178,9 +174,58 @@
           <label for="building"><span lang="ja">建物名・部<wbr>屋番号</span><span lang="en">Building, room</span></label>
           <input id="building" name="building" type="text" autocomplete="address-line2" data-ph-ja="例）麻布マルカビル2F" data-ph-en="e.g. Azabu Maruka Bldg. 2F">
         </div>
+        <!-- お子さまについて：名前・パスポート表記の英字の名前・性別・生年月日・年齢は必須（英字の名前は全角で入れても半角に直す。assets/main.js） -->
+        <p class="form-section"><span lang="ja">お子さまに<wbr>ついて</span><span lang="en">About your child</span></p>
         <div class="field">
-          <label for="grade"><span lang="ja">お子さまの<wbr>学年</span><span lang="en">Child's grade</span></label>
-          <select id="grade" name="grade">
+          <label for="child"><span lang="ja">お子さまの<wbr>お名前</span><span lang="en">Child's name</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+          <input id="child" name="child" type="text" required data-ph-ja="例）麻布 太郎" data-ph-en="e.g. Taro Azabu">
+        </div>
+        <div class="field">
+          <label for="romaji"><span lang="ja">お子さまの<wbr>お名前<wbr>（パスポート表記の<wbr>英字）</span><span lang="en">Child's name as on passport</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+          <input id="romaji" name="romaji" type="text" required autocapitalize="characters" autocomplete="off" spellcheck="false" pattern="[A-Za-z'\-]+( [A-Za-z'\-]+)+" title="半角の英字で、名と姓の間に半角スペースを入れてください（例：TARO AZABU） / Letters only, with a space between names, e.g. TARO AZABU" data-ph-ja="例）TARO AZABU" data-ph-en="e.g. TARO AZABU">
+          <p class="field-hint"><span lang="ja"><b>半角の<wbr>英字・フルネーム</b>（名と<wbr>姓の<wbr>間に<wbr>半角スペース）</span><span lang="en"><b>Full name in English letters</b> (with a space between names)</span></p>
+        </div>
+        <div class="field">
+          <label for="gender"><span lang="ja">性別</span><span lang="en">Gender</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+          <select id="gender" name="gender" required>
+            <option value="">—</option>
+            <option>男 / Male</option>
+            <option>女 / Female</option>
+            <option>その他 / Other</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="birthday"><span lang="ja">生年月<wbr>日</span><span lang="en">Date of birth</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+            <input id="birthday" name="birthday" type="date" required min="1990-01-01">
+          </div>
+          <div class="field">
+            <label for="age"><span lang="ja">年齢</span><span lang="en">Age</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+            <select id="age" name="age" required>
+              <option value="">—</option>
+              <option>3歳 / 3</option>
+              <option>4歳 / 4</option>
+              <option>5歳 / 5</option>
+              <option>6歳 / 6</option>
+              <option>7歳 / 7</option>
+              <option>8歳 / 8</option>
+              <option>9歳 / 9</option>
+              <option>10歳 / 10</option>
+              <option>11歳 / 11</option>
+              <option>12歳 / 12</option>
+              <option>13歳 / 13</option>
+              <option>14歳 / 14</option>
+              <option>15歳 / 15</option>
+              <option>16歳 / 16</option>
+              <option>17歳 / 17</option>
+              <option>18歳 / 18</option>
+              <option>19歳以上 / 19 or older</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="grade"><span lang="ja">お子さまの<wbr>学年</span><span lang="en">Child's grade</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+          <select id="grade" name="grade" required>
             <option value="">—</option>
             <option>幼稚園 年中 / K2</option>
             <option>幼稚園 年長 / K3</option>
@@ -201,8 +246,8 @@
         </div>
 
         <div class="field">
-          <label for="school"><span lang="ja">通学校名</span><span lang="en">Current school</span></label>
-          <input id="school" name="school" type="text" data-ph-ja="例）〇〇小学校" data-ph-en="e.g. Azabu Primary School">
+          <label for="school"><span lang="ja">通学校名</span><span lang="en">Current school</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+          <input id="school" name="school" type="text" required data-ph-ja="例）〇〇小学校" data-ph-en="e.g. Azabu Primary School">
         </div>
 
         <div class="event-only" hidden>
@@ -219,10 +264,6 @@
         </div>
 
         <div class="study-only" hidden>
-          <div class="field">
-            <label for="romaji"><span lang="ja">お子さまの<wbr>フルネーム英語表記<wbr>（パスポート上）</span><span lang="en">Child's full name as on passport</span></label>
-            <input id="romaji" name="romaji" type="text" data-ph-ja="例）TARO AZABU" data-ph-en="e.g. TARO AZABU">
-          </div>
           <div class="field">
             <label for="level"><span lang="ja">お子さまの<wbr>英語レベル</span><span lang="en">Child's English level</span></label>
             <textarea id="level" name="level" data-ph-ja="これまでの英語学習歴や、英検・TOEFLなどの資格があればご記入ください。" data-ph-en="Tell us about previous English study and any qualifications such as Eiken or TOEFL."></textarea>
@@ -341,6 +382,6 @@
   </div>
 </footer>
 
-<script src="assets/main.js?v=6415512b"></script>
+<script src="assets/main.js?v=84513ad9"></script>
 </body>
 </html>

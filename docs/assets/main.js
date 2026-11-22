@@ -192,6 +192,15 @@
     });
   }
 
+  // ---------- お子さまのお名前（パスポート表記の英字）：全角の英字・スペースで入れても半角に直し、余分なスペースを1つにする ----------
+  var romaji = form && form.querySelector("#romaji");
+  if (romaji) {
+    romaji.addEventListener("change", function () {
+      romaji.value = romaji.value.replace(/[Ａ-Ｚａ-ｚ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+        .replace(/[\u3000\s]+/g, " ").trim();
+    });
+  }
+
   // ---------- 送信 ----------
   // form の data-endpoint（Google Apps Script のウェブアプリ）へ、項目名と入力内容を送る。
   // 受付側（_src/tools/contact-form.gs）がメールを送り、スプレッドシートに記録する。
@@ -221,12 +230,67 @@
     });
     return out;
   };
+  // ---------- 入力の確認：送信を押したとき、未入力・形の違う必須の欄をすべて赤くし、欄の下に理由を出して、最初の欄までスクロールする ----------
+  //   赤い表示は、その欄を正しく入れ直すと消える。見た目は assets/style.css（.field.is-invalid・.field-error）
+  var errorText = function (el) {
+    var v = el.validity;
+    if (v.valueMissing) {
+      if (el.type === "checkbox") return ["チェックを入れてください", "Please tick this box"];
+      if (el.type === "radio" || el.tagName === "SELECT" || el.type === "date") return ["選択してください", "Please choose one"];
+      return ["入力してください", "Please fill this in"];
+    }
+    if (el.id === "romaji") return ["半角の英字で、名と姓の間に半角スペースを入れてください（例：TARO AZABU）", "Use English letters with a space between names (e.g. TARO AZABU)"];
+    if (el.id === "zip") return ["半角数字とハイフンで入力してください（例：106-0044）", "Use numbers with a hyphen (e.g. 106-0044)"];
+    if (v.typeMismatch && el.type === "email") return ["メールアドレスの形で入力してください", "Please enter a valid email address"];
+    return ["入力内容をご確認ください", "Please check this entry"];
+  };
+  var showError = function (field, el) {
+    var box = field.querySelector(".field-error");
+    if (el.checkValidity()) {
+      field.classList.remove("is-invalid");
+      if (box) box.remove();
+      return true;
+    }
+    var t = errorText(el);
+    if (!box) {
+      box = document.createElement("p");
+      box.className = "field-error";
+      box.setAttribute("role", "alert");
+      (field.querySelector(".field-hint") || el.closest(".choices") || el.closest("label.agree") || el).insertAdjacentElement("afterend", box);
+    }
+    box.innerHTML = '<span lang="ja">' + t[0] + '</span><span lang="en">' + t[1] + "</span>";
+    field.classList.add("is-invalid");
+    return false;
+  };
+  var markInvalid = function () {
+    var first = null;
+    form.querySelectorAll("input, select, textarea").forEach(function (el) {
+      var field = el.closest(".field");
+      if (!field || el.disabled || el.closest("[hidden]") || !el.willValidate) return;
+      if (el.type === "radio" && field.querySelector('input[name="' + el.name + '"]') !== el) return;  // ラジオは1つの欄につき1回
+      if (!showError(field, el) && !first) first = { field: field, el: el };
+    });
+    if (!first) return;
+    var hh = parseFloat(getComputedStyle(root).getPropertyValue("--hh")) || 76;
+    window.scrollTo({ top: first.field.getBoundingClientRect().top + window.pageYOffset - hh - 24, behavior: "smooth" });
+    try { first.el.focus({ preventScroll: true }); } catch (e) { first.el.focus(); }
+  };
+  if (form) {
+    ["input", "change"].forEach(function (type) {
+      form.addEventListener(type, function (e) {
+        var field = e.target.closest && e.target.closest(".field.is-invalid");
+        if (!field) return;
+        var el = e.target.type === "radio" ? field.querySelector('input[name="' + e.target.name + '"]') : e.target;
+        showError(field, el);
+      });
+    });
+  }
   if (form) {
     var endpoint = (form.getAttribute("data-endpoint") || "").trim();
     var errorBox = form.querySelector(".form-error");
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!form.checkValidity()) { form.reportValidity(); return; }
+      if (!form.checkValidity()) { markInvalid(); return; }
       var done = function () {
         form.classList.add("sent");
         form.scrollIntoView({ behavior: "smooth", block: "start" });
