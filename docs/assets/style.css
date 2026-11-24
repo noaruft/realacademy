@@ -1175,7 +1175,9 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* 写真枠のスライド（同じ枠の複数の写真をフェードで切り替える。assets/main.js） */
 .ph[data-slides] { position: relative; overflow: hidden; }
 .ph-slide { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 2.4s ease; }
-.ph-slide.on { opacity: 1; }
+.ph-slide.on { opacity: 1; z-index: 1; }
+/* 切り替えの直前まで出ていた写真：次の写真（.on。上に重なる）が出きるまで、下でそのまま見せておく（main.js） */
+.ph-slide.prev { opacity: 1; transition: none; }
 .show-photo-no .ph[data-slides]::before { z-index: 1; }
 /* 14番（ボーディング）：スマホの横長の枠では縦写真の頭が切れないよう、少し上寄りを見せる */
 .ph[data-photo="14"], .ph[data-photo="14"] .ph-slide { background-position: center 25% !important; }

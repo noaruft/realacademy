@@ -478,7 +478,12 @@
       setInterval(function () {
         var next = (i + 1) % layers.length;
         load(next, function () {
-          layers[i].classList.remove("on");
+          // 前の写真は、次の写真がフェードで出きるまで下にそのまま残す（.prev）。両方が薄くなる瞬間をつくらず、
+          // 枠の下の地（1枚目の写真）が透けて残像のように見えないようにする
+          var prev = layers[i];
+          prev.classList.add("prev");
+          prev.classList.remove("on");
+          setTimeout(function () { prev.classList.remove("prev"); }, 2600);  // フェード（style.css の .ph-slide の 2.4s）が終わってから
           layers[next].classList.add("on");
           i = next;
           ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
