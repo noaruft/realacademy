@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=EB+Garamond:wght@400;500&family=Jost:wght@400;500&family=Libre+Baskerville&family=Noto+Serif+JP:wght@400;500&family=Playfair+Display:ital,wght@1,400&family=Shippori+Mincho:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=07577897">
+<link rel="stylesheet" href="assets/style.css?v=4cf66517">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 </head>
@@ -88,6 +88,19 @@
             <label><input type="radio" name="type" value="event"><span lang="ja">イベント参加申込</span><span lang="en">Event application</span></label>
           </div>
         </div>
+        <!-- 「イベント参加申込」のときだけ、ここ（いちばん上）に「参加希望イベント」の選択欄と、そのイベントの申込の項目が出る -->
+        <div class="event-only" hidden>
+          <div class="field">
+            <label for="event"><span lang="ja">参加希望イベント</span><span lang="en">Event</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+            <select id="event" name="event"><option value="">—</option><option value="christmas2026">CHRISTMAS EVENT 2026 🎄（2026年12月23日（水））</option></select>
+          </div>
+        <div class="event-fields" data-event="christmas2026" hidden>
+          <div class="field">
+            <span class="label"><span lang="ja">参加希望時間</span><span lang="en">Session</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></span>
+            <div class="choices"><label><input type="radio" name="christmas2026__1" value="参加希望時間：幼稚園生：14:00~15:30" required><span lang="ja">幼稚園生：14:00~15:30</span><span lang="en">Kindergarten：14:00~15:30</span></label><label><input type="radio" name="christmas2026__1" value="参加希望時間：小学生：16:00~18:30" required><span lang="ja">小学生：16:00~18:30</span><span lang="en">Elementary：16:00~18:30</span></label></div>
+          </div>
+        </div>
+        </div>
         <div class="field-row">
           <div class="field">
             <label for="name"><span lang="ja">保護者さまの<wbr>お名前</span><span lang="en">Your name</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
@@ -100,8 +113,8 @@
             <input id="email" name="email" type="email" required autocomplete="email" data-ph-ja="例）name@example.com" data-ph-en="e.g. name@example.com">
           </div>
           <div class="field">
-            <label for="tel"><span lang="ja">電話番号</span><span lang="en">Phone</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
-            <input id="tel" name="tel" type="tel" required autocomplete="tel" data-ph-ja="例）03-0000-0000" data-ph-en="e.g. 03-0000-0000">
+            <label for="tel"><span lang="ja">携帯電話番号</span><span lang="en">Mobile number</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
+            <input id="tel" name="tel" type="tel" required autocomplete="tel" data-ph-ja="例）090-0000-0000" data-ph-en="e.g. 090-0000-0000">
           </div>
         </div>
         <!-- ご住所：郵便番号（7桁）を入れると、都道府県と市区町村・町名が自動で入る（assets/main.js。zipcloud の郵便番号検索を使う） -->
@@ -109,8 +122,9 @@
           <div class="field">
             <label for="zip"><span lang="ja">郵便番号</span><span lang="en">Postal code</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
             <input id="zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="8" required pattern="[0-9]{3}-[0-9]{4}" title="半角数字とハイフンで入力してください（例：106-0044） / Numbers with a hyphen, e.g. 106-0044" data-ph-ja="例）106-0044" data-ph-en="e.g. 106-0044">
-            <p class="field-hint"><span lang="ja"><b>半角・ハイフン<wbr>あり</b>（例：106-0044）</span><span lang="en"><b>Numbers with a hyphen</b> (e.g. 106-0044)</span><br>
-              <span data-zip-hint><span lang="ja">7桁を<wbr>入れると、<wbr>住所の<wbr>一部が<wbr>自動で<wbr>入ります</span><span lang="en">Enter 7 digits to fill in part of the address</span></span></p>
+            <p class="field-hint"><span lang="ja"><b>半角・ハイフン<wbr>あり</b>（例：106-0044）</span><span lang="en"><b>Numbers with a hyphen</b> (e.g. 106-0044)</span>
+              <!-- 住所の自動入力の途中・結果（「住所を調べています…」「見つかりませんでした」など）だけをここに出す。ふだんは空 -->
+              <span data-zip-hint style="display: block"></span></p>
           </div>
           <div class="field">
             <label for="pref"><span lang="ja">都道府県</span><span lang="en">Prefecture</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
@@ -250,19 +264,6 @@
           <input id="school" name="school" type="text" required data-ph-ja="例）〇〇小学校" data-ph-en="e.g. Azabu Primary School">
         </div>
 
-        <div class="event-only" hidden>
-          <div class="field">
-            <label for="event"><span lang="ja">参加希望イベント</span><span lang="en">Event</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></label>
-            <select id="event" name="event"><option value="">—</option><option value="christmas2026">CHRISTMAS EVENT 2026 🎄（2026年12月23日（水））</option></select>
-          </div>
-        <div class="event-fields" data-event="christmas2026" hidden>
-          <div class="field">
-            <span class="label"><span lang="ja">参加希望時間</span><span lang="en">Session</span><span class="req"><span lang="ja">必須</span><span lang="en">REQUIRED</span></span></span>
-            <div class="choices"><label><input type="radio" name="christmas2026__1" value="参加希望時間：幼稚園生：14:00~15:30" required><span lang="ja">幼稚園生：14:00~15:30</span><span lang="en">Kindergarten：14:00~15:30</span></label><label><input type="radio" name="christmas2026__1" value="参加希望時間：小学生：16:00~18:30" required><span lang="ja">小学生：16:00~18:30</span><span lang="en">Elementary：16:00~18:30</span></label></div>
-          </div>
-        </div>
-        </div>
-
         <div class="study-only" hidden>
           <div class="field">
             <label for="level"><span lang="ja">お子さまの<wbr>英語レベル</span><span lang="en">Child's English level</span></label>
@@ -382,6 +383,6 @@
   </div>
 </footer>
 
-<script src="assets/main.js?v=84513ad9"></script>
+<script src="assets/main.js?v=656dcdde"></script>
 </body>
 </html>

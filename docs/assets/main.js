@@ -142,7 +142,7 @@
       var checked = form.querySelector('input[name="type"]:checked');
       var isEvent = !!(checked && checked.value === "event");
       show(form.querySelector(".study-only"), !!(checked && checked.hasAttribute("data-study")));
-      show(form.querySelector(".event-only"), isEvent);
+      form.querySelectorAll(".event-only").forEach(function (block) { show(block, isEvent); });
       if (eventSelect) eventSelect.required = isEvent;
       form.querySelectorAll(".event-fields").forEach(function (block) {
         show(block, isEvent && eventSelect && eventSelect.value === block.getAttribute("data-event"));
@@ -484,7 +484,7 @@
           ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
           load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
         });
-      }, 6500);  // 1枚あたりの表示時間（ミリ秒）
+      }, 4000);  // 1枚あたりの表示時間（ミリ秒）
     }
   });
 

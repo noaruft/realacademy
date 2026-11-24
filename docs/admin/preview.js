@@ -526,16 +526,16 @@
     var radio = '<label><input type="radio" name="type" value="event" checked>' + J("イベント参加申込", "Event application") + "</label>";
     var ds = eventDates(d), auto = autoDates(ds[0], ds[1]);
     var fields = (d.form || []).map(function (f, i) { return formField(slug, i + 1, f); }).join("\n");
+    // 「参加希望イベント」の選択欄とイベントごとの項目は、フォームのいちばん上（お問い合わせ内容のすぐ下。build.py の event_form と同じ）
     var block = '        <div class="event-only">\n          <div class="field">\n' +
       '            <label for="event">' + J("参加希望イベント", "Event") + '<span class="req">' + J("必須", "REQUIRED") + "</span></label>\n" +
       '            <select id="event" name="event"><option value="">—</option><option value="' + escAttr(slug) + '" selected>' +
       text(d.title) + "（" + (text(d.date_ja) || text(auto[0])) + "）</option></select>\n          </div>\n" +
       '        <div class="event-fields" data-event="' + escAttr(slug) + '">\n' + fields + "\n        </div>\n        </div>";
     block = finish(block);
-    var old = form.querySelector(".event-only[data-old]"), study = form.querySelector(".study-only");
-    if (old) old.insertAdjacentHTML("beforebegin", block);
-    else if (study) study.insertAdjacentHTML("beforebegin", block);
-    else (form.querySelector(".form-fields") || form).insertAdjacentHTML("beforeend", block);
+    var typeField = choices && choices.closest(".field");
+    if (typeField) typeField.insertAdjacentHTML("afterend", block);
+    else (form.querySelector(".form-fields") || form).insertAdjacentHTML("afterbegin", block);
     wrap.querySelectorAll(".event-only[data-old]").forEach(function (el) { el.remove(); });
     if (choices) choices.insertAdjacentHTML("beforeend", finish(radio));
     return wrap.innerHTML;
@@ -545,9 +545,9 @@
     var checked = form.querySelector('input[name="type"]:checked');
     var isEvent = !!(checked && checked.value === "event");
     var sel = form.querySelector('select[name="event"]');
-    var study = form.querySelector(".study-only"), only = form.querySelector(".event-only");
+    var study = form.querySelector(".study-only");
     if (study) study.hidden = !(checked && checked.hasAttribute("data-study"));
-    if (only) only.hidden = !isEvent;
+    form.querySelectorAll(".event-only").forEach(function (only) { only.hidden = !isEvent; });
     form.querySelectorAll(".event-fields").forEach(function (b) {
       b.hidden = !(isEvent && sel && sel.value === b.getAttribute("data-event"));
     });
