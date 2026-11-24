@@ -566,7 +566,7 @@
       '\n    <div class="article-actions">\n      <a class="text-link" href="blog.html">' + J("ブログ一覧へ戻る", "Back to the blog") + "</a>\n    </div>\n  </div>\n</section>\n";
   }
 
-  var VOICE_SLIDER = { top: false, school: true, uk: true }; // 英語教室・イギリス留学のページは横に送るスライド
+  var VOICE_SLIDER = { top: true, school: true, uk: true }; // どのページも横に送るスライド（トップは 2026-11-24 から）
   function voices(d, props, key) {
     var cards = (d.voices || []).map(function (v) {
       var nameJa = text(v.name_ja);
