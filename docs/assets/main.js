@@ -475,7 +475,11 @@
     }
     function start() {
       load(1);
-      setInterval(function () {
+      // トップの最上部（.hero-bg）だけ、最初の1回は早め（2.5秒）に切り替える。最初の写真はフェードで出てくる時間がなく、
+      // 開いた瞬間からはっきり見えているため、同じ間隔だと最初だけ長く感じ、写真が切り替わることに気づきにくい
+      var first = ph.classList.contains("hero-bg") ? 2500 : 3700;
+      setTimeout(function () { step(); setInterval(step, 3700); }, first);  // 3700＝1枚あたりの表示時間（ミリ秒）
+      function step() {
         var next = (i + 1) % layers.length;
         load(next, function () {
           // 前の写真は、次の写真がフェードで出きるまで下にそのまま残す（.prev）。両方が薄くなる瞬間をつくらず、
@@ -489,7 +493,7 @@
           ph.dispatchEvent(new CustomEvent("phslide", { bubbles: true, detail: { index: next } }));  // 同じ欄の「色の入れ替え」・写真の提供元もそろえて切り替える
           load((next + 1) % layers.length);  // 次の写真を先に読み込んでおく
         });
-      }, 3700);  // 1枚あたりの表示時間（ミリ秒）
+      }
     }
   });
 
