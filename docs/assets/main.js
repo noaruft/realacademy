@@ -475,10 +475,9 @@
     }
     function start() {
       load(1);
-      // トップの最上部（.hero-bg）だけ、最初の1回は早め（2.5秒）に切り替える。最初の写真はフェードで出てくる時間がなく、
-      // 開いた瞬間からはっきり見えているため、同じ間隔だと最初だけ長く感じ、写真が切り替わることに気づきにくい
-      var first = ph.classList.contains("hero-bg") ? 2500 : 3700;
-      setTimeout(function () { step(); setInterval(step, 3700); }, first);  // 3700＝1枚あたりの表示時間（ミリ秒）
+      // 最初の1回は早め（2.5秒）に切り替える。最初の写真はフェードで出てくる時間がなく、最初からはっきり見えているため、
+      // 同じ間隔だと最初だけ長く感じ、写真が切り替わることに気づきにくい（トップの最上部は開いてから、ほかの枠は画面に近づいてから数える）
+      setTimeout(function () { step(); setInterval(step, 3700); }, 2500);  // 3700＝1枚あたりの表示時間（ミリ秒）
       function step() {
         var next = (i + 1) % layers.length;
         load(next, function () {
