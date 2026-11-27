@@ -450,11 +450,22 @@
       return d;
     });
     var ready = urls.map(function (_, i) { return i === 0; });
+    var waiting = urls.map(function () { return null; });  // 読み込み中の写真ごとに、読み込み後にすること（同じ写真を二重に読まない）
     function load(n, done) {
       if (ready[n]) { done && done(); return; }
-      var img = new Image();
-      img.onload = img.onerror = function () { layers[n].style.backgroundImage = "url('" + urls[n] + "')"; ready[n] = true; done && done(); };
-      img.src = urls[n];
+      if (waiting[n]) { if (done) waiting[n].push(done); return; }
+      waiting[n] = done ? [done] : [];
+      var img = new Image(), src = urls[n];
+      function set() {
+        if (ready[n]) return;
+        layers[n].style.backgroundImage = "url('" + urls[n] + "')"; ready[n] = true;  // 読み込み中に画面の向きが変わったら、今の向きの写真
+        var fns = waiting[n]; waiting[n] = null;
+        fns.forEach(function (fn) { fn(); });
+      }
+      // 読み込みに加えて画像の展開（decode）まで済ませてから使う。展開がフェードの始まりに重なると、一瞬止まったり点滅したりするため
+      img.onload = function () { if (img.decode) img.decode().then(set, set); else set(); };
+      img.onerror = set;
+      img.src = src;
     }
     if (sp) narrow.addEventListener("change", function () {
       urls = narrow.matches ? sp : pc;
@@ -475,12 +486,26 @@
     }
     function start() {
       load(1);
+      // 枠そのものに敷いてある1枚目の写真（スライドを作る前の表示用）を外す。1枚目のスライドと位置の合わせ方が違う
+      // （トップの Culford はドアを真ん中にする調整がスライドにだけある）ため、フェードの途中に一瞬でも透けると、
+      // 写真が点滅してずれたように見える。1枚目のスライドが描かれてから外す
+      var base = new Image();
+      base.onload = base.onerror = function () {
+        (base.decode ? base.decode() : Promise.resolve()).catch(function () {}).then(function () {
+          requestAnimationFrame(function () { requestAnimationFrame(function () { ph.style.backgroundImage = "none"; }); });
+        });
+      };
+      base.src = urls[0];
       // 最初の1回は早め（2.5秒）に切り替える。最初の写真はフェードで出てくる時間がなく、最初からはっきり見えているため、
       // 同じ間隔だと最初だけ長く感じ、写真が切り替わることに気づきにくい（トップの最上部は開いてから、ほかの枠は画面に近づいてから数える）
       setTimeout(function () { step(); setInterval(step, 3700); }, 2500);  // 3700＝1枚あたりの表示時間（ミリ秒）
+      var busy = false;  // 次の写真の読み込みを待っている間は、次の切り替えを始めない（回線が遅いとき、2回続けて切り替わらないように）
       function step() {
+        if (busy) return;
+        busy = true;
         var next = (i + 1) % layers.length;
         load(next, function () {
+          busy = false;
           // 前の写真は、次の写真がフェードで出きるまで下にそのまま残す（.prev）。両方が薄くなる瞬間をつくらず、
           // 枠の下の地（1枚目の写真）が透けて残像のように見えないようにする
           var prev = layers[i];

@@ -1180,10 +1180,12 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 /* 写真枠のスライド（同じ枠の複数の写真をフェードで切り替える。assets/main.js） */
 .ph[data-slides] { position: relative; overflow: hidden; }
 .ph-slide { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 2.4s ease; }
-.ph-slide.on { opacity: 1; z-index: 1; }
-/* 切り替えの直前まで出ていた写真：次の写真（.on。上に重なる）が出きるまで、下でそのまま見せておく（main.js） */
-.ph-slide.prev { opacity: 1; transition: none; }
-.show-photo-no .ph[data-slides]::before { z-index: 1; }
+.ph-slide.on { opacity: 1; z-index: 2; }
+/* 切り替えの直前まで出ていた写真：次の写真（.on。上に重なる）が出きるまで、下でそのまま見せておく（main.js）。
+   z-index: 1 で、ほかの写真（その前の写真がまだ薄くなっている途中のことがある）より必ず上に置く。
+   置かないと並び順（HTML の順）で重なるため、1枚目の写真から次へ切り替わるとき、その前の写真が1枚目の上に一瞬透けて点滅して見えた（2026年11月27日） */
+.ph-slide.prev { opacity: 1; transition: none; z-index: 1; }
+.show-photo-no .ph[data-slides]::before { z-index: 3; }
 /* 14番（ボーディング）：スマホの横長の枠では縦写真の頭が切れないよう、少し上寄りを見せる */
 .ph[data-photo="14"], .ph[data-photo="14"] .ph-slide { background-position: center 25% !important; }
 /* 3番（トップの英語教室）：1枚目の看板は枠の上下の真ん中に（看板が写真のやや上にあるので少し上を見せる）、
