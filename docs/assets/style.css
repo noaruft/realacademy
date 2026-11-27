@@ -91,6 +91,8 @@ html[data-lang="en"] h3 { font-size: 24px; }
 .btn > span { min-width: 0; }
 /* ボタンが2つ続くとき（「詳細を見る」と「問い合わせる」）は間を空ける。折り返して縦に並んでもくっつかない */
 .btn:has(+ .btn) { margin: 0 12px 12px 0; }
+/* ボタンをいつも縦に並べる（STEAM English Academy の i-GARTEN と April。文字の長さで横並びと縦並びが分かれ、並列の2コースで形が違って見えるため） */
+.btn-stack .btn { display: flex; width: fit-content; }
 .text-link { color: var(--navy); border-bottom: 1px solid var(--gold); padding-bottom: 2px; font-size: 14px; letter-spacing: .1em; }
 .text-link::after { content: " →"; font-family: var(--serif-en); }
 
@@ -584,6 +586,9 @@ small, .form-note, .breadcrumb { letter-spacing: .06em; }
 .voice-highlight { font-size: 17px; letter-spacing: .06em; line-height: 1.75; }
 .voice cite { font-size: 12.5px; letter-spacing: .08em; line-height: 1.7; }
 .course-body p:not(.course-name), .biz-body > p, .lesson p:not(.lesson-label), .reason p:not(.reason-num) { font-size: 14.5px; line-height: 1.95; }
+/* トップの事業カードの名前（English School／英語教室 など）は、上の本文の大きさに負けないよう大きく（2026年11月27日） */
+.biz-body > p.biz-en { font-size: 23px; line-height: 1.2; }
+.biz-body > p.biz-ja { font-size: 16px; line-height: 1.7; }
 @media (max-width: 1100px) and (min-width: 901px) { .voices { grid-template-columns: repeat(2, 1fr); } }
 
 /* =========================================================
@@ -1290,9 +1295,14 @@ main :is(.btn, .text-link) { font-family: var(--text); }
 .access-name { line-height: 1.25; letter-spacing: .02em; white-space: nowrap; font-size: clamp(16px, 6cqw, 28px); }
 
 /* ---------- トップの最上部：写真（1番。スマホ幅は 1-sp。1-2・1-3… があれば切り替わり、スマホ用は 1-2-sp…）を背景に敷き、その上に文字を載せる ----------
-   文字の側にだけ紺を薄く重ねて読みやすくする（パソコン幅は左側、スマホ幅は下側） */
+   文字の側にだけ紺を薄く重ねて読みやすくする（パソコン幅は左側、スマホ幅は下側）
+   高さは画面いっぱい（ヘッダーの下から画面の下まで。--hh＝ヘッダーの高さ、main.js が測る）。
+   以前は 860px までにしていたが、大きな画面では写真が細長く切れ、下の段も見えてしまうため外した（2026年11月27日） */
 .hero { position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center;
-  min-height: min(calc(100svh - 76px), 860px); background: var(--navy); }
+  min-height: calc(100svh - var(--hh, 76px)); background: var(--navy); }
+/* パソコン幅のヘッダーの高さ（1320px 以上は 84px、1440px 以上は 88px）に合わせる */
+@media (min-width: 1320px) { .hero { min-height: calc(100svh - var(--hh, 84px)); } }
+@media (min-width: 1440px) { .hero { min-height: calc(100svh - var(--hh, 88px)); } }
 .hero-bg { position: absolute !important; inset: 0; z-index: -2; background-position: center !important; }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: linear-gradient(90deg, rgba(17, 27, 49, .86) 0%, rgba(17, 27, 49, .62) 28%, rgba(17, 27, 49, .2) 44%, rgba(17, 27, 49, 0) 58%); }
